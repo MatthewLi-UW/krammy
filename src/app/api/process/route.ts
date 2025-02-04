@@ -7,14 +7,14 @@ const openai = new OpenAI({
 
 
 
-// async function listModels() {
-//   try {
-//     const models = await openai.models.list();
-//     console.log(models);
-//   } catch (error) {
-//     console.error('Error listing models:', error);
-//   }
-// }
+async function listModels() {
+  try {
+    const models = await openai.models.list();
+    console.log(models);
+  } catch (error) {
+    console.error('Error listing models:', error);
+  }
+}
 
 // listModels();
 
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         {
           role: 'system',
           content:
-            'You are an expert at creating educational content. Convert the provided notes into a structured quiz format with key points that will be used for typing practice. Focus on the most important concepts.',
+            'Convert the provided notes into key points that will be used for memorization and typing practice. Focus on the terms that have definitions. Each term should be one short sentence. Each exercise serves the purpose of a flashcard, so there is a term title and the sentence structure is simple. The term title comes before the text, and is in the format of Term: text. Perform this entire instruction for 10 terms.',
         },
         {
           role: 'user',

@@ -9,20 +9,22 @@ type CharacterState = {
 };
 
 const TypingExercise = () => {
-  const [text] = useState('over seem between with but where many great face world during to at have because high if group feel at after before year here think before time these life this own see mean people under take');
+  const [text] = useState('Limited capacity store that maintains unrehearsed information for up to 20 seconds');
   const [input, setInput] = useState('');
   const [startTime, setStartTime] = useState<number | null>(null);
+  
+  // card flip
   const [isFlipped, setIsFlipped] = useState(true);
+
+  // for cusor movement
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const textContainerRef = useRef<HTMLDivElement>(null);
   const wordsRef = useRef<(HTMLSpanElement | null)[]>([]);
-
-  // Add this state near other state declarations
   const [characters, setCharacters] = useState<CharacterState[]>([]);
-
-  // Add isSpeaking state near other state declarations
+  // for tts
   const [isSpeaking, setIsSpeaking] = useState(false);
 
   const words = text.split(' ');
@@ -192,11 +194,12 @@ const TypingExercise = () => {
           }}
         >
           <div 
-            className="absolute w-full h-full p-8 rounded-lg bg-[#faf3eb]"
+            className="absolute w-full h-full p-8 rounded-lg bg-[#faf3eb] flex flex-col"
             onClick={handleFlip}
             style={{ backfaceVisibility: 'hidden' }}
           >
-            <div className="flex justify-end mb-6 space-x-4">
+            {/* Top icons */}
+            <div className="flex justify-end space-x-4">
               <button
                 onClick={handleSpeak}
                 className="focus:outline-none focus:ring-0"
@@ -210,41 +213,44 @@ const TypingExercise = () => {
               <Star className="w-6 h-6 text-teal-600" />
             </div>
             
-            <div className="mb-8 relative overflow-visible">
-              {/* Update the JSX rendering part */}
-              <div 
-                ref={textContainerRef}
-                className="text-lg leading-relaxed whitespace-pre-wrap relative overflow-visible"
-                style={{ 
-                  wordBreak: 'keep-all',
-                  overflowWrap: 'break-word',
-                  whiteSpace: 'pre-wrap',
-                  width: '100%',
-                  hyphens: 'none'
-                }}
-              >
-                {characters.map((char, idx) => (
-                  <span
-                    key={idx}
-                    ref={el => { wordsRef.current[idx] = el; }}
-                    className={`${
-                      char.state === 'pending' ? 'text-gray-400' :
-                      char.state === 'error' ? 'text-red-500' :
-                      char.state === 'correct' ? 'text-teal-600' :
-                      'text-gray-400'
-                    }`}
-                  >
-                    {char.char}
-                  </span>
-                ))}
+            {/* Centered text content */}
+            <div className="flex-1 flex items-center justify-center">
+              <div className="relative overflow-visible w-full">
                 <div 
-                  style={cursorStyle} 
-                  className="pointer-events-none"
-                />
+                  ref={textContainerRef}
+                  className="text-lg leading-relaxed whitespace-pre-wrap relative overflow-visible"
+                  style={{ 
+                    wordBreak: 'keep-all',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    width: '100%',
+                    hyphens: 'none'
+                  }}
+                >
+                  {characters.map((char, idx) => (
+                    <span
+                      key={idx}
+                      ref={el => { wordsRef.current[idx] = el; }}
+                      className={`${
+                        char.state === 'pending' ? 'text-gray-400' :
+                        char.state === 'error' ? 'text-red-500' :
+                        char.state === 'correct' ? 'text-teal-600' :
+                        'text-gray-400'
+                      }`}
+                    >
+                      {char.char}
+                    </span>
+                  ))}
+                  <div 
+                    style={cursorStyle} 
+                    className="pointer-events-none"
+                  />
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-center">
+            {/* Bottom reset button */}
+            <div className="flex items-center justify-center mt-auto">
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -264,9 +270,9 @@ const TypingExercise = () => {
               backfaceVisibility: 'hidden',
               transform: 'rotateY(180deg)'
             }}
-          >
+          > {/* Front of card */}
             <h1 className="text-3xl font-bold text-center text-teal-600">
-              Front of card
+            Short-term memory
             </h1>
           </div>
         </div>

@@ -5,6 +5,10 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Add token estimation constant (roughly 4 characters per token)
+const CHARS_PER_TOKEN = 4;
+const MAX_TOKENS = 4000; // Set a safe limit below GPT-3.5's max context
+
 export async function POST(req: Request) {
   try {
     // Validate API Key
@@ -18,6 +22,18 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: 'Invalid content provided' },
         { status: 400 }
+      );
+    }
+
+    // Add token estimation check
+    const estimatedTokens = Math.ceil(content.length / CHARS_PER_TOKEN);
+    if (estimatedTokens > MAX_TOKENS) {
+      return NextResponse.json(
+        { 
+          success: false,
+          error: `Content is too long. Maximum length is ${MAX_TOKENS * CHARS_PER_TOKEN} characters (approximately ${MAX_TOKENS} tokens). Your content is approximately ${estimatedTokens} tokens.`
+        },
+        { status: 413 } // Request Entity Too Large
       );
     }
     
@@ -37,7 +53,7 @@ export async function POST(req: Request) {
           content: content,
         },
       ],
-      max_tokens: 1000,
+      max_tokens: 4000,
     });
 
     // Check for expected response structure

@@ -10,6 +10,7 @@ export async function POST(req: Request) {
     const text = await file.text()
     
     return NextResponse.json({ text })
+    
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to process file' },

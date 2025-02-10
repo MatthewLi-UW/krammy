@@ -1,8 +1,9 @@
-'use client'
+'use client';
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 
 export default function UploadPage() {
   const [file, setFile] = useState(null)
@@ -67,6 +68,7 @@ export default function UploadPage() {
       if (!aiResponse.ok) throw new Error('Processing failed')
 
       const result = await aiResponse.json()
+      console.log("Successfully created quiz")
       setResponse(result.responseText || 'Quiz created successfully!')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -211,6 +213,13 @@ export default function UploadPage() {
             )}
           </motion.button>
         </motion.div>
+        <div className="mt-8 text-center">
+          <Link href="/game">
+            <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg transition-all duration-300">
+              Play Typing Game
+            </button>
+          </Link>
+        </div>
       </motion.div>
     </div>
   )

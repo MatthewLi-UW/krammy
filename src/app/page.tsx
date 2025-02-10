@@ -3,280 +3,203 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-
-const fadeIn = {
-  initial: { opacity: 0, y: 30 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 1.2, ease: "easeOut" }  // Increased duration
-}
-
-const stagger = {
-  animate: {
-    transition: {
-      staggerChildren: 0.3  // Increased stagger delay
-    }
-  }
-}
-
-const navAnimation = {
-  initial: { opacity: 0, y: -30 },
-  animate: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      duration: 1.5,
-      ease: "easeOut",
-      delay: 0.5  // Added delay for dramatic effect
-    }
-  }
-}
+import { useState, useEffect } from 'react'
+import { TypeAnimation } from 'react-type-animation'
 
 export default function LandingPage() {
+  const [showNav, setShowNav] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowNav(window.scrollY > 100)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-950 text-gray-100">
-      {/* Navbar */}
+    <div className="min-h-screen bg-[#FAF9F7]">
+      {/* Sticky navigation - appears on scroll */}
       <motion.nav 
-        initial="initial"
-        animate="animate"
-        variants={navAnimation}
-        className="border-b border-gray-800 backdrop-blur-lg bg-gray-900/30 sticky top-0 z-50"
+        initial={{ y: -100 }}
+        animate={{ y: showNav ? 0 : -100 }}
+        transition={{ duration: 0.3 }}
+        className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50"
       >
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <motion.div 
-              whileHover={{ scale: 1.05, transition: { duration: 0.4 } }}  // Slower hover
-              className="flex items-center space-x-2"
-            >
-              <Image src="/krammy_logo.png" alt="Krammy" width={30} height={30} />
-              <div className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-bold text-2xl">
-                Krammy
-              </div>
-            </motion.div>
-            <div className="flex items-center space-x-4">
-              <motion.div whileHover={{ scale: 1.05, transition: { duration: 0.4 } }}>
-                <Link href="/login" className="px-4 py-2 text-gray-300 hover:text-white transition-colors duration-300">
-                  Login
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05, transition: { duration: 0.4 } }}>
-                <Link 
-                  href="/upload" 
-                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg transition-all duration-500"
-                >
-                  Get Started
-                </Link>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.05, transition: { duration: 0.4 } }}>
-                <Link 
-                  href="" 
-                  className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg transition-all duration-500"
-                >
-                  Type
-                </Link>
-              </motion.div>
+        <div className="max-w-5xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Image src="/krammy_logo.png" alt="Krammy" width={24} height={24} />
+              <span className="font-medium text-gray-900">Krammy</span>
+            </div>
+            <div className="flex items-center space-x-6">
+              <Link href="/login" className="text-gray-600 hover:text-gray-900">
+                Login
+              </Link>
+              <Link href="/upload" className="px-4 py-2 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432]">
+                Get Started
+              </Link>
             </div>
           </div>
         </div>
       </motion.nav>
 
-      {/* Hero Section */}
-      <motion.div 
-        initial="initial"
-        animate="animate"
-        variants={stagger}
-        className="relative"
-      >
-        <div className="absolute inset-0 opacity-10">
-          <Image
-            src="/keyboard_bg.jpg"
-            alt="Background"
-            fill
-            className="object-cover"
-            priority
-          />
+      {/* Initial viewport section */}
+      <div className="min-h-screen flex flex-col">
+        {/* Top logo only */}
+        <div className="py-8 px-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex items-center">
+              <Image src="/krammy_logo.png" alt="Krammy" width={24} height={24} />
+              <span className="font-medium text-gray-900 ml-2">Krammy</span>
+            </div>
+          </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 py-24 text-center relative">
-          <motion.h1 
-            variants={{
-              initial: { opacity: 0, y: 50 },
-              animate: { 
-                opacity: 1, 
-                y: 0,
-                transition: { duration: 1.5, ease: "easeOut", delay: 1 }
-              }
-            }}
-            className="text-6xl font-bold tracking-tight"
-          >
-            Learn Smarter,{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-              Type Faster
-            </span>
-          </motion.h1>
-          <motion.p 
-            variants={{
-              initial: { opacity: 0, y: 30 },
-              animate: { 
-                opacity: 1, 
-                y: 0,
-                transition: { duration: 1.5, ease: "easeOut", delay: 1.3 }
-              }
-            }}
-            className="mt-6 text-xl text-gray-300 max-w-2xl mx-auto"
-          >
-            Transform your study notes into interactive typing exercises. 
-            Master your material while improving your typing speed.
-          </motion.p>
-          <motion.div 
-            variants={{
-              initial: { opacity: 0, y: 30 },
-              animate: { 
-                opacity: 1, 
-                y: 0,
-                transition: { duration: 1.5, ease: "easeOut", delay: 1.6 }
-              }
-            }}
-            className="mt-10"
-          >
-            <Link 
-              href="/signup" 
-              className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg transition-all duration-500 inline-flex items-center space-x-2 hover:scale-105 transform"
-            >
-              Start Learning Free
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </motion.div>
-        </div>
-      </motion.div>
 
-      {/* Features */}
-      <div className="py-24 bg-gray-900/50 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <motion.div 
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={stagger}
-            className="grid md:grid-cols-3 gap-8"
-          >
-            {/* Feature cards */}
-            {[
-              {
-                icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />,
-                title: "Smart Note Processing",
-                description: "Our AI analyzes your notes and creates personalized study materials."
-              },
-              {
-                icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />,
-                title: "Type to Memorize",
-                description: "Boost retention through active recall and typing exercises."
-              },
-              {
-                icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
-                title: "Track Progress",
-                description: "Monitor your improvement with detailed analytics."
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                variants={{
-                  initial: { opacity: 0, y: 50 },
-                  animate: { 
-                    opacity: 1, 
-                    y: 0,
-                    transition: { duration: 1.5, ease: "easeOut", delay: index * 0.3 }
-                  }
-                }}
-                whileHover={{ 
-                  scale: 1.05, 
-                  transition: { duration: 0.5 }  // Slower hover
-                }}
-                className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/30 shadow-lg hover:shadow-xl transition-all duration-500"
+        {/* Hero section */}
+        <div className="flex-grow flex items-center">
+          <div className="max-w-5xl mx-auto px-6 w-full">
+            <div className="max-w-lg">
+              <motion.h1 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-6xl font-serif leading-tight mb-6"
               >
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {feature.icon}
-                  </svg>
+                <TypeAnimation
+                  sequence={[
+                    'Learn Smarter,',
+                    2000,
+                    'Type Faster',
+                    2000,
+                  ]}
+                  wrapper="span"
+                  speed={50}
+                  repeat={Infinity}
+                  className="block"
+                />
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-xl text-gray-600 mb-12"
+              >
+                Transform your study notes into interactive typing exercises. 
+                Master your material while improving your typing speed.
+              </motion.p>
+
+              {/* Sign-in section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="space-y-6 max-w-md"
+              >
+                <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <Image src="/google-icon.png" alt="Google" width={20} height={20} />
+                  <span>Continue with Google</span>
+                </button>
+                
+                <div className="flex items-center">
+                  <div className="flex-grow border-t border-gray-200"></div>
+                  <span className="px-4 text-sm text-gray-500">OR</span>
+                  <div className="flex-grow border-t border-gray-200"></div>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
-                <p className="text-gray-300">
-                  {feature.description}
-                </p>
+
+                <div className="space-y-3">
+                  <input
+                    type="email"
+                    placeholder="Enter your personal or work email"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                  />
+                  <button className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                    Continue with email
+                  </button>
+                </div>
               </motion.div>
-            ))}
-          </motion.div>
+
+              {/* Learn more button */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="mt-16"
+              >
+                <button className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                  Learn more
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </motion.div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* CTA Section */}
-      <motion.div 
-        initial="initial"
-        whileInView="animate"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={stagger}
-        className="py-24"
-      >
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <motion.h2 
-            variants={{
-              initial: { opacity: 0, y: 50 },
-              animate: { 
-                opacity: 1, 
-                y: 0,
-                transition: { duration: 1.5, ease: "easeOut" }
-              }
-            }}
-            className="text-3xl font-bold"
-          >
-            Ready to revolutionize your study routine?
-          </motion.h2>
-          <motion.p 
-            variants={{
-              initial: { opacity: 0, y: 30 },
-              animate: { 
-                opacity: 1, 
-                y: 0,
-                transition: { duration: 1.5, ease: "easeOut", delay: 0.3 }
-              }
-            }}
-            className="mt-6 text-xl text-gray-300 max-w-2xl mx-auto"
-          >
-            Join thousands of students who are already learning faster and remembering more.
-          </motion.p>
-          <motion.div 
-            variants={{
-              initial: { opacity: 0, y: 30 },
-              animate: { 
-                opacity: 1, 
-                y: 0,
-                transition: { duration: 1.5, ease: "easeOut", delay: 0.6 }
-              }
-            }}
-            className="mt-10"
-          >
-            <Link 
-              href="/signup" 
-              className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg transition-all duration-500 hover:scale-105 transform"
-            >
-              Get Started Free
-            </Link>
-          </motion.div>
-        </div>
-      </motion.div>
+      {/* Rest of the content */}
+      <div className="bg-white">
+        {/* Features section */}
+        <section className="py-24">
+          <div className="max-w-5xl mx-auto px-6">
+            <div className="grid md:grid-cols-3 gap-12">
+              {[
+                {
+                  title: "Smart Note Processing",
+                  description: "Our AI analyzes your notes and creates personalized typing exercises."
+                },
+                {
+                  title: "Type to Memorize",
+                  description: "Boost retention through active recall and typing practice."
+                },
+                {
+                  title: "Track Progress",
+                  description: "Monitor your improvement with detailed analytics."
+                }
+              ].map((feature, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8 }}
+                  className="space-y-3"
+                >
+                  <h3 className="text-xl font-semibold">{feature.title}</h3>
+                  <p className="text-gray-600">{feature.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 py-12 flex justify-between items-center">
-          <motion.div 
-            whileHover={{ scale: 1.05, transition: { duration: 0.4 } }}
-            className="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400"
-          >
-            Krammy
-          </motion.div>
-          <p className="text-sm text-gray-400">© 2024 Krammy. All rights reserved.</p>
-        </div>
-      </footer>
+        {/* CTA Section */}
+        <section className="py-24 bg-gray-50">
+          <div className="max-w-3xl mx-auto text-center px-6">
+            <h2 className="text-3xl font-semibold mb-6">
+              Ready to improve your typing and learning?
+            </h2>
+            <p className="text-gray-600 mb-8">
+              Join thousands of students who are already learning faster and typing better.
+            </p>
+            <Link href="/upload">
+            <button className="px-6 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+              Get Started Free
+            </button>
+            </Link>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="border-t border-gray-200">
+          <div className="max-w-5xl mx-auto px-6 py-12 flex justify-between items-center">
+            <span className="font-medium">Krammy</span>
+            <p className="text-sm text-gray-600">© 2024 Krammy. All rights reserved.</p>
+          </div>
+        </footer>
+      </div>
     </div>
   )
 }

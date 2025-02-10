@@ -60,79 +60,99 @@ export default function LandingPage() {
         {/* Hero section */}
         <div className="flex-grow flex items-center">
           <div className="max-w-5xl mx-auto px-6 w-full">
-            <div className="max-w-lg">
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="text-6xl font-serif leading-tight mb-6"
-              >
-                <TypeAnimation
-                  sequence={[
-                    'Learn Smarter,',
-                    2000,
-                    'Type Faster',
-                    2000,
-                  ]}
-                  wrapper="span"
-                  speed={50}
-                  repeat={Infinity}
-                  className="block"
-                />
-              </motion.h1>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-xl text-gray-600 mb-12"
-              >
-                Transform your study notes into interactive typing exercises. 
-                Master your material while improving your typing speed.
-              </motion.p>
-
-              {/* Sign-in section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="space-y-6 max-w-md"
-              >
-                <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                  <Image src="/google-icon.png" alt="Google" width={20} height={20} />
-                  <span>Continue with Google</span>
-                </button>
-                
-                <div className="flex items-center">
-                  <div className="flex-grow border-t border-gray-200"></div>
-                  <span className="px-4 text-sm text-gray-500">OR</span>
-                  <div className="flex-grow border-t border-gray-200"></div>
-                </div>
-
-                <div className="space-y-3">
-                  <input
-                    type="email"
-                    placeholder="Enter your personal or work email"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              {/* Left column - existing content */}
+              <div className="max-w-lg">
+                <motion.h1 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8 }}
+                  className="text-6xl font-serif leading-tight mb-6"
+                >
+                  <TypeAnimation
+                    sequence={[
+                      'Learn Smarter,',
+                      2000,
+                      'Type Faster',
+                      2000,
+                    ]}
+                    wrapper="span"
+                    speed={50}
+                    repeat={Infinity}
+                    className="block"
                   />
-                  <button className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
-                    Continue with email
-                  </button>
-                </div>
-              </motion.div>
+                </motion.h1>
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="text-xl text-gray-600 mb-12"
+                >
+                  Transform your study notes into interactive typing exercises. 
+                  Master your material while improving your typing speed.
+                </motion.p>
 
-              {/* Learn more button */}
+                {/* Sign-in section */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.4 }}
+                  className="space-y-6 max-w-md"
+                >
+                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <Image src="/google-icon.png" alt="Google" width={20} height={20} />
+                    <span>Continue with Google</span>
+                  </button>
+                  
+                  <div className="flex items-center">
+                    <div className="flex-grow border-t border-gray-200"></div>
+                    <span className="px-4 text-sm text-gray-500">OR</span>
+                    <div className="flex-grow border-t border-gray-200"></div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <input
+                      type="email"
+                      placeholder="Enter your personal or work email"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    />
+                    <button className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                      Continue with email
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* Learn more button */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                  className="mt-16"
+                >
+                  <button className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    Learn more
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                </motion.div>
+              </div>
+
+              {/* Right column - sample cards image */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                className="mt-16"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="hidden md:block relative w-full h-full flex items-center justify-center"
               >
-                <button className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                  Learn more
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                <Image
+                  src="/samplecards.png"
+                  alt="Sample flashcards"
+                  width={1200}
+                  height={900}
+                  className="w-[160%] h-auto max-w-none object-contain"
+                  priority
+                />
               </motion.div>
             </div>
           </div>

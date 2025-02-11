@@ -1,22 +1,40 @@
-'use client'
+'use client';
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { TypeAnimation } from 'react-type-animation'
-
+import { useRouter } from 'next/router'
 export default function LandingPage() {
   const [showNav, setShowNav] = useState(false)
+  const [email, setEmail] = useState("")
+  const [router, setRouter] = useState(null);
+  useEffect(() => {
+    setRouter(useRouter());
+  }, []);
+
+if (!router) return null; // Ensure it's set before accessing
+
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => {
       setShowNav(window.scrollY > 100)
     }
-
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  const signUpRedirectAction = () => {
+    if (email) {
+      router.push(`/sign-up?email=${encodeURIComponent(email)}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF9F7]">
@@ -113,10 +131,13 @@ export default function LandingPage() {
                   <div className="space-y-3">
                     <input
                       type="email"
+                      id="email"
                       placeholder="Enter your personal or work email"
+                      value={email}
+                      onChange={handleEmailChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
                     />
-                    <button className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                    <button onClick={signUpRedirectAction} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
                       Continue with email
                     </button>
                   </div>
@@ -222,4 +243,4 @@ export default function LandingPage() {
       </div>
     </div>
   )
-}
+};

@@ -18,7 +18,7 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
       const params = await props.searchParams;
       setSearchParams(params);
       // If there's an email in the params, set it
-      if ("email" in params) {
+      if ("email" in params && typeof params.email === 'string') {
         setEmail(params.email);
       }
     };

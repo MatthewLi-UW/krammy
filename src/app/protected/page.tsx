@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ProtectedPage() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null);                                       //todo: ADD USER OBJECT HERE AND CREATE USER OBJECT
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 

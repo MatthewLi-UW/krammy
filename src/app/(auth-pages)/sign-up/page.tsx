@@ -6,7 +6,6 @@ import { SubmitButton } from "@/app/components/submit-button";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import Link from "next/link";
-import { SmtpMessage } from "../smtp-message";
 import { useState, useEffect } from 'react';
 
 export default function Signup(props: { searchParams: Promise<Message> }) {
@@ -68,7 +67,6 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
           <FormMessage message={searchParams} />
         </div>
       </form>
-      <SmtpMessage />
     </>
   );
 }

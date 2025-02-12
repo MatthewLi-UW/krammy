@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from "react";
 import { signInAction } from "@/app/actions";
 import { FormMessage, Message } from "@/app/components/form-message";

@@ -50,7 +50,7 @@ export default function LandingPage() {
               <span className="font-medium text-gray-900">Krammy</span>
             </div>
             <div className="flex items-center space-x-6">
-              <Link href="/login" className="text-gray-600 hover:text-gray-900">
+              <Link href="/sign-in" className="text-gray-600 hover:text-gray-900">
                 Login
               </Link>
               <Link href="/upload" className="px-4 py-2 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432]">

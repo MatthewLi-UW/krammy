@@ -5,26 +5,24 @@ import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { TypeAnimation } from 'react-type-animation'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation';
 export default function LandingPage() {
   const [showNav, setShowNav] = useState(false)
   const [email, setEmail] = useState("")
-  const [router, setRouter] = useState(null);
-  useEffect(() => {
-    setRouter(useRouter());
-  }, []);
-
-if (!router) return null; // Ensure it's set before accessing
-
+  const [isMounted, setIsMounted] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    setIsMounted(true)
     const handleScroll = () => {
       setShowNav(window.scrollY > 100)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  if (!isMounted|| !router) return null; // Ensure it's set before accessing
+
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);

@@ -1,16 +1,34 @@
-import { createClient } from "@/utils/supabase/server";
+"use client"; 
+
+import { createClient } from "@/utils/supabase/client";
 import { InfoIcon } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default async function ProtectedPage() {
-  const supabase = await createClient();
+export default function ProtectedPage() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  useEffect(() => {
+    // Initialize Supabase client
+    const supabase = createClient();
 
-  if (!user) {
-    return redirect("/sign-in");
+    // Fetch the authenticated user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        // Redirect to sign-in if no user is authenticated
+        router.push("/sign-in");
+      } else {
+        // Set the user state if authenticated
+        setUser(user);
+      }
+      setLoading(false);
+    });
+  }, [router]);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
   return (

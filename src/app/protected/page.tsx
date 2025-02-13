@@ -1,18 +1,20 @@
 "use client"; 
 
-import { createClient } from "@/utils/supabase/client";
+import { supabase } from "@/utils/supabase/client";
 import { InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
+import { flashcards } from "../game/flashcard_array";
+import { sendData } from "@/utils/sendData";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const router = useRouter();
+
+
   useEffect(() => {
-    // Initialize Supabase client
-    const supabase = createClient();
 
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
@@ -32,7 +34,10 @@ export default function ProtectedPage() {
   if (loading) {
     return <div>Loading...</div>;
   }
-
+  const test = () => {
+     // flashcards
+ // sendData()
+  };
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
       <div className="w-full">
@@ -47,6 +52,9 @@ export default function ProtectedPage() {
         <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
           {JSON.stringify(user, null, 2)}
         </pre>
+        <button onClick={test} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                      Continue with email
+                    </button>
       </div>
       <div>
         <h2 className="font-bold text-2xl mb-4">Next steps</h2>

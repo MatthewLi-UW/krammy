@@ -4,27 +4,29 @@ import { createClient } from "@/utils/supabase/client";
 import { InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { User } from "@/types/user";
 
 export default function ProtectedPage() {
-  const [user, setUser] = useState(null);                                       //todo: ADD USER OBJECT HERE AND CREATE USER OBJECT
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const router = useRouter();
-
   useEffect(() => {
     // Initialize Supabase client
     const supabase = createClient();
 
-    // Fetch the authenticated user
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        // Redirect to sign-in if no user is authenticated
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
         router.push("/sign-in");
       } else {
-        // Set the user state if authenticated
-        setUser(user);
+        const temp = data.user as User;
+        setUser(temp ? { id: temp.id, email: temp.email } : null);
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    
+    }
+      fetchUser();
+
   }, [router]);
 
   if (loading) {

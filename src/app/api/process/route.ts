@@ -79,3 +79,48 @@ export async function POST(req: Request) {
     );
   }
 }
+
+// // app/api/process/route.ts
+// import { NextResponse } from 'next/server';
+
+// const PYTHON_API_URL = 'http://localhost:3000/process';
+
+// export async function POST(req: Request) {
+//   try {
+//     // Validate request body
+//     const { content } = await req.json();
+//     if (!content || typeof content !== 'string') {
+//       return NextResponse.json(
+//         { error: 'Invalid content provided' },
+//         { status: 400 }
+//       );
+//     }
+
+//     // Forward the request to Python backend
+//     const response = await fetch(PYTHON_API_URL, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({ content }),
+//     });
+
+//     if (!response.ok) {
+//       const error = await response.json();
+//       throw new Error(error.error || 'Failed to process content');
+//     }
+
+//     const data = await response.json();
+//     return NextResponse.json(data);
+
+//   } catch (error: any) {
+//     console.error('Error in /api/process:', error);
+//     return NextResponse.json(
+//       { 
+//         success: false,
+//         error: error.message || 'Failed to process content'
+//       },
+//       { status: error.status || 500 }
+//     );
+//   }
+// }

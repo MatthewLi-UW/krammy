@@ -1,49 +1,53 @@
-'use client';
-import { useState } from 'react';
+/*
+THIS FILE HANDLES IS USELESS FOR NOW
+*/
 
-interface Flashcard {
-  id: string;
-  front: string;
-  back: string;
-}
+// 'use client';
+// import { useState } from 'react';
 
-interface TypingGameProps {
-  flashcards: Flashcard[];
-}
+// interface Flashcard {
+//   id: string;
+//   front: string;
+//   back: string;
+// }
 
-export default function TypingGame({ flashcards }: TypingGameProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [userInput, setUserInput] = useState('');
+// interface TypingGameProps {
+//   flashcards: Flashcard[];
+// }
 
-  if (!flashcards.length) return null;
+// export default function TypingGame({ flashcards }: TypingGameProps) {
+//   const [currentIndex, setCurrentIndex] = useState(0);
+//   const [userInput, setUserInput] = useState('');
 
-  const currentCard = flashcards[currentIndex];
+//   if (!flashcards.length) return null;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUserInput(e.target.value);
-    if (e.target.value === currentCard.back) {
-      if (currentIndex < flashcards.length - 1) {
-        setCurrentIndex(prev => prev + 1);
-        setUserInput('');
-      }
-    }
-  };
+//   const currentCard = flashcards[currentIndex];
 
-  return (
-    <div className="max-w-2xl mx-auto p-6 border rounded-lg shadow-sm">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">Question:</h3>
-        <p className="text-gray-700">{currentCard.front}</p>
-      </div>
-      <div>
-        <input
-          type="text"
-          value={userInput}
-          onChange={handleInputChange}
-          className="w-full p-3 border rounded"
-          placeholder="Type the answer..."
-        />
-      </div>
-    </div>
-  );
-}
+//   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+//     setUserInput(e.target.value);
+//     if (e.target.value === currentCard.back) {
+//       if (currentIndex < flashcards.length - 1) {
+//         setCurrentIndex(prev => prev + 1);
+//         setUserInput('');
+//       }
+//     }
+//   };
+
+//   return (
+//     <div className="max-w-2xl mx-auto p-6 border rounded-lg shadow-sm">
+//       <div className="mb-6">
+//         <h3 className="text-lg font-semibold mb-2">Question:</h3>
+//         <p className="text-gray-700">{currentCard.front}</p>
+//       </div>
+//       <div>
+//         <input
+//           type="text"
+//           value={userInput}
+//           onChange={handleInputChange}
+//           className="w-full p-3 border rounded"
+//           placeholder="Type the answer..."
+//         />
+//       </div>
+//     </div>
+//   );
+// }

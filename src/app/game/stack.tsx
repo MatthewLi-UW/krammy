@@ -4,15 +4,37 @@ THIS FILE HANDLES THE STACK OF FLASHCARDS
 
 "use client"
 import type React from "react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import TypingExercise from "./flashcard"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { flashcards } from "./flashcard_array";
 
 const FlashcardStack: React.FC = () => {
+  const [isInitialized, setIsInitialized] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [direction, setDirection] = useState<'next' | 'previous'>('next');
+
+  // Move localStorage logic to a useEffect
+  useEffect(() => {
+    const saved = localStorage.getItem('currentCardIndex');
+    if (saved) {
+      setCurrentCardIndex(parseInt(saved, 10));
+    }
+    setIsInitialized(true);
+  }, []);
+
+  // Save changes to localStorage
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem('currentCardIndex', currentCardIndex.toString());
+    }
+  }, [currentCardIndex, isInitialized]);
+
+  // Don't render until initialized
+  if (!isInitialized) {
+    return null; // or a loading spinner
+  }
 
   const handleNextCard = () => {
     setDirection('next');

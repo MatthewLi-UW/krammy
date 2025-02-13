@@ -25,7 +25,7 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
   // card flip
   const [isFlipped, setIsFlipped] = useState(true);
 
-  // for cusor movement
+  // for cursor movement
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
 
@@ -47,7 +47,7 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
   }, []);
 
   useEffect(() => {
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key == 'r') {
         if (!isFlipped) {
             e.preventDefault();
@@ -65,7 +65,7 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
     useEffect(() => {
         const chars = back.split('').map(char => ({
         char,
-        state: 'remaining'
+        state: 'remaining' as const
         }));
         setCharacters(chars);
         // Reset input and other states when card changes
@@ -138,27 +138,14 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
     }
   };
 
-  const getWordStyle = (word, index) => {
-    const inputWords = input.trim().split(' ');
-    const currentWord = inputWords[index] || '';
-    
-    if (index < currentIndex) {
-      return 'text-gray-400';
-    } else if (index === inputWords.length - 1) {
-      const isMatch = word.startsWith(currentWord);
-      return isMatch ? 'text-teal-600' : 'text-red-500';
+const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
+    if (e instanceof KeyboardEvent || !(e.target instanceof Element) || !e.target.closest('svg')) {
+        setIsFlipped(!isFlipped);
     }
-    return 'text-gray-800';
-  };
-
-  const handleFlip = (e) => {
-    if (!(e.target as HTMLElement).closest('svg') ) {
-      setIsFlipped(!isFlipped);
-    }
-  };
+};
 
   useEffect(() => {
-    const handleKeyPress = (e) => {
+    const handleKeyPress = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key == 'Enter') {
             e.stopPropagation();
             handleFlip(e);

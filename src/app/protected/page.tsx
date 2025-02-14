@@ -40,18 +40,30 @@ export default function ProtectedPage() {
 
     try{
       if(user) {
+        //Create an empty deck
         const data = (await createDeck(user.id))[0] as Deck;
         console.log(data)
-        const cards = (await sendData('FlashCard',flashcards)) as FlashCard[];
+        
+
+        //Upload An array of cards
+        const CardsWithUID = flashcards.map(item => ({...item, owner_id: user.id}) )
+        const cards = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
         console.log(cards)
+
+        //We only want the ids for link
         const ArrayofCardID = (await cards).map(item => item.card_id);
+
+        //Crate the CardsToDeck object to prepare for upload
         const ConnectedCards = ArrayofCardID.map(card_id => ({
           card_id, 
           owner_id: user.id, 
           deck_id: data.deck_id
         }));
+
+        //Upload the link!
         const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
         console.log(connectCardsTodeck);
+        
       }
     } catch(e ){
       console.error(e)

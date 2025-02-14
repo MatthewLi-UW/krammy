@@ -4,9 +4,11 @@ import { supabase } from "@/utils/supabase/client";
 import { InfoIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User } from "@/types/user";
+import { User } from "@/types/User";
 import { flashcards } from "../game/flashcard_array";
-import { sendData } from "@/utils/sendData";
+import { createDeck, sendData } from "@/utils/sendData";
+import { Deck } from "@/types/deck";
+import { FlashCard } from "@/types/FlashCard";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
@@ -34,9 +36,28 @@ export default function ProtectedPage() {
   if (loading) {
     return <div>Loading...</div>;
   }
-  const test = () => {
-     // flashcards
- // sendData()
+  const test = async () => {
+
+    try{
+      if(user) {
+        const data = (await createDeck(user.id))[0] as Deck;
+        console.log(data)
+        const cards = (await sendData('FlashCard',flashcards)) as FlashCard[];
+        console.log(cards)
+        const ArrayofCardID = (await cards).map(item => item.card_id);
+        const ConnectedCards = ArrayofCardID.map(card_id => ({
+          card_id, 
+          owner_id: user.id, 
+          deck_id: data.deck_id
+        }));
+        const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
+        console.log(connectCardsTodeck);
+      }
+    } catch(e ){
+      console.error(e)
+    }
+ 
+
   };
   return (
     <div className="flex-1 w-full flex flex-col gap-12">

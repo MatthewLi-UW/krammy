@@ -7,17 +7,23 @@ import { useRouter } from "next/navigation";
 import { User } from "@/types/User";
 import { flashcards } from "../game/flashcard_array";
 import { createDeck, sendData } from "@/utils/sendData";
-import { Deck } from "@/types/deck";
+import { Deck } from "@/types/Deck";
 import { FlashCard } from "@/types/FlashCard";
+import { getADeck, getData } from "@/utils/getData";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const router = useRouter();
-
+  const [deckList, setdeckList] = useState<Deck[] | null>(null);
+  const [inputValue, setInputValue] = useState<number>(1);
+  const [cardsList, setCardsList] = useState<FlashCard[] | null>(null);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
+  };
 
   useEffect(() => {
-
+    
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
@@ -29,6 +35,15 @@ export default function ProtectedPage() {
       }
     
     }
+
+    //GETS DECKS
+    const deckListGet = async () => {
+      const test = await getData("Deck") as Deck[];
+      setdeckList(test)
+    }
+  
+    
+      deckListGet();
       fetchUser();
 
   }, [router]);
@@ -36,12 +51,12 @@ export default function ProtectedPage() {
   if (loading) {
     return <div>Loading...</div>;
   }
-  const test = async () => {
+  const testupload = async () => {
 
     try{
       if(user) {
         //Create an empty deck
-        const data = (await createDeck(user.id))[0] as Deck;
+        const data = (await createDeck(user.id, 'tester'))[0] as Deck;
         console.log(data)
         
 
@@ -68,9 +83,23 @@ export default function ProtectedPage() {
     } catch(e ){
       console.error(e)
     }
- 
-
   };
+
+  const testget = async () => {
+    try{
+      if(user) {
+        //Get CARDS from a DECK ID
+        console.log(inputValue)
+        const data = await getADeck(inputValue);
+        setCardsList(data);
+        console.log(cardsList)
+      }
+    } catch(e ){
+      console.error(e)
+    }
+  };
+
+  
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
       <div className="w-full">
@@ -85,12 +114,27 @@ export default function ProtectedPage() {
         <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
           {JSON.stringify(user, null, 2)}
         </pre>
-        <button onClick={test} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
-                      Continue with email
+        <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
+          {JSON.stringify(deckList, null, 2)}
+        </pre>
+        <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
+          {JSON.stringify(cardsList, null, 2)}
+        </pre>
+        <button onClick={testupload} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                      upload
                     </button>
+                    <button onClick={testget} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                      get
+                    </button>
+                          <input
+        type="number"
+        id="inputField"
+        value={inputValue} 
+        onChange={handleInputChange} 
+        className="border p-2 rounded"
+      />
       </div>
       <div>
-        <h2 className="font-bold text-2xl mb-4">Next steps</h2>
       </div>
     </div>
   );

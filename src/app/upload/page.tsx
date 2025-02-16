@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 export default function UploadPage() {
+
   const [file, setFile] = useState(null)
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)

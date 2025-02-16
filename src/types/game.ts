@@ -1,4 +1,4 @@
-export interface Flashcard {
+export interface FlashCard {
     id: string;
     front: string;
     back: string;

@@ -1,22 +1,85 @@
-'use client'
+'use client';
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { TypeAnimation } from 'react-type-animation'
-
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/utils/supabase/client';
 export default function LandingPage() {
   const [showNav, setShowNav] = useState(false)
+  const [email, setEmail] = useState("")
+  const [isMounted, setIsMounted] = useState(false)
+  const router = useRouter()
+  const baseUrl =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://yourapp.com";
 
   useEffect(() => {
+    const loadGoogleScript = () => {
+      return new Promise((resolve) => {
+        if (window.google) {
+          resolve(true);
+          return;
+        }
+  
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve(true);
+        document.head.appendChild(script);
+      });
+    };
+  
+    loadGoogleScript().then(() => {
+      if (window.google) {
+        google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "", // Ensure fallback
+          callback: handleSignIn,
+        });
+      }
+    });
+  
+  }, []);
+
+  const handleSignIn = async () => {
+    const redirectTo = `${baseUrl}/auth/callback?redirect_to=/protected`;
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+  };
+
+  useEffect(() => {
+    setIsMounted(true)
     const handleScroll = () => {
       setShowNav(window.scrollY > 100)
     }
-
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  if (!isMounted|| !router) return null; // Ensure it's set before accessing
+
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(event.target.value);
+  };
+
+  const signUpRedirectAction = () => {
+    if (email) {
+      router.push(`/sign-up?email=${encodeURIComponent(email)}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF9F7]">
@@ -34,7 +97,7 @@ export default function LandingPage() {
               <span className="font-medium text-gray-900">Krammy</span>
             </div>
             <div className="flex items-center space-x-6">
-              <Link href="/login" className="text-gray-600 hover:text-gray-900">
+              <Link href="/sign-in" className="text-gray-600 hover:text-gray-900">
                 Login
               </Link>
               <Link href="/upload" className="px-4 py-2 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432]">
@@ -99,7 +162,9 @@ export default function LandingPage() {
                   transition={{ duration: 0.8, delay: 0.4 }}
                   className="space-y-6 max-w-md"
                 >
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => google.accounts.id.prompt()} 
+                  >
                     <Image src="/google-icon.png" alt="Google" width={20} height={20} />
                     <span>Continue with Google</span>
                   </button>
@@ -113,10 +178,13 @@ export default function LandingPage() {
                   <div className="space-y-3">
                     <input
                       type="email"
+                      id="email"
                       placeholder="Enter your personal or work email"
+                      value={email}
+                      onChange={handleEmailChange}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
                     />
-                    <button className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                    <button onClick={signUpRedirectAction} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
                       Continue with email
                     </button>
                   </div>
@@ -222,4 +290,4 @@ export default function LandingPage() {
       </div>
     </div>
   )
-}
+};

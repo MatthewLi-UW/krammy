@@ -10,6 +10,7 @@ import { createDeck, sendData } from "@/utils/sendData";
 import { Deck } from "@/types/Deck";
 import { FlashCard } from "@/types/FlashCard";
 import { getADeck, getData } from "@/utils/getData";
+import { signOutAction } from "../actions";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
@@ -19,7 +20,8 @@ export default function ProtectedPage() {
   const [inputValue, setInputValue] = useState<number>(1);
   const [cardsList, setCardsList] = useState<FlashCard[] | null>(null);
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+    const value = event.target.value;
+    setInputValue(Number(value)); 
   };
 
   useEffect(() => {
@@ -120,11 +122,14 @@ export default function ProtectedPage() {
         <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
           {JSON.stringify(cardsList, null, 2)}
         </pre>
-        <button onClick={testupload} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+        <button onClick={testupload} id="testupload" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
                       upload
                     </button>
-                    <button onClick={testget} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                    <button onClick={testget} id="testget" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
                       get
+                    </button>
+                    <button onClick={signOutAction} id="SignOut" data-testid="SignOutButton" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
+                      Sign Out
                     </button>
                           <input
         type="number"

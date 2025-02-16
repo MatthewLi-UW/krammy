@@ -6,11 +6,58 @@ import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { TypeAnimation } from 'react-type-animation'
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/utils/supabase/client';
 export default function LandingPage() {
   const [showNav, setShowNav] = useState(false)
   const [email, setEmail] = useState("")
   const [isMounted, setIsMounted] = useState(false)
   const router = useRouter()
+  const baseUrl =
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://yourapp.com";
+
+  useEffect(() => {
+    const loadGoogleScript = () => {
+      return new Promise((resolve) => {
+        if (window.google) {
+          resolve(true);
+          return;
+        }
+  
+        const script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve(true);
+        document.head.appendChild(script);
+      });
+    };
+  
+    loadGoogleScript().then(() => {
+      if (window.google) {
+        google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "", // Ensure fallback
+          callback: handleSignIn,
+        });
+      }
+    });
+  
+  }, []);
+
+  const handleSignIn = async () => {
+    const redirectTo = `${baseUrl}/auth/callback?redirect_to=/protected`;
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: redirectTo,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+  };
 
   useEffect(() => {
     setIsMounted(true)
@@ -115,7 +162,9 @@ export default function LandingPage() {
                   transition={{ duration: 0.8, delay: 0.4 }}
                   className="space-y-6 max-w-md"
                 >
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => google.accounts.id.prompt()} 
+                  >
                     <Image src="/google-icon.png" alt="Google" width={20} height={20} />
                     <span>Continue with Google</span>
                   </button>

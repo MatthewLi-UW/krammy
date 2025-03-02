@@ -1,0 +1,12 @@
+:root {
+    /* Light theme (default) */
+    --card-light: #faf3eb;
+    --card-medium: #e6d8c3;
+    --card-dark: #d2be9c;
+    --teal: #2a9d8f;
+    --teal-button-hover: #238377;
+    --teal-text: #00897b;
+    --gray-light: #8c8c8c;
+    --gray-default: #4a4a4a;
+    --gray-dark: #2c2c2c;
+  }

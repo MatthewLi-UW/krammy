@@ -1,31 +1,22 @@
-"use client"; 
+'use client'
 
 import { supabase } from "@/utils/supabase/client";
-import { InfoIcon } from "lucide-react";
+import { PlusIcon, SearchIcon, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/User";
-import { flashcards } from "../game/flashcard_array";
-import { createDeck, sendData } from "@/utils/sendData";
 import { Deck } from "@/types/Deck";
-import { FlashCard } from "@/types/FlashCard";
-import { getADeck, getData } from "@/utils/getData";
+import { getData } from "@/utils/getData";
 import { signOutAction } from "../actions";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [deckList, setDeckList] = useState<Deck[] | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const router = useRouter();
-  const [deckList, setdeckList] = useState<Deck[] | null>(null);
-  const [inputValue, setInputValue] = useState<number>(1);
-  const [cardsList, setCardsList] = useState<FlashCard[] | null>(null);
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setInputValue(Number(value)); 
-  };
 
   useEffect(() => {
-    
     const fetchUser = async () => {
       const { data } = await supabase.auth.getUser();
       if (!data.user) {
@@ -35,111 +26,86 @@ export default function ProtectedPage() {
         setUser(temp ? { id: temp.id, email: temp.email } : null);
         setLoading(false);
       }
-    
     }
 
-    //GETS DECKS
     const deckListGet = async () => {
-      const test = await getData("Deck") as Deck[];
-      setdeckList(test)
+      const decks = await getData("Deck") as Deck[];
+      setDeckList(decks);
     }
   
-    
-      deckListGet();
-      fetchUser();
-
+    deckListGet();
+    fetchUser();
   }, [router]);
 
+  const filteredDecks = deckList?.filter(deck => 
+    deck.deck_name.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  const handleCreateNewDeck = () => {
+    // Implement create new deck functionality
+    router.push('/create-deck');
+  };
+
+  const handleDeckClick = (deckId: number) => {
+    // Navigate to specific deck view
+    router.push(`/deck/${deckId}`);
+  };
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }
-  const testupload = async () => {
 
-    try{
-      if(user) {
-        //Create an empty deck
-        const data = (await createDeck(user.id, 'tester'))[0] as Deck;
-        console.log(data)
-        
-
-        //Upload An array of cards
-        const CardsWithUID = flashcards.map(item => ({...item, owner_id: user.id}) )
-        const cards = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
-        console.log(cards)
-
-        //We only want the ids for link
-        const ArrayofCardID = (await cards).map(item => item.card_id);
-
-        //Crate the CardsToDeck object to prepare for upload
-        const ConnectedCards = ArrayofCardID.map(card_id => ({
-          card_id, 
-          owner_id: user.id, 
-          deck_id: data.deck_id
-        }));
-
-        //Upload the link!
-        const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
-        console.log(connectCardsTodeck);
-        
-      }
-    } catch(e ){
-      console.error(e)
-    }
-  };
-
-  const testget = async () => {
-    try{
-      if(user) {
-        //Get CARDS from a DECK ID
-        console.log(inputValue)
-        const data = await getADeck(inputValue);
-        setCardsList(data);
-        console.log(cardsList)
-      }
-    } catch(e ){
-      console.error(e)
-    }
-  };
-
-  
   return (
-    <div className="flex-1 w-full flex flex-col gap-12">
-      <div className="w-full">
-        <div className="bg-accent text-sm p-3 px-5 rounded-md text-foreground flex gap-3 items-center">
-          <InfoIcon size="16" strokeWidth={2} />
-          This is a protected page that you can only see as an authenticated
-          user
+    <div className="max-w-4xl mx-auto p-6">
+      {/* Header with Search and User */}
+      <div className="flex justify-between items-center mb-8">
+        <div className="relative flex-grow max-w-md mr-4">
+          <input 
+            type="text" 
+            placeholder="Search for a deck" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 pl-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#B65F3C]"
+          />
+          <SearchIcon 
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
+            size={20} 
+          />
+        </div>
+        <div 
+          onClick={signOutAction} 
+          className="cursor-pointer hover:bg-gray-100 rounded-full p-2"
+        >
+          <UserIcon size={24} />
         </div>
       </div>
-      <div className="flex flex-col gap-2 items-start">
-        <h2 className="font-bold text-2xl mb-4">Your user details</h2>
-        <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
-          {JSON.stringify(user, null, 2)}
-        </pre>
-        <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
-          {JSON.stringify(deckList, null, 2)}
-        </pre>
-        <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
-          {JSON.stringify(cardsList, null, 2)}
-        </pre>
-        <button onClick={testupload} id="testupload" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
-                      upload
-                    </button>
-                    <button onClick={testget} id="testget" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
-                      get
-                    </button>
-                    <button onClick={signOutAction} id="SignOut" data-testid="SignOutButton" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
-                      Sign Out
-                    </button>
-                          <input
-        type="number"
-        id="inputField"
-        value={inputValue} 
-        onChange={handleInputChange} 
-        className="border p-2 rounded"
-      />
+
+      {/* Create New Deck Button */}
+      <div 
+        onClick={handleCreateNewDeck}
+        className="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-6 flex items-center justify-center cursor-pointer hover:bg-gray-50 transition"
+      >
+        <PlusIcon className="mr-2 text-gray-500" />
+        <span className="text-gray-500">Create New Deck</span>
       </div>
-      <div>
+
+      {/* Deck Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filteredDecks.map((deck) => (
+          <div 
+            key={deck.deck_id} 
+            onClick={() => handleDeckClick(deck.deck_id)}
+            className="bg-[#F5F5F5] rounded-lg p-4 flex justify-between items-center cursor-pointer hover:shadow-md transition"
+          >
+            <div>
+              <h3 className="font-semibold text-lg">{deck.deck_name}</h3>
+              <p className="text-sm text-gray-500">{deck.card_count || 0} Terms</p>
+            </div>
+            <div className="text-gray-400 hover:text-gray-600">
+              <PlusIcon size={20} />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
+import exampleText from './exampleText';
+import exampleCards from './exampleCards';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,23 +23,46 @@ export async function POST(req: Request) {
       );
     }
 
-
-    
     console.log('Processing content...');
 
     // Send request to OpenAI
+    // const response = await openai.chat.completions.create({
+    //   model: 'gpt-4o-mini',
+    //   messages: [
+    //     {
+    //       role: 'system',
+    //       content:
+    //         'You are an expert on creating educational content. Convert the provided notes into key points that will be used for memorization and typing practice. Focus on the terms that have definitions. Each term should be one short sentence. Each exercise serves the purpose of a flashcard, so there is a front and back and the sentence structure is simple. The term title (front) comes before the text (back), and is in the format of Front: Back. Each flashcard should be on a newline. Make sure to cover every point in the text provided',
+    //     }, 
+    //     {
+    //       role: 'user',
+    //       content: content,
+    //     },
+    //   ]
+    // });
+
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
           content:
-            'You are an expert on creating educational content. Convert the provided notes into key points that will be used for memorization and typing practice. Focus on the terms that have definitions. Each term should be one short sentence. Each exercise serves the purpose of a flashcard, so there is a front and back and the sentence structure is simple. The term title (front) comes before the text (back), and is in the format of Front: Back. Each flashcard should be on a newline. Make sure to cover every point in the text provided',
-        },
+            'You are an expert in educational content creation. Convert the provided notes into concise, easy-to-memorize flashcards. Focus on key terms and their definitions, ensuring each term has a clear and simple explanation. Each flashcard is displayed in the format: Front: Back (where "Front" is the term and "Back" is its definition). Keep definitions brief, using clear and simple sentence structures. Ensure every important concept from the text is covered.',
+        }, 
         {
           role: 'user',
-          content: content,
-        },
+          content: 
+            `Here is an example of the input and expected output:
+    
+            **Example Input:**
+            ${exampleText}
+    
+            **Example Output:**
+            ${exampleCards}
+    
+            Now, convert the following text into flashcards:
+            ${content}`
+        }
       ]
     });
 

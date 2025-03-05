@@ -15,7 +15,7 @@ type CharacterState = {
 interface TypingExerciseProps {
     front: string;
     back: string;
-    onNextCard: () => void;
+    onNextCard: (wpm: number, accuracy: number) => void;
   }
 
 const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard}) => {
@@ -113,6 +113,26 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
     calculateCursorPosition();
   }, [input]);
 
+  const calculateMetrics = () => {
+    if (!startTime) return { wpm: 0, accuracy: 0 };
+
+    // Calculate time taken in minutes
+    const timeElapsed = (Date.now() - startTime) / 1000 / 60;
+
+    // Count correct and total characters
+    const totalChars = characters.length;
+    const correctChars = characters.filter(char => char.state === 'correct').length;
+
+    // Standard WPM calculation (5 characters = 1 word)
+    const words = back.length / 5;
+    const wpm = Math.round(words / timeElapsed);
+
+    // Calculate accuracy percentage
+    const accuracy = Math.round((correctChars / totalChars) * 100);
+
+    return { wpm, accuracy };
+  };
+
   // handleInput function
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!startTime) setStartTime(Date.now());
@@ -132,9 +152,10 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
     setCharacters(newChars);
     calculateCursorPosition();
 
-      // If user reaches the end (regardless of errors), move to next card
+    // If user reaches the end, calculate metrics and move to next card
     if (newInput.length === back.length) {
-        setTimeout(() => onNextCard(), 250); // Small delay for a smoother transition
+      const { wpm, accuracy } = calculateMetrics();
+      setTimeout(() => onNextCard(wpm, accuracy), 250);
     }
   };
 
@@ -215,7 +236,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
           }}
         >
           <div 
-            className="absolute w-full h-full p-8 rounded-lg bg-[#faf3eb] flex flex-col shadow-lg"
+            className="absolute w-full h-full p-8 rounded-lg bg-card-light flex flex-col shadow-lg"
             onClick={handleFlip}
             style={{ backfaceVisibility: 'hidden' }}
           >
@@ -227,11 +248,11 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
               >
                 <Volume2 
                   className={`w-6 h-6 ${
-                    isSpeaking ? 'text-gray-400' : 'text-teal-600'
+                    isSpeaking ? 'text-gray-400' : 'text-teal'
                   } transition-colors hover:opacity-80`} 
                 />
               </button>
-              <Star className="w-6 h-6 text-teal-600" />
+              <Star className="w-6 h-6 text-teal" />
             </div>
             
             {/* Centered text content */}
@@ -282,7 +303,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
                     onMouseLeave={() => setShowTooltip(false)}
                     className="p-2 rounded-full transition-colors duration-300 relative"
                 >
-                    <RotateCcw className="w-6 h-6 text-teal-600" />
+                    <RotateCcw className="w-6 h-6 text-teal" />
 
                     {/* Tooltip - Only visible when hovered */}
                     <div 
@@ -299,7 +320,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
           </div>
 
           <div 
-            className="absolute w-full h-full p-8 rounded-lg bg-[#faf3eb] cursor-pointer flex flex-col shadow-lg"
+            className="absolute w-full h-full p-8 rounded-lg bg-card-light cursor-pointer flex flex-col shadow-lg"
             onClick={handleFlip}
             style={{ 
                 backfaceVisibility: 'hidden',
@@ -310,7 +331,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
             <div className="flex-1" />
             
             {/* Centered header */}
-            <h1 className="text-3xl font-bold text-center text-teal-600">
+            <h1 className="text-3xl font-bold text-center text-teal-text">
                 {front}
             </h1>
             

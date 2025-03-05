@@ -5,8 +5,21 @@ import { signInAction } from "@/app/actions";
 import { FormMessage, Message } from "@/app/components/form-message";
 import { SubmitButton } from "@/app/components/submit-button";
 import Link from "next/link";
+import KrammyLogo from "@/app/components/logo";
 import Image from 'next/image'
 import { supabase } from '@/utils/supabase/client';
+
+const Header = () => (
+  <div className="fixed top-0 left-0 p-6 flex items-center gap-3">
+    <Link legacyBehavior href="/">
+      <a className="flex items-center gap-3">
+        <KrammyLogo width={40} height={40} />
+        <span className="text-2xl font-bold text-gray-800">Krammy</span>
+      </a>
+    </Link>
+  </div>
+);
+
 const baseUrl ="http://localhost:3000";
 export default function Login(props: { searchParams: Promise<Message> }) {
   const [message, setMessage] = useState<Message | null>(null);
@@ -64,10 +77,15 @@ export default function Login(props: { searchParams: Promise<Message> }) {
   if (!message) return null; // Prevent rendering until searchParams are loaded
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-md">
+    <div 
+      className="bg-beige-light flex items-center justify-center min-h-screen font-karla" 
+    >
+      <Header />
+      <div 
+        className="bg-beige-medium w-full max-w-sm p-8 space-y-6 rounded-xl shadow-md"
+      >
         <h1 className="text-2xl font-bold text-center">Welcome</h1>
-        <p className="text-sm text-center text-gray-600">
+        <p className="text-sm text-center text-gray-dark">
           Log in to your account to continue to Krammy
         </p>
 
@@ -78,7 +96,7 @@ export default function Login(props: { searchParams: Promise<Message> }) {
               name="email" 
               placeholder="Email Address*" 
               required 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="bg-beige-light w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
 
@@ -88,12 +106,12 @@ export default function Login(props: { searchParams: Promise<Message> }) {
               name="password" 
               placeholder="Password*" 
               required 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="bg-beige-light w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
             <div className="text-right mt-2">
               <Link 
                 href="/forgot-password" 
-                className="text-sm text-teal-600 hover:underline"
+                className="text-sm text-teal hover:underline"
               >
                 Forgot password?
               </Link>
@@ -102,7 +120,7 @@ export default function Login(props: { searchParams: Promise<Message> }) {
 
           <button 
             type="submit" 
-            className="w-full py-2 text-white bg-teal-500 rounded-md hover:bg-teal-600 transition-colors"
+            className="w-full py-2 text-white bg-teal rounded-md hover:bg-teal-600 transition-colors"
           >
             Continue
           </button>
@@ -110,12 +128,12 @@ export default function Login(props: { searchParams: Promise<Message> }) {
           {message && <FormMessage message={message} />}
 
           <div className="text-center text-sm text-gray-600">
-            Don't have an account? <Link href="/sign-up" className="text-teal-600 hover:underline">Sign up</Link>
+            Don't have an account? <Link href="/sign-up" className="text-teal hover:underline">Sign up</Link>
           </div>
 
           <div className="flex items-center justify-center">
             <div className="w-full border-t border-gray-300 my-4"></div>
-            <span className="px-4 text-gray-600 bg-white absolute">OR</span>
+            <span className="px-4 text-gray-600 bg-beige-medium absolute">OR</span>
           </div>
 
                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"

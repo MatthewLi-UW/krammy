@@ -26,6 +26,14 @@ export default {
           DEFAULT: "#4A4A4A",
           dark: "#2C2C2C",
         },
+        beige: {
+          light: "#FFFAEC",
+          medium: "#F5ECD5",
+        },
+        text: {
+          gray_unfilled: "#8C8C8C",
+          teal: "#00897B",
+        }
       },
 
     },

@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -17,5 +18,14 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif, 'Karla';
+}
+
+.font-karla {
+  font-family: 'Karla', Arial, Helvetica, sans-serif;
+}
+
+input::placeholder {
+  color: #8C8C8C;
+  font-weight: 500;
 }

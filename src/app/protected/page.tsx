@@ -11,6 +11,8 @@ import { Deck } from "@/types/Deck";
 import { FlashCard } from "@/types/FlashCard";
 import { getADeck, getData } from "@/utils/getData";
 import { signOutAction } from "../actions";
+import ShareDeckForm from "./recievePage";
+import RecieveDeckForm from "./sharePage";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
@@ -70,7 +72,7 @@ export default function ProtectedPage() {
         //We only want the ids for link
         const ArrayofCardID = (await cards).map(item => item.card_id);
 
-        //Crate the CardsToDeck object to prepare for upload
+        //Create the CardsToDeck object to prepare for upload
         const ConnectedCards = ArrayofCardID.map(card_id => ({
           card_id, 
           owner_id: user.id, 
@@ -140,6 +142,10 @@ export default function ProtectedPage() {
       />
       </div>
       <div>
+      </div>
+      <div className="mt-8">
+        <RecieveDeckForm />
+        <ShareDeckForm />
       </div>
     </div>
   );

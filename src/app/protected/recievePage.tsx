@@ -1,8 +1,12 @@
 import { FlashCard } from '@/types/FlashCard';
 import { fetchSharedLinkData, getADeck } from '@/utils/getData';
+import { joinSharedDeck } from '@/utils/sendData';
 import React, { useState } from 'react';
 
-const ShareDeckForm = () => {
+
+
+
+const ShareDeckForm = ({ uuid }: { uuid: string }) => {
     const [shareToken, setShareToken] = useState('');
     const [deckData, setDeckData] = useState(null);
     const [error, setError] = useState('');
@@ -20,6 +24,7 @@ const ShareDeckForm = () => {
           console.log(cardData)
         } else {
           const cardData = await getADeck(data.deck_id);
+          const joinedDeckData = await joinSharedDeck(uuid ,data.deck_id)
           setCardsList(cardData);
           setError("WRITE ENABLED");
         }

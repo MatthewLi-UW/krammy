@@ -145,7 +145,7 @@ export default function ProtectedPage() {
       </div>
       <div className="mt-8">
         <RecieveDeckForm />
-        <ShareDeckForm />
+        <ShareDeckForm uuid={user?.id} />
       </div>
     </div>
   );

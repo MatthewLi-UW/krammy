@@ -1,6 +1,7 @@
+import { Deck } from '@/types/Deck';
 import { FlashCard } from '@/types/FlashCard';
 import { fetchSharedLinkData, getADeck } from '@/utils/getData';
-import { joinSharedDeck } from '@/utils/sendData';
+import { createDeck, joinSharedDeck, sendData } from '@/utils/sendData';
 import React, { useState } from 'react';
 
 
@@ -39,6 +40,36 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
 
       }
     };
+
+    const handleAdditionalAction = async () => {
+      try {
+        // Create an empty deck
+        const data = (await createDeck(uuid, 'copiedtester'))[0] as Deck; // Assuming createDeck returns an array
+        console.log(data);
+    
+        // Ensure cardsList is an array
+        const cards = cardsList ? cardsList : [];
+    
+        // We only want the card IDs for the link
+        const ArrayofCardID = cards.map(item => item.card_id);
+    
+        // Create the CardsToDeck object to prepare for upload
+        const ConnectedCards = ArrayofCardID.map(card_id => ({
+          card_id,
+          owner_id: uuid,
+          deck_id: data.deck_id
+        }));
+    
+        // Upload the link!
+        const connectCardsTodeck = await sendData('CardsToDeck', ConnectedCards);
+        console.log(connectCardsTodeck);
+    
+        console.log('Additional action triggered');
+      } catch (error) {
+        console.error('Error in additional action:', error);
+      }
+    };
+    
   return (
     <div>
       <h2>Enter Share UUID</h2>
@@ -62,6 +93,10 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
         </pre>
         </div>
       )}
+
+<button onClick={handleAdditionalAction} className="mt-4 p-2 bg-blue-500 text-white rounded">
+        Trigger Additional Action
+      </button>
     </div>
   );
 };

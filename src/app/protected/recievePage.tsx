@@ -9,7 +9,6 @@ import React, { useState } from 'react';
 
 const ShareDeckForm = ({ uuid }: { uuid: string }) => {
     const [shareToken, setShareToken] = useState('');
-    const [deckData, setDeckData] = useState(null);
     const [error, setError] = useState('');
     const [cardsList, setCardsList] = useState<FlashCard[] | null>(null);
     const handleSubmit = async (e) => {
@@ -17,22 +16,18 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
   
       try {
         const data = await fetchSharedLinkData(shareToken);
-  
         
         if (data.access_type === 'READ') {
           const cardData = await getADeck(data.deck_id);
           setCardsList(cardData);
-          console.log(cardData)
         } else {
           const cardData = await getADeck(data.deck_id);
           const joinedDeckData = await joinSharedDeck(uuid ,data.deck_id)
           setCardsList(cardData);
-          setError("WRITE ENABLED");
         }
   
         setError(''); 
       } catch (err: unknown) {
-        setDeckData(null);
         if (err instanceof Error) {
             throw new Error(err.message);
           }
@@ -43,28 +38,34 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
 
     const handleAdditionalAction = async () => {
       try {
+
         // Create an empty deck
-        const data = (await createDeck(uuid, 'copiedtester'))[0] as Deck; // Assuming createDeck returns an array
-        console.log(data);
-    
+        const data = (await createDeck(uuid, 'copiedtester'))[0] as Deck; 
+
+
         // Ensure cardsList is an array
         const cards = cardsList ? cardsList : [];
-    
-        // We only want the card IDs for the link
-        const ArrayofCardID = cards.map(item => item.card_id);
-    
-        // Create the CardsToDeck object to prepare for upload
+
+        // We want the card data for the link
+        const ArrayofCardFaces = cards.map(({ front, back }) => ({ front, back }));
+
+        const CardsWithUID = ArrayofCardFaces.map(item => ({...item, owner_id: uuid}) )
+        const dupedCardList = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
+
+        //We only want the ids for link
+        const ArrayofCardID = (await dupedCardList).map(item => item.card_id);
+
+        //Create the CardsToDeck object to prepare for upload
         const ConnectedCards = ArrayofCardID.map(card_id => ({
-          card_id,
-          owner_id: uuid,
+          card_id, 
+          owner_id: uuid, 
           deck_id: data.deck_id
         }));
     
         // Upload the link!
         const connectCardsTodeck = await sendData('CardsToDeck', ConnectedCards);
-        console.log(connectCardsTodeck);
     
-        console.log('Additional action triggered');
+        
       } catch (error) {
         console.error('Error in additional action:', error);
       }
@@ -85,7 +86,7 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
 
       {error && <div style={{ color: 'red' }}>{error}</div>}
 
-      {deckData && (
+      {cardsList && (
         <div>
           <h3>Deck Details</h3>
           <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
@@ -95,7 +96,7 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
       )}
 
 <button onClick={handleAdditionalAction} className="mt-4 p-2 bg-blue-500 text-white rounded">
-        Trigger Additional Action
+        Download deck to my account.
       </button>
     </div>
   );

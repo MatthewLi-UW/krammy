@@ -17,7 +17,7 @@ export const createDeck = async (uuid: string, deckName: string) => {
 
   const { data: deckData, error: deckError } = await supabase
     .from('Deck')
-    .insert([{ deck_name: deckName }])
+    .insert([{ deck_name: deckName, owner_id :uuid }])
     .select('deck_id, deck_name').single();;
 
   if (deckError) throw deckError;

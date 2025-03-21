@@ -150,7 +150,7 @@ export default function LandingPage() {
               </Link>
               <button 
                 onClick={handleGetStartedClick} 
-                className="px-4 py-2 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432]"
+                className="px-4 py-2 bg-teal text-white rounded-lg hover:bg-teal-button_hover"
               >
                 Get Started
               </button>
@@ -184,11 +184,11 @@ export default function LandingPage() {
               />
             </h2>
 
-            <p className="text-lg text-gray-600 mb-2 text-center">
+            <p className="text-lg text-gray-dark mb-2 text-center">
               Transform your study notes into <strong>interactive typing exercises</strong>.
             </p>
 
-            <p className="text-lg text-gray-600 mb-16 text-center">
+            <p className="text-lg text-gray-dark mb-16 text-center">
               <strong>Master your material</strong> while improving your typing speed.
             </p>
 
@@ -227,68 +227,76 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* Rest of the original content remains the same */}
-      <div className="bg-white">
-        {/* Features section */}
-        <section className="py-24">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="grid md:grid-cols-3 gap-12">
-              {[
-                {
-                  title: "Smart Note Processing",
-                  description: "Our AI analyzes your notes and creates personalized typing exercises."
-                },
-                {
-                  title: "Type to Memorize",
-                  description: "Boost retention through active recall and typing practice."
-                },
-                {
-                  title: "Track Progress",
-                  description: "Monitor your improvement with detailed analytics."
-                }
-              ].map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  className="space-y-3"
-                >
-                  <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </motion.div>
-              ))}
+      {/* Features section with gradient fade effect */}
+      <div className="relative">
+        {/* Top gradient fade from beige-light to white */}
+        {/* <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-beige-light to-beige-medium z-10"></div> */}
+        
+        <div className="bg-beige-medium relative shadow-md">
+          {/* Features section */}
+          <section className="py-24">
+            <div className="max-w-5xl mx-auto px-6">
+              <div className="grid md:grid-cols-3 gap-12 text-gray-dark">
+                {[
+                  {
+                    title: "Smart Note Processing",
+                    description: "Our AI analyzes your notes and creates personalized typing exercises."
+                  },
+                  {
+                    title: "Type to Memorize",
+                    description: "Boost retention through active recall and typing practice."
+                  },
+                  {
+                    title: "Track Progress",
+                    description: "Monitor your improvement with detailed analytics."
+                  }
+                ].map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="space-y-3"
+                  >
+                    <h3 className="text-xl font-semibold">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-24 bg-gray-50">
-          <div className="max-w-3xl mx-auto text-center px-6">
-            <h2 className="text-3xl font-semibold mb-6">
-              Ready to improve your typing and learning?
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Join thousands of students who are already learning faster and typing better.
-            </p>
-            <button 
-              onClick={handleGetStartedClick}
-              className="px-6 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors"
-            >
-              Get Started Free
-            </button>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-gray-200">
-          <div className="max-w-5xl mx-auto px-6 py-12 flex justify-between items-center">
-            <span className="font-medium">Krammy</span>
-            <p className="text-sm text-gray-600">© 2024 Krammy. All rights reserved.</p>
-          </div>
-        </footer>
+          </section>
+        </div>
+        
+        {/* Bottom gradient fade from white to beige-light */}
+        {/* <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-beige-light to-beige-medium z-10"></div> */}
       </div>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-beige-light text-gray-dark">
+        <div className="max-w-3xl mx-auto text-center px-6">
+          <h2 className="text-3xl font-semibold mb-6">
+            Ready to improve your typing and learning?
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Join students who are already learning faster and typing better.
+          </p>
+          <button 
+            onClick={handleGetStartedClick}
+            className="px-6 py-3 bg-teal text-white rounded-lg hover:bg-teal-button_hover transition-colors"
+          >
+            Get Started Free
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200">
+        <div className="max-w-5xl mx-auto px-6 py-12 flex justify-between items-center">
+          <span className="font-medium">Krammy</span>
+          <p className="text-sm text-gray-600">© 2024 Krammy. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   )
 }

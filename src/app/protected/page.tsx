@@ -4,12 +4,19 @@ import { supabase } from "@/utils/supabase/client";
 import { PlusIcon, SearchIcon, UserIcon, PenIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { User } from "@/types/user";
+import { flashcards } from "../game/flashcard_array";
+import { createDeck, sendData } from "@/utils/sendData";
 import Link from "next/link";
-import { User } from "@/types/User";
+
 import { Deck } from "@/types/Deck";
 import { getData } from "@/utils/getData";
 import { signOutAction } from "../actions";
+
+import ShareDeckForm from "./recievePage";
+import RecieveDeckForm from "./sharePage";
 import KrammyLogo from "../components/logo"
+
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
@@ -136,6 +143,10 @@ export default function ProtectedPage() {
             <div key={`empty-${index}`} className="h-48 rounded-lg bg-transparent"></div>
           ))}
         </div>
+      </div>
+      <div className="mt-8">
+        <RecieveDeckForm />
+        <ShareDeckForm uuid={user?.id ??  ""} />
       </div>
     </div>
   );

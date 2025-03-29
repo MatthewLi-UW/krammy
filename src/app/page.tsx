@@ -3,12 +3,15 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { TypeAnimation } from 'react-type-animation'
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/utils/supabase/client';
+import KrammyLogo from "@/app/components/logo"
+
 export default function LandingPage() {
   const [showNav, setShowNav] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [email, setEmail] = useState("")
   const [isMounted, setIsMounted] = useState(false)
   const router = useRouter()
@@ -16,6 +19,44 @@ export default function LandingPage() {
   process.env.NODE_ENV === "development"
     ? "http://localhost:3000"
     : "https://yourapp.com";
+
+  const carouselImages = [
+    "/samplecards.png",
+    "/krammy_logo.png",
+    "/keyboard_bg.jpg"
+  ];
+
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const startCarousel = () => {
+      intervalRef.current = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => 
+          (prevIndex + 1) % carouselImages.length
+        );
+      }, 3000); // Change image every 3 seconds
+    };
+
+    startCarousel();
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const handleDotClick = (index: number) => {
+    setCurrentImageIndex(index);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    intervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % carouselImages.length
+      );
+    }, 3000);
+  };
 
   useEffect(() => {
     const loadGoogleScript = () => {
@@ -68,8 +109,7 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  if (!isMounted|| !router) return null; // Ensure it's set before accessing
-
+  if (!isMounted|| !router) return null;
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
@@ -81,8 +121,16 @@ export default function LandingPage() {
     }
   };
 
+  const handleGetStartedClick = () => {
+    router.push('/upload');
+  };
+
+  const handleLoginClick = () => {
+    router.push('/sign-in');
+  }
+
   return (
-    <div className="min-h-screen bg-[#FAF9F7]">
+    <div className="min-h-screen bg-beige-light font-karla">
       {/* Sticky navigation - appears on scroll */}
       <motion.nav 
         initial={{ y: -100 }}
@@ -92,202 +140,163 @@ export default function LandingPage() {
       >
         <div className="max-w-5xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Image src="/krammy_logo.png" alt="Krammy" width={24} height={24} />
-              <span className="font-medium text-gray-900">Krammy</span>
+            <div className="flex flex items-center space-x-2">
+              <KrammyLogo width={40} height={40} />
+              <span className="text-gray-dark text-lg font-light">Krammy</span>
             </div>
             <div className="flex items-center space-x-6">
               <Link href="/sign-in" className="text-gray-600 hover:text-gray-900">
                 Login
               </Link>
-              <Link href="/upload" className="px-4 py-2 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432]">
+              <button 
+                onClick={handleGetStartedClick} 
+                className="px-4 py-2 bg-teal text-white rounded-lg hover:bg-teal-button_hover"
+              >
                 Get Started
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </motion.nav>
 
-      {/* Initial viewport section */}
-      <div className="min-h-screen flex flex-col">
-        {/* Top logo only */}
-        <div className="py-8 px-6">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center">
-              <Image src="/krammy_logo.png" alt="Krammy" width={24} height={24} />
-              <span className="font-medium text-gray-900 ml-2">Krammy</span>
+      {/* Main Landing Page Content */}
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-7xl flex items-center">
+          {/* Left Column */}
+          <div className="w-1/2 pr-12 flex flex-col items-center">
+            <div className="flex flex-col items-center mb-16">
+              <KrammyLogo width={72} height={72} />
+              <h1 className="text-4xl text-gray-dark font-light">Krammy</h1>
             </div>
+
+            <h2 className="text-5xl font-light mb-8 text-text-teal">
+              <TypeAnimation
+                sequence={[
+                  'Learn Smarter,',
+                  2000,
+                  'Type Faster',
+                  2000,
+                ]}
+                wrapper="span"
+                speed={50}
+                repeat={Infinity}
+                className="block"
+              />
+            </h2>
+
+            <p className="text-lg text-gray-dark mb-2 text-center">
+              Transform your study notes into <strong>interactive typing exercises</strong>.
+            </p>
+
+            <p className="text-lg text-gray-dark mb-16 text-center">
+              <strong>Master your material</strong> while improving your typing speed.
+            </p>
+
+            {/* Sign-in section */}
+            <button
+            onClick={handleLoginClick} 
+            className="bg-teal text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-teal-600 transition">
+              Get Started
+            </button>
           </div>
-        </div>
 
-        {/* Hero section */}
-        <div className="flex-grow flex items-center">
-          <div className="max-w-5xl mx-auto px-6 w-full">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              {/* Left column - existing content */}
-              <div className="max-w-lg">
-                <motion.h1 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="text-6xl font-serif leading-tight mb-6"
-                >
-                  <TypeAnimation
-                    sequence={[
-                      'Learn Smarter,',
-                      2000,
-                      'Type Faster',
-                      2000,
-                    ]}
-                    wrapper="span"
-                    speed={50}
-                    repeat={Infinity}
-                    className="block"
-                  />
-                </motion.h1>
-                <motion.p 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="text-xl text-gray-600 mb-12"
-                >
-                  Transform your study notes into interactive typing exercises. 
-                  Master your material while improving your typing speed.
-                </motion.p>
-
-                {/* Sign-in section */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  className="space-y-6 max-w-md"
-                >
-                  <button className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  onClick={() => google.accounts.id.prompt()} 
-                  >
-                    <Image src="/google-icon.png" alt="Google" width={20} height={20} />
-                    <span>Continue with Google</span>
-                  </button>
-                  
-                  <div className="flex items-center">
-                    <div className="flex-grow border-t border-gray-200"></div>
-                    <span className="px-4 text-sm text-gray-500">OR</span>
-                    <div className="flex-grow border-t border-gray-200"></div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <input
-                      type="email"
-                      id="email"
-                      placeholder="Enter your personal or work email"
-                      value={email}
-                      onChange={handleEmailChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200"
-                    />
-                    <button onClick={signUpRedirectAction} id="emailSignUp" className="w-full px-4 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
-                      Continue with email
-                    </button>
-                  </div>
-                </motion.div>
-
-                {/* Learn more button */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.8, delay: 0.8 }}
-                  className="mt-16"
-                >
-                  <button className="flex items-center space-x-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
-                    Learn more
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </motion.div>
-              </div>
-
-              {/* Right column - sample cards image */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="hidden md:block relative w-full h-full flex items-center justify-center"
-              >
-                <Image
-                  src="/samplecards.png"
-                  alt="Sample flashcards"
-                  width={1200}
-                  height={900}
-                  className="w-[160%] h-auto max-w-none object-contain"
-                  priority
-                />
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Rest of the content */}
-      <div className="bg-white">
-        {/* Features section */}
-        <section className="py-24">
-          <div className="max-w-5xl mx-auto px-6">
-            <div className="grid md:grid-cols-3 gap-12">
-              {[
-                {
-                  title: "Smart Note Processing",
-                  description: "Our AI analyzes your notes and creates personalized typing exercises."
-                },
-                {
-                  title: "Type to Memorize",
-                  description: "Boost retention through active recall and typing practice."
-                },
-                {
-                  title: "Track Progress",
-                  description: "Monitor your improvement with detailed analytics."
-                }
-              ].map((feature, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  className="space-y-3"
-                >
-                  <h3 className="text-xl font-semibold">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </motion.div>
+          {/* Right Column - Carousel */}
+          <div className="w-1/2 bg-beige-medium rounded-2xl p-6 relative overflow-hidden">
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+              {carouselImages.map((_, index) => (
+                <button 
+                  key={index} 
+                  className={`w-3 h-3 rounded-full ${
+                    index === currentImageIndex ? 'bg-gray-dark' : 'bg-gray-light'
+                  }`}
+                  onClick={() => handleDotClick(index)}
+                ></button>
               ))}
             </div>
-          </div>
-        </section>
 
-        {/* CTA Section */}
-        <section className="py-24 bg-gray-50">
-          <div className="max-w-3xl mx-auto text-center px-6">
-            <h2 className="text-3xl font-semibold mb-6">
-              Ready to improve your typing and learning?
-            </h2>
-            <p className="text-gray-600 mb-8">
-              Join thousands of students who are already learning faster and typing better.
-            </p>
-            <Link href="/upload">
-            <button className="px-6 py-3 bg-[#B65F3C] text-white rounded-lg hover:bg-[#A35432] transition-colors">
-              Get Started Free
-            </button>
-            </Link>
+            <div className="w-full h-[400px] flex justify-center items-center">
+              <Image 
+                src={carouselImages[currentImageIndex]} 
+                alt="Carousel Image" 
+                width={500} 
+                height={400} 
+                className="object-contain transition-opacity duration-500"
+              />
+            </div>
           </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="border-t border-gray-200">
-          <div className="max-w-5xl mx-auto px-6 py-12 flex justify-between items-center">
-            <span className="font-medium">Krammy</span>
-            <p className="text-sm text-gray-600">© 2024 Krammy. All rights reserved.</p>
-          </div>
-        </footer>
+        </div>
       </div>
+
+      {/* Features section with gradient fade effect */}
+      <div className="relative">
+        {/* Top gradient fade from beige-light to white */}
+        {/* <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-b from-beige-light to-beige-medium z-10"></div> */}
+        
+        <div className="bg-beige-medium relative shadow-md">
+          {/* Features section */}
+          <section className="py-24">
+            <div className="max-w-5xl mx-auto px-6">
+              <div className="grid md:grid-cols-3 gap-12 text-gray-dark">
+                {[
+                  {
+                    title: "Smart Note Processing",
+                    description: "Our AI analyzes your notes and creates personalized typing exercises."
+                  },
+                  {
+                    title: "Type to Memorize",
+                    description: "Boost retention through active recall and typing practice."
+                  },
+                  {
+                    title: "Track Progress",
+                    description: "Monitor your improvement with detailed analytics."
+                  }
+                ].map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="space-y-3"
+                  >
+                    <h3 className="text-xl font-semibold">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
+        
+        {/* Bottom gradient fade from white to beige-light */}
+        {/* <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-t from-beige-light to-beige-medium z-10"></div> */}
+      </div>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-beige-light text-gray-dark">
+        <div className="max-w-3xl mx-auto text-center px-6">
+          <h2 className="text-3xl font-semibold mb-6">
+            Ready to improve your typing and learning?
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Join students who are already learning faster and typing better.
+          </p>
+          <button 
+            onClick={handleGetStartedClick}
+            className="px-6 py-3 bg-teal text-white rounded-lg hover:bg-teal-button_hover transition-colors"
+          >
+            Get Started Free
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200">
+        <div className="max-w-5xl mx-auto px-6 py-12 flex justify-between items-center">
+          <span className="font-medium">Krammy</span>
+          <p className="text-sm text-gray-600">© 2024 Krammy. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   )
-};
+}

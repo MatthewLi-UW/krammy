@@ -8,7 +8,7 @@ interface KrammyLogoProps {
 const KrammyLogo: React.FC<KrammyLogoProps> = ({ width = 200, height = 200 }) => {
   return (
     <svg width={width} height={height} viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="200" rx="40" fill="white" />
+      <rect width="200" height="200"/>
       <rect x="10" y="10" width="180" height="180" rx="36" fill="#FFB74D" />
       <rect x="30" y="30" width="140" height="140" rx="28" fill="#FFD54F" />
       <rect x="50" y="50" width="100" height="100" rx="20" fill="#FFECB3" />

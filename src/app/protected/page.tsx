@@ -60,13 +60,6 @@ export default function ProtectedPage() {
     router.push(`/deck/${deckId}`);
   };
 
-
-        const ConnectedCards = ArrayofCardID.map(card_id => ({
-          card_id, 
-          owner_id: user.id, 
-          deck_id: data.deck_id
-        }));
-
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
   }

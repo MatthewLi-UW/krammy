@@ -3,4 +3,5 @@ export type Deck = {
     created_at: string;
     owner_id: string;
     deck_name: string;
+    card_count?: number;
 };

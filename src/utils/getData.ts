@@ -21,29 +21,37 @@ export const getADeck = async (deckID: number) => {
     return data;
 }
 
-  export const fetchSharedLinkData = async (shareToken: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('SharedDecks')
-        .select('deck_id, access_type, expiry_date')
-        .eq('share_token', shareToken)
-        .single();
-  
-      if (!data) {
-        throw new Error("Share link not found or expired.");
-      }
+export const fetchSharedLinkData = async (shareToken: string) => {
+  try {
+    const { data, error } = await supabase
+      .from('SharedDecks')
+      .select('deck_id, access_type, expiry_date')
+      .eq('share_token', shareToken)
+      .single();
 
-      if (error) {
-        throw error;
-      }
-  
-      const now = new Date();
-      if (new Date(data.expiry_date) < now) {
-        throw new Error("The link has expired.");
-      }
-  
-      return data; 
-    } catch (err) {
-      throw err; 
+    if (!data) {
+      throw new Error("Share link not found or expired.");
     }
-  };
+
+    if (error) {
+      throw error;
+    }
+
+    const now = new Date();
+    if (new Date(data.expiry_date) < now) {
+      throw new Error("The link has expired.");
+    }
+
+    return data; 
+  } catch (err) {
+    throw err; 
+  }
+};
+
+export const cardsPerDeck = async (deckID: number[]) => {
+  const { data: deckCounts, error: deckError } = await supabase
+  .rpc('get_deck_counts', { deck_ids: deckID });
+    if (deckError) throw deckError;
+    console.log(deckCounts)
+    return deckCounts;
+}

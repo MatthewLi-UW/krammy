@@ -5,12 +5,10 @@ import { PlusIcon, SearchIcon, UserIcon, PenIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
-import { flashcards } from "../game/flashcard_array";
-import { createDeck, sendData } from "@/utils/sendData";
 import Link from "next/link";
 
 import { Deck } from "@/types/Deck";
-import { getData } from "@/utils/getData";
+import { cardsPerDeck, getData } from "@/utils/getData";
 import { signOutAction } from "../actions";
 
 import ShareDeckForm from "./recievePage";
@@ -22,6 +20,7 @@ export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
   const [deckList, setDeckList] = useState<Deck[] | null>(null);
+  const [deckCounts, setDeckCounts] = useState<{deck_id: number, count: number}[]> ([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const router = useRouter();
 
@@ -39,16 +38,38 @@ export default function ProtectedPage() {
 
     const deckListGet = async () => {
       const decks = await getData("Deck") as Deck[];
+      const deckIds = decks?.map(deck => 
+        deck.deck_id) || [];
+        console.log(deckIds + "DECKIDs")
+      const deckCounts = await cardsPerDeck(deckIds);
+      setDeckCounts(deckCounts);
+      decks?.forEach(deck => {
+        const match = deckCounts.find((extra: { deck_id: number, count: number }) => extra.deck_id === deck.deck_id);
+        deck.card_count = match ? match.count : 0; 
+      });
       setDeckList(decks);
+
     }
-  
-    deckListGet();
+
+
     fetchUser();
+    deckListGet();
   }, [router]);
 
-  const filteredDecks = deckList?.filter(deck => 
+
+  const updatedDecks = deckList?.map(deck => {
+    const match = deckCounts.find(extra => extra.deck_id === deck.deck_id);
+    return {
+      ...deck,
+      count: match ? match.count : 0
+    };
+  }) || [];
+
+  const filteredDecks = updatedDecks?.filter(deck => 
     deck.deck_name.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
+
+
 
   const handleCreateNewDeck = () => {
     // Implement create new deck functionality

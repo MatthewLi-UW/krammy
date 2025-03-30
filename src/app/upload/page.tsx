@@ -78,6 +78,29 @@ export default function UploadPage() {
       if (!aiResponse.ok) throw new Error('Processing failed')
 
       const result = await aiResponse.json()
+              //import { flashcards } from "../game/flashcard_array";
+              // //Create an empty deck
+              // const data = (await createDeck(user.id, 'tester'))[0] as Deck;
+              // console.log(data)
+              
+              // //Upload An array of cards
+              // const CardsWithUID = flashcards.map(item => ({...item, owner_id: user.id}) )
+              // const cards = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
+              // console.log(cards)
+              // //We only want the ids for link
+              // const ArrayofCardID = (await cards).map(item => item.card_id);
+      
+
+              // //Create the CardsToDeck object to prepare for upload
+              // const ConnectedCards = ArrayofCardID.map(card_id => ({
+              //   card_id, 
+              //   owner_id: user.id, 
+              //   deck_id: data.deck_id
+              // }));
+              // //Upload the link!
+              // const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
+              // console.log(connectCardsTodeck);
+              
       console.log("Successfully created quiz")
       setResponse(result.responseText || 'Quiz created successfully!')
     } catch (err) {

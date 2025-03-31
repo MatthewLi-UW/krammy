@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 
 export default function UploadPage() {
@@ -78,28 +77,6 @@ export default function UploadPage() {
       if (!aiResponse.ok) throw new Error('Processing failed')
 
       const result = await aiResponse.json()
-              //import { flashcards } from "../game/flashcard_array";
-              // //Create an empty deck
-              // const data = (await createDeck(user.id, 'tester'))[0] as Deck;
-              // console.log(data)
-              
-              // //Upload An array of cards
-              // const CardsWithUID = flashcards.map(item => ({...item, owner_id: user.id}) )
-              // const cards = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
-              // console.log(cards)
-              // //We only want the ids for link
-              // const ArrayofCardID = (await cards).map(item => item.card_id);
-      
-
-              // //Create the CardsToDeck object to prepare for upload
-              // const ConnectedCards = ArrayofCardID.map(card_id => ({
-              //   card_id, 
-              //   owner_id: user.id, 
-              //   deck_id: data.deck_id
-              // }));
-              // //Upload the link!
-              // const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
-              // console.log(connectCardsTodeck);
               
       console.log("Successfully created quiz")
       setResponse(result.responseText || 'Quiz created successfully!')
@@ -112,12 +89,7 @@ export default function UploadPage() {
 
   return (
     <div className="min-h-screen bg-beige-light font-karla">
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-4xl mx-auto px-6 py-8"
-      >
+      <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Back button and user icon */}
         <div className="flex justify-between items-center mb-8">
           <button className="text-gray-400">
@@ -140,15 +112,10 @@ export default function UploadPage() {
         </div>
           
         {/* Two column layout for file upload and text paste */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-          className="flex flex-col md:flex-row gap-6"
-        >
+        <div className="flex flex-col md:flex-row gap-6">
           {/* File upload section */}
           <div className="flex-1">
-            <motion.div 
+            <div 
               onDrop={handleFileDrop}
               onDragOver={(e) => e.preventDefault()}
               className="bg-gray-dark bg-opacity-5 h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-all duration-300"
@@ -181,7 +148,7 @@ export default function UploadPage() {
                   {file && <span className="text-sm text-gray-400 mt-1">{file.name}</span>}
                 </div>
               </label>
-            </motion.div>
+            </div>
           </div>
           
           <div className="flex items-center justify-center">
@@ -197,15 +164,10 @@ export default function UploadPage() {
               placeholder="Paste text..."
             />
           </div>
-        </motion.div>
+        </div>
         
         {/* Detail level slider */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="my-8"
-        >
+        <div className="my-8">
           <div className="text-center text-[#2AA296] font-medium mb-4">
             {detailLevel === 1 ? 'Low' : detailLevel === 2 ? 'Medium' : 'High'} Detail
           </div>
@@ -224,32 +186,24 @@ export default function UploadPage() {
               <div className={`w-4 h-4 ${detailLevel === 3 ? 'bg-[#2AA296]' : 'bg-[#E0E0E0]'} rounded-full`}></div>
             </div>
           </div>
-        </motion.div>
+        </div>
         
         {/* Error message */}
         {error && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 text-red-600 text-sm text-center"
-          >
+          <div className="mb-4 text-red-600 text-sm text-center">
             {error}
-          </motion.div>
+          </div>
         )}
         
         {/* Success message */}
         {response && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-4 text-green-600 text-sm text-center"
-          >
+          <div className="mb-4 text-green-600 text-sm text-center">
             {response}
-          </motion.div>
+          </div>
         )}
         
         {/* Generate button */}
-        <motion.button
+        <button
           onClick={handleSubmit}
           disabled={loading || (!file && !text)}
           className={`w-full py-4 rounded-lg text-white font-medium text-lg
@@ -281,7 +235,7 @@ export default function UploadPage() {
           ) : (
             'Generate Deck'
           )}
-        </motion.button>
+        </button>
         
         {/* Link to play game - preserved from original code */}
         <div className="mt-8 text-center">
@@ -298,7 +252,7 @@ export default function UploadPage() {
             I want to create my own deck from scratch
           </a>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }

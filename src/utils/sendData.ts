@@ -10,9 +10,6 @@ export const sendData = async <T>(table: string,  insertedValues: T[]) => {
   return data;
 }
 
-
-
-
 export const createDeck = async (uuid: string, deckName: string) => {
 
   const { data: deckData, error: deckError } = await supabase

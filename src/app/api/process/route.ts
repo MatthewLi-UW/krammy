@@ -19,7 +19,7 @@ async function callOpenAIWithRetry(content: string, maxRetries = 3) {
           {
             role: 'system',
             content:
-              'You are an expert in educational content creation. Convert the provided notes into concise, easy-to-memorize flashcards. Focus on key terms and their definitions, ensuring each term has a clear and simple explanation. Each flashcard is displayed in the format: Front: Back (where "Front" is the term and "Back" is its definition). Keep definitions brief, using clear and simple sentence structures. Ensure every important concept from the text is covered.',
+              'You are an expert in educational content creation. Convert the provided notes into concise, easy-to-memorize flashcards. Focus on key terms and their definitions, ensuring each term has a clear and simple explanation. Each flashcard is displayed in the format: Front: Back (where "Front" is the term and "Back" is its definition). Keep definitions brief, using clear and simple sentence structures. Ensure every important concept from the text is covered. Do not include any special text effects such as bold or italics.',
           }, 
           {
             role: 'user',

@@ -1,8 +1,13 @@
 'use client';
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import {createDeck, sendData} from '@/utils/sendData'
+import { User } from "@/types/user";
+import { Deck } from "@/types/Deck";
+import { FlashCard } from "@/types/FlashCard";
+import { supabase } from "@/utils/supabase/client";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null)
@@ -12,7 +17,25 @@ export default function UploadPage() {
   const [response, setResponse] = useState('')
   const [detailLevel, setDetailLevel] = useState(2) // For the slider (1-3 range)
   const [deckName, setDeckName] = useState('')
+  const [flashcardArray, setFlashcardArray] = useState<{front: string, back: string}[]>([])
   const router = useRouter()
+  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+
+  const fetchUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+      router.push("/sign-in");
+    } else {
+      const user = data.user as User;
+      setUser(user ? { id: user.id, email: user.email } : null);
+      setLoading(false);
+    }
+  }
+
+  // Call fetchUser on page load
+  useEffect(() => {
+    fetchUser();
+  }, []);
 
   const handleFileDrop = (e) => {
     e.preventDefault()
@@ -62,8 +85,9 @@ export default function UploadPage() {
         
         if (!uploadResponse.ok) throw new Error('Upload failed')
         
-        const { text: fileText } = await uploadResponse.json()
-        content = fileText
+        const uploadResult = await uploadResponse.json()
+        console.log('File upload response:', uploadResult)
+        content = uploadResult.text
       }
 
       const aiResponse = await fetch('/api/process', {
@@ -77,10 +101,92 @@ export default function UploadPage() {
       if (!aiResponse.ok) throw new Error('Processing failed')
 
       const result = await aiResponse.json()
-              
-      console.log("Successfully created quiz")
-      setResponse(result.responseText || 'Quiz created successfully!')
+      console.log('API process response:', result)
+      
+      // Parse the response text into flashcard array format
+      if (result.success && result.responseText) {
+        // Log original response for debugging
+        console.log('Original API response text:', result.responseText);
+        
+        // Remove the header if it exists (like "**Flashcards:**")
+        let responseText = result.responseText.replace(/^\*\*Flashcards:\*\*\s*\n+/i, '');
+        
+        // Handle any format of "Front:" and "Back:" with or without asterisks
+        // This will match Front/Back labels with any combination of asterisks
+        responseText = responseText.replace(/\*{0,2}Front\*{0,2}:/g, 'Front:');
+        responseText = responseText.replace(/\*{0,2}Back\*{0,2}:/g, 'Back:');
+        
+        // Clean up any extra whitespace or formatting
+        responseText = responseText.trim();
+        
+        console.log('Cleaned response text:', responseText);
+        
+        // Split by pairs of newlines to get individual flashcard entries
+        const flashcardEntries = responseText.split(/\n\s*\n/);
+        console.log('Found flashcard entries:', flashcardEntries.length);
+        
+        // Parse each entry into a flashcard object
+        const parsedFlashcards = flashcardEntries.map((entry, index) => {
+          // Extract front text - more inclusive pattern to catch various formats
+          const frontMatch = entry.match(/Front:\s*(.*?)(?=\s*\n\s*Back:|$)/s);
+          // Extract back text - use end of string boundary or next pattern
+          const backMatch = entry.match(/Back:\s*(.*?)(?=\s*\n\s*Front:|$)/s);
+          
+          if (frontMatch && backMatch) {
+            return {
+              front: frontMatch[1].trim(),
+              back: backMatch[1].trim()
+            };
+          }
+          console.log(`Failed to parse entry ${index}:`, entry);
+          return null;
+        }).filter(card => card !== null);
+        console.log('Parsed flashcard objects:', parsedFlashcards);
+        
+        // Store flashcards in state
+        setFlashcardArray(parsedFlashcards);
+        
+        // Create an exportable string representation
+        const arrayString = `export const flashcards = ${JSON.stringify(parsedFlashcards, null, 2)};`;
+        
+        // Store the formatted response
+        setResponse(`Successfully created ${parsedFlashcards.length} flashcards!`);
+        
+        //Create an empty deck
+        const data = (await createDeck(user.id, deckName))[0] as Deck;
+        console.log('Data:', data)
+        
+        //Upload An array of cards - USE THE LOCAL VARIABLE, NOT THE STATE
+        const CardsWithUID = parsedFlashcards.map(item => ({...item, owner_id: user.id}))
+        console.log("CardsWithUID:", CardsWithUID);
+        
+        //Upload An array of cards
+        // const CardsWithUID = flashcardArray.map(item => ({...item, owner_id: user.id}) )
+        // console.log("CardsWithUID:", CardsWithUID)
+        const cards = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
+        console.log("Cards:", cards)
+        //We only want the ids for link
+        const ArrayofCardID = (await cards).map(item => item.card_id);
+
+        //Create the CardsToDeck object to prepare for upload
+        const ConnectedCards = ArrayofCardID.map(card_id => ({
+          card_id, 
+          owner_id: user.id, 
+          deck_id: data.deck_id
+        }));
+        //Upload the link!
+        const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
+        console.log(connectCardsTodeck);
+        
+        console.log("Successfully created quiz")
+        setResponse(result.responseText || 'Quiz created successfully!')
+        
+      } else {
+        throw new Error('Invalid response format');
+      }
+
     } catch (err) {
+      console.error('Error during submission:', err)
       setError(err instanceof Error ? err.message : 'Something went wrong')
     } finally {
       setLoading(false)

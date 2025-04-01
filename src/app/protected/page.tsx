@@ -15,6 +15,7 @@ import ShareDeckForm from "./recievePage";
 import RecieveDeckForm from "./sharePage";
 import KrammyLogo from "../components/logo"
 
+import Loading from '@/app/components/loading';
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
@@ -82,7 +83,7 @@ export default function ProtectedPage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return <Loading />;
   }
 
   // Safely calculate the number of empty placeholders

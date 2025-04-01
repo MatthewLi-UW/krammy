@@ -8,8 +8,11 @@ import { User } from "@/types/user";
 import { Deck } from "@/types/Deck";
 import { FlashCard } from "@/types/FlashCard";
 import { supabase } from "@/utils/supabase/client";
+import Loading from '@/app/components/loading';
 
 export default function UploadPage() {
+  // Add an authentication loading state
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [file, setFile] = useState(null)
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
@@ -20,22 +23,31 @@ export default function UploadPage() {
   const [flashcardArray, setFlashcardArray] = useState<{front: string, back: string}[]>([])
   const router = useRouter()
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const fetchUser = async () => {
+    setIsAuthLoading(true); // Set loading to true when starting auth check
     const { data } = await supabase.auth.getUser();
     if (!data.user) {
       router.push("/sign-in");
     } else {
       const user = data.user as User;
       setUser(user ? { id: user.id, email: user.email } : null);
-      setLoading(false);
     }
+    setIsAuthLoading(false); // Auth check complete
   }
 
   // Call fetchUser on page load
   useEffect(() => {
     fetchUser();
   }, []);
+
+  // Show loading state while checking authentication
+  if (isAuthLoading) {
+    return (
+    <Loading />
+    )
+  }
 
   const handleFileDrop = (e) => {
     e.preventDefault()
@@ -193,12 +205,27 @@ export default function UploadPage() {
     }
   }
 
+  // using browser history
+  const handleBackNavigation = () => {
+    // Check if there's history to go back to
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Fallback to router if no history is available
+      setIsNavigating(true);
+      router.push('/protected');
+    }
+  }
+
   return (
     <div className="min-h-screen bg-beige-light font-karla">
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Back button and user icon */}
         <div className="flex justify-between items-center mb-8">
-          <button className="text-gray-400">
+          <button 
+            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            onClick={handleBackNavigation}
+          >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"></path>
             </svg>

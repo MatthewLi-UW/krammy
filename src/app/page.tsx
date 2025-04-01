@@ -77,7 +77,7 @@ export default function LandingPage() {
   }
 
   // Navigation handlers
-  const handleGetStartedClick = () => router.push('/upload')
+  const handleGetStartedClick = () => router.push('/sign-in')
   const scrollToFeatures = () => featuresRef.current?.scrollIntoView({ behavior: 'smooth' })
 
   return (

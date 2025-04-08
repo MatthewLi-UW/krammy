@@ -1,28 +1,26 @@
 'use client'
 
 import { supabase } from "@/utils/supabase/client";
-import { PlusIcon, SearchIcon, UserIcon, PenIcon } from "lucide-react";
+import { PlusIcon, SearchIcon, PenIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
-import Link from "next/link";
 
 import { Deck } from "@/types/Deck";
 import { cardsPerDeck, getData } from "@/utils/getData";
-import { signOutAction } from "../actions";
 
 import ShareDeckForm from "./recievePage";
 import RecieveDeckForm from "./sharePage";
-import KrammyLogo from "../components/logo"
-
+import Header from "../components/header";
 import Loading from '@/app/components/loading';
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
   const [deckList, setDeckList] = useState<Deck[] | null>(null);
-  const [deckCounts, setDeckCounts] = useState<{deck_id: number, count: number}[]> ([]);
+  const [deckCounts, setDeckCounts] = useState<{deck_id: number, count: number}[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +30,11 @@ export default function ProtectedPage() {
         router.push("/sign-in");
       } else {
         const temp = data.user as User;
-        setUser(temp ? { id: temp.id, email: temp.email } : null);
+        setUser(temp ? { 
+          id: temp.id, 
+          email: temp.email,
+          image: temp.user_metadata?.avatar_url || undefined
+        } : null);
         setLoading(false);
       }
     }
@@ -41,7 +43,6 @@ export default function ProtectedPage() {
       const decks = await getData("Deck") as Deck[];
       const deckIds = decks?.map(deck => 
         deck.deck_id) || [];
-        console.log(deckIds + "DECKIDs")
       const deckCounts = await cardsPerDeck(deckIds);
       setDeckCounts(deckCounts);
       decks?.forEach(deck => {
@@ -49,14 +50,11 @@ export default function ProtectedPage() {
         deck.card_count = match ? match.count : 0; 
       });
       setDeckList(decks);
-
     }
-
 
     fetchUser();
     deckListGet();
   }, [router]);
-
 
   const updatedDecks = deckList?.map(deck => {
     const match = deckCounts.find(extra => extra.deck_id === deck.deck_id);
@@ -69,8 +67,6 @@ export default function ProtectedPage() {
   const filteredDecks = updatedDecks?.filter(deck => 
     deck.deck_name.toLowerCase().includes(searchTerm.toLowerCase())
   ) || [];
-
-
 
   const handleCreateNewDeck = () => {
     // Implement create new deck functionality
@@ -98,64 +94,90 @@ export default function ProtectedPage() {
 
   return (
     <div className="min-h-screen bg-beige-light font-karla">
-      {/* Header with Logo and User in opposite corners */}
-      <div className="flex justify-between items-center p-6">
-        <Link legacyBehavior href="/">
-          <a className="flex items-center gap-3">
-            <KrammyLogo width={40} height={40} />
-            <span className="text-2xl font-bold text-gray-800">Krammy</span>
-          </a>
-        </Link>
-        
-        <div className="cursor-pointer hover:bg-gray-100 rounded-full p-2">
-          <UserIcon onClick={signOutAction} size={24} />
-        </div>
-      </div>
+      <Header user={user} />
       
-      {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-2 font-karla">
-        {/* Centered Search Bar */}
+        {/* Enhanced Search Bar */}
         <div className="relative max-w-md mx-auto mb-8">
-          <input 
-            type="text" 
-            placeholder="Search for a deck" 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="border-black border-opacity-25 w-full px-4 py-2 pl-10 bg-beige-medium border rounded-md focus:outline-none"
-          />
-          <SearchIcon 
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" 
-            size={20} 
-          />
+          <div className="relative flex items-center">
+            <SearchIcon 
+              className="absolute left-3 text-teal-600/60 z-10" 
+              size={18}
+            />
+            <input 
+              type="text" 
+              placeholder="Search for a deck" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-10 py-3 bg-beige-medium border border-gray-300/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/50 transition-all duration-200 hover:shadow-md"
+              aria-label="Search for a deck"
+            />
+            {searchTerm && (
+              <button 
+                onClick={() => setSearchTerm('')}
+                className="absolute right-3 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Clear search"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M15 9l-6 6M9 9l6 6" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Deck Grid - 3 columns */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Create New Deck Card */}
+          {/* Create New Deck Card with CSS-based animation */}
           <div 
             onClick={handleCreateNewDeck}
-            className="bg-gray-light bg-opacity-10 border-2 border-dashed border-gray-300 rounded-xl h-48 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition"
+            className={`bg-gray-light bg-opacity-10 border-2 border-dashed rounded-xl h-48 flex flex-col items-center justify-center cursor-pointer ${
+              hoveredIndex === -1
+              ? 'scale-105 shadow-lg border-teal-500 border-opacity-50'
+              : 'scale-100 shadow-sm border-gray-300 border-opacity-50'
+            } transition-all duration-300 ease-in-out`}
+            onMouseEnter={() => setHoveredIndex(-1)}
+            onMouseLeave={() => setHoveredIndex(null)}
           >
-            <PlusIcon className="text-gray-400 mb-2" size={40} />
-            <span className="text-gray-400 text-lg">Create New Deck</span>
+            <div className={`${
+              hoveredIndex === -1 ? 'scale-105' : 'scale-100'
+            } transition-transform duration-300 ease-in-out`}>
+              <PlusIcon className="text-gray-400 mb-2" size={40} />
+            </div>
+            <span className={`text-gray-400 text-lg ${
+              hoveredIndex === -1 ? 'scale-105' : 'scale-100'
+            } transition-transform duration-300 ease-in-out`}>
+              Create New Deck
+            </span>
           </div>
 
-          {/* Deck Cards */}
-          {filteredDecks.map((deck) => (
+          {/* Deck Cards with CSS-based animation */}
+          {filteredDecks.map((deck, index) => (
             <div 
               key={deck.deck_id} 
               onClick={() => handleDeckClick(deck.deck_id)}
-              className="bg-beige-medium rounded-xl h-48 p-5 flex flex-col justify-center items-center cursor-pointer shadow-sm hover:shadow-md transition relative"
-              style={{ 
-                boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)",
-              }}
+              className={`bg-beige-medium rounded-xl border h-48 p-5 flex flex-col justify-center items-center cursor-pointer relative ${
+                hoveredIndex === index
+                ? 'scale-105 shadow-lg border-teal-600'
+                : 'scale-100 shadow-sm border-transparent'
+              } transition-all duration-300 ease-in-out`}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
             >
               <div className="absolute top-4 right-4 text-gray-400">
                 <PenIcon size={18} className="text-[#D0C8B0]" />
               </div>
               <div className="text-center">
-                <h3 className="font-bold text-xl text-gray-800">{deck.deck_name}</h3>
-                <p className="text-teal-600 font-medium mt-1">{deck.card_count || 0} Terms</p>
+                <h3 className={`font-bold text-xl text-gray-800 ${
+                  hoveredIndex === index ? 'scale-101' : 'scale-100'
+                } transition-transform duration-300 ease-in-out`}>
+                  {deck.deck_name}
+                </h3>
+                <p className={`text-teal-600 font-medium mt-1 ${
+                  hoveredIndex === index ? 'scale-101' : 'scale-100'
+                } transition-transform duration-300 ease-in-out`}>
+                  {deck.card_count || 0} Terms
+                </p>
               </div>
             </div>
           ))}
@@ -166,9 +188,49 @@ export default function ProtectedPage() {
           ))}
         </div>
       </div>
-      <div className="mt-8">
-        <RecieveDeckForm />
-        <ShareDeckForm uuid={user?.id ??  ""} />
+      {/* Sharing Section with improved UI */}
+      <div className="max-w-4xl mx-auto px-4 pb-16 font-karla">
+        <div className="mt-16 bg-beige-medium/50 rounded-2xl p-8 shadow-sm">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Share & Receive Decks</h2>
+          
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Share Deck Form */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center mb-4">
+                <div className="bg-teal-500/10 p-2 rounded-full mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 6 12 2 8 6"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="15"></line>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">Share Your Deck</h3>
+              </div>
+              <p className="text-gray-600 text-sm mb-4">
+                Share your flashcard decks with friends or colleagues
+              </p>
+              <ShareDeckForm uuid={user?.id ?? ""} />
+            </div>
+            
+            {/* Receive Deck Form */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <div className="flex items-center mb-4">
+                <div className="bg-teal-500/10 p-2 rounded-full mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                    <polyline points="16 16 12 20 8 16"></polyline>
+                    <line x1="12" y1="2" x2="12" y2="20"></line>
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800">Receive a Deck</h3>
+              </div>
+              <p className="text-gray-600 text-sm mb-4">
+                Access shared decks using a provided share code
+              </p>
+              <RecieveDeckForm />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

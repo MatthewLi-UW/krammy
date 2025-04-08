@@ -17,6 +17,8 @@ export type User = {
       email_verified: boolean;
       phone_verified: boolean;
       sub: string;
+      avatar_url?: string;
+      full_name?: string;
     },
     identities: [
       {

@@ -33,3 +33,8 @@ input::placeholder {
   color: #8C8C8C;
   font-weight: 500;
 }
+
+.hardware-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}

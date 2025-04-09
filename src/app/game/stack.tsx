@@ -3,44 +3,78 @@ THIS FILE HANDLES THE STACK OF FLASHCARDS
 */
 
 "use client"
-import type React from "react"
 import { useState, useEffect } from "react"
 import TypingExercise from "./flashcard"
 import { ChevronLeft, ChevronRight, RotateCcw, Award, Zap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
-import { flashcards } from "./flashcard_array";
+import { FlashCard } from "@/types/FlashCard";
 
-const FlashcardStack: React.FC = () => {
+// Add a deck ID parameter to the props
+interface FlashcardStackProps {
+  flashcards: FlashCard[];
+  deckId?: string | number; // Add this line
+}
+
+export default function FlashcardStack({ flashcards = [], deckId = 'default' }: FlashcardStackProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [direction, setDirection] = useState<'next' | 'previous'>('next');
   const [isDeckCompleted, setIsDeckCompleted] = useState(false);
-  const [cardStats, setCardStats] = useState<Array<{ wpm: number; accuracy: number }>>([]);
+  const [stats, setStats] = useState<Array<{ wpm: number; accuracy: number }>>([]);
 
-  // Move localStorage logic to a useEffect
+  //  localStorage key to be deck-specific
+  const storagePrefix = `flashcard_deck_${deckId}`;
+  const indexKey = `${storagePrefix}_index`;
+  const statsKey = `${storagePrefix}_stats`;
+
+  // localStorage load effect
   useEffect(() => {
-    const saved = localStorage.getItem('currentCardIndex');
-    const savedStats = localStorage.getItem('cardStats');
+    // Reset states when deck changes
+    setCurrentCardIndex(0);
+    setStats([]);
+    
+    const saved = localStorage.getItem(indexKey);
+    const savedStats = localStorage.getItem(statsKey);
+    
     if (saved) {
-      setCurrentCardIndex(parseInt(saved, 10));
+      const parsedIndex = parseInt(saved, 10);
+      // Make sure we don't go out of bounds
+      if (parsedIndex < flashcards.length) {
+        setCurrentCardIndex(parsedIndex);
+      }
     }
+    
     if (savedStats) {
-      setCardStats(JSON.parse(savedStats));
+      setStats(JSON.parse(savedStats));
     }
+    
     setIsInitialized(true);
-  }, []);
+  }, [flashcards.length, deckId]); // Add deckId as a dependency
 
-  // Save changes to localStorage
+  // localStorage save effect
   useEffect(() => {
     if (isInitialized) {
-      localStorage.setItem('currentCardIndex', currentCardIndex.toString());
-      localStorage.setItem('cardStats', JSON.stringify(cardStats));
+      localStorage.setItem(indexKey, currentCardIndex.toString());
+      localStorage.setItem(statsKey, JSON.stringify(stats));
     }
-  }, [currentCardIndex, cardStats, isInitialized]);
+  }, [currentCardIndex, stats, isInitialized, indexKey, statsKey]);
 
   // Don't render until initialized
   if (!isInitialized) {
-    return null; // or a loading spinner
+    return (
+      <div className="flex items-center justify-center w-full h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
+      </div>
+    );
+  }
+
+  // If no flashcards are provided, return a placeholder
+  if (!flashcards.length) {
+    return (
+      <div className="flex items-center justify-center w-full h-64 bg-white rounded-xl shadow-md">
+        <p className="text-gray-400">No flashcards available</p>
+      </div>
+    );
   }
 
   const handleNextCard = () => {
@@ -58,7 +92,7 @@ const FlashcardStack: React.FC = () => {
     setTimeout(() => {
       setCurrentCardIndex((prevIndex) => (prevIndex - 1 + flashcards.length) % flashcards.length);
     }, 0);
-  }
+    }
 
   const cardVariantsNext = {
     hidden: { x: 0, opacity: 0 },
@@ -72,34 +106,46 @@ const FlashcardStack: React.FC = () => {
     exit: { x: 0, opacity: 0 },
   };
 
+  
   const handleCardComplete = (wpm: number, accuracy: number) => {
-    setCardStats(prev => [...prev, { wpm, accuracy }]);
-  }
+    const newStats = [...stats];
+    newStats[currentCardIndex] = { wpm, accuracy };
+    setStats(newStats);
+    
+    // Move to next card if available
+    handleNextCard();
+  };
 
+  //  restart function
   const handleRestart = () => {
     setCurrentCardIndex(0);
-    setCardStats([]);
+    setStats([]);
     setIsDeckCompleted(false);
-    localStorage.removeItem('cardStats');
-    localStorage.setItem('currentCardIndex', '0');
+    localStorage.removeItem(statsKey);
+    localStorage.setItem(indexKey, '0');
   }
 
   const calculateAverages = () => {
-    if (cardStats.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
+    if (stats.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
     
-    const total = cardStats.reduce((acc, stat) => ({
+    // Filter out undefined entries
+    const validStats = stats.filter(stat => stat !== undefined);
+    
+    if (validStats.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
+    
+    const total = validStats.reduce((acc, stat) => ({
       wpm: acc.wpm + stat.wpm,
       accuracy: acc.accuracy + stat.accuracy
     }), { wpm: 0, accuracy: 0 });
 
     return {
-      avgWpm: Math.round(total.wpm / cardStats.length),
-      avgAccuracy: Math.round(total.accuracy / cardStats.length)
+      avgWpm: Math.round(total.wpm / validStats.length),
+      avgAccuracy: Math.round(total.accuracy / validStats.length)
     };
   }
 
   if (isDeckCompleted) {
-    const { avgWpm, avgAccuracy } = calculateAverages()
+    const { avgWpm, avgAccuracy } = calculateAverages();
 
     return (
       <div className="relative w-full max-w-3xl mx-auto flex flex-col items-center">
@@ -157,6 +203,8 @@ const FlashcardStack: React.FC = () => {
     )
   }
 
+  const currentCard = flashcards[currentCardIndex];
+
   return (
     <div className="relative w-full max-w-3xl mx-auto flex flex-col items-center">
       <div className="relative w-full max-w-3xl mx-auto">
@@ -176,12 +224,10 @@ const FlashcardStack: React.FC = () => {
               className="absolute inset-0 flex justify-center items-center"
             >
               <TypingExercise
-                front={flashcards[currentCardIndex].front}
-                back={flashcards[currentCardIndex].back}
-                onNextCard={(wpm, accuracy) => {
-                  handleCardComplete(wpm, accuracy);
-                  handleNextCard();
-                }}
+                key={`card-${currentCardIndex}`} // Add this line
+                front={currentCard.front || ''}
+                back={currentCard.back || ''}
+                onNextCard={handleCardComplete}
               />
             </motion.div>
           </AnimatePresence>
@@ -202,14 +248,24 @@ const FlashcardStack: React.FC = () => {
         
         <button
           onClick={handleNextCard}
-            className="p-2 rounded-full bg-teal hover:bg-teal-button_hover text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg focus:outline-none hover-pulse"
+          className="p-2 rounded-full bg-teal hover:bg-teal-button_hover text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg focus:outline-none hover-pulse"
           aria-label="Next card"
         >
           <ChevronRight className="w-6 h-6" />
         </button>
       </div>
+
+      {/* Average Stats */}
+      {stats.length > 0 && (
+        <div className="flex gap-4 text-sm mt-4">
+          <span className="text-teal-600 bg-white px-3 py-1 rounded-full shadow-sm">
+            {calculateAverages().avgWpm} WPM
+          </span>
+          <span className="text-teal-600 bg-white px-3 py-1 rounded-full shadow-sm">
+            {calculateAverages().avgAccuracy}% Accuracy
+          </span>
+        </div>
+      )}
     </div>
   );
-};
-
-export default FlashcardStack;
+}

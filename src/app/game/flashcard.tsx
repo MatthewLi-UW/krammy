@@ -236,7 +236,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
           }}
         >
           <div 
-            className="absolute w-full h-full p-8 rounded-lg bg-card-light flex flex-col shadow-lg"
+            className="absolute w-full h-full p-8 rounded-lg bg-beige-light flex flex-col shadow-lg"
             onClick={handleFlip}
             style={{ backfaceVisibility: 'hidden' }}
           >
@@ -320,7 +320,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
           </div>
 
           <div 
-            className="absolute w-full h-full p-8 rounded-lg bg-card-light cursor-pointer flex flex-col shadow-lg"
+            className="absolute w-full h-full p-8 rounded-lg bg-beige-light cursor-pointer flex flex-col shadow-lg"
             onClick={handleFlip}
             style={{ 
                 backfaceVisibility: 'hidden',

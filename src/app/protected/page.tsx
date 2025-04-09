@@ -75,7 +75,7 @@ export default function ProtectedPage() {
 
   const handleDeckClick = (deckId: number) => {
     // Navigate to specific deck view
-    router.push(`/deck/${deckId}`);
+    router.push(`/game?deckId=${deckId}`);
   };
 
   if (loading) {

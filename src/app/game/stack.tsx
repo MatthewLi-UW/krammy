@@ -129,7 +129,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     if (stats.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
     
     // Filter out undefined entries
-    const validStats = stats.filter(stat => stat !== undefined);
+    const validStats = stats.filter(stat => stat !== undefined && stat !== null);
     
     if (validStats.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
     

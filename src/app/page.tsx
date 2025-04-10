@@ -8,6 +8,8 @@ import { TypeAnimation } from 'react-type-animation'
 import { useRouter } from 'next/navigation'
 import KrammyLogo from "@/app/components/logo"
 import FeatureBanner from './landing-components/feature-banner'
+// Import supabase client
+import { supabase } from '@/utils/supabase/client'
 
 /**
  * LandingPage Component
@@ -76,8 +78,17 @@ export default function LandingPage() {
     }, 3000)
   }
 
-  // Navigation handlers
-  const handleGetStartedClick = () => router.push('/sign-in')
+  // Updated navigation handlers with auth check
+  const handleGetStartedClick = async () => {
+    const { data } = await supabase.auth.getSession();
+    // If logged in, go to protected page, otherwise go to sign-in
+    if (data.session) {
+      router.push('/protected');
+    } else {
+      router.push('/sign-in');
+    }
+  }
+
   const scrollToFeatures = () => featuresRef.current?.scrollIntoView({ behavior: 'smooth' })
 
   return (
@@ -99,11 +110,23 @@ export default function LandingPage() {
               <span className="text-gray-dark text-lg font-light">Krammy</span>
             </div>
             <div className="flex items-center space-x-6">
-              {/* CUSTOMIZABLE: Login link text and destination */}
-              <Link href="/sign-in" className="text-gray-600 hover:text-gray-900">
+              {/* Updated Login link with auth check */}
+              <Link 
+                href="#" 
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const { data } = await supabase.auth.getSession();
+                  if (data.session) {
+                    router.push('/protected');
+                  } else {
+                    router.push('/sign-in');
+                  }
+                }} 
+                className="text-gray-600 hover:text-gray-900"
+              >
                 Login
               </Link>
-              {/* CUSTOMIZABLE: Button text */}
+              {/* The Get Started button will use handleGetStartedClick */}
               <button 
                 onClick={handleGetStartedClick} 
                 className="px-4 py-2 bg-teal text-white rounded-lg hover:bg-teal-button_hover"

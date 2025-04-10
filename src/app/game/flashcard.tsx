@@ -135,6 +135,11 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
 
   // handleInput function
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Ignore typing input when the front of the card is visible
+    if (isFlipped) {
+      return;
+    }
+
     if (!startTime) setStartTime(Date.now());
     const newInput = e.target.value;
     // this makes it so you cant type after reaching the end, but i think it lags it

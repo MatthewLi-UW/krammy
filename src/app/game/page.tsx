@@ -12,6 +12,7 @@ import Header from "../components/header";
 import { supabase } from "@/utils/supabase/client";
 import { User } from "@/types/user";
 import { FlashCard } from "@/types/FlashCard"; // Make sure this type exists
+import VerticalList from './vertical_list';
 
 export default function Game() {
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
@@ -109,26 +110,37 @@ export default function Game() {
       {/* Header component */}
       <Header user={user} />
       
-      <div className="flex flex-col items-center justify-center flex-1 p-6">
-        <div className="flex flex-col items-center gap-6 w-full max-w-2xl">
-          <h2 className="text-xl font-semibold text-gray-700">
-            {deckName || "Flashcard Deck"}
-          </h2>
-          
+      {/* Flashcard section - larger size without scaling */}
+      <div className="flex flex-col items-center justify-center p-4 pt-6 min-h-[80vh]">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
+          {deckName || "Flashcard Deck"}
+        </h2>
+        
+        <div className="w-full max-w-5xl md:max-w-6xl lg:max-w-7xl px-2 md:px-6">
           {flashcards.length > 0 ? (
-            <FlashcardStack 
-              flashcards={flashcards} 
-              deckId={deckId || undefined} // Pass the deck ID from the URL
-            />
+            <div className="w-full">
+              <FlashcardStack 
+                flashcards={flashcards} 
+                deckId={deckId || undefined}
+              />
+            </div>
           ) : (
-            <div className="text-center p-8 bg-white rounded-xl shadow-sm w-full">
-              <p className="text-gray-600 mb-4">No flashcards found in this deck.</p>
-              <Link href="/upload" className="text-teal-600 hover:underline">
+            <div className="text-center p-12 bg-white rounded-xl shadow-md w-full">
+              <p className="text-xl text-gray-600 mb-6">No flashcards found in this deck.</p>
+              <Link href="/upload" className="text-teal-600 hover:underline text-lg font-medium">
                 Create some flashcards
               </Link>
             </div>
           )}
         </div>
+      </div>
+      
+      {/* Vertical list section - appears on scroll */}
+      <div className="w-full bg-beige-light py-10 mt-16">
+        <VerticalList 
+          flashcards={flashcards}
+          deckName={deckName}
+        />
       </div>
     </main>
   );

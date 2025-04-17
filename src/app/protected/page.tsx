@@ -3,6 +3,7 @@
 import { supabase } from "@/utils/supabase/client";
 import { PlusIcon, SearchIcon, PenIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { User } from "@/types/user";
 
@@ -164,9 +165,16 @@ export default function ProtectedPage() {
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
             >
-              <div className="absolute top-4 right-4 text-gray-400">
-                <PenIcon size={18} className="text-[#D0C8B0]" />
-              </div>
+              <Link href={`/edit?deckId=${deck.deck_id}`}>
+                <div 
+                  className="absolute top-4 right-4 text-gray-400"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent the click from bubbling up to the parent div
+                  }}
+                >
+                  <PenIcon size={18} className="text-[#D0C8B0] hover:text-teal-600 transition-colors" />
+                </div>
+              </Link>
               <div className="text-center">
                 <h3 className={`font-bold text-xl text-gray-800 ${
                   hoveredIndex === index ? 'scale-101' : 'scale-100'

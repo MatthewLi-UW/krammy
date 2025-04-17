@@ -110,7 +110,7 @@ export default function Game() {
       {/* Header component */}
       <Header user={user} />
       
-      {/* Flashcard section - larger size without scaling */}
+      {/* Flashcard section */}
       <div className="flex flex-col items-center justify-center p-4 pt-6 min-h-[80vh]">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
           {deckName || "Flashcard Deck"}

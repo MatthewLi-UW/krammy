@@ -83,7 +83,7 @@ export default function EditDeckPage() {
         
         if (joinData && joinData.length > 0) {
           // Extract cards from the nested structure
-          const cards = joinData.map(item => item.FlashCard);
+          const cards = joinData.map(item => item.FlashCard).flat();
           console.log("Extracted cards:", cards);
           setFlashcards(cards);
         } else {
@@ -114,6 +114,12 @@ export default function EditDeckPage() {
         .eq('deck_id', deckId);
         
       if (error) throw error;
+
+      await supabase
+        .from('Deck')
+        .update({ last_edited: new Date().toISOString() })
+        .eq('deck_id', deckId);
+
       setEditingDeckName(false);
       setToast({message: "Deck name updated successfully", type: 'success'});
     } catch (error) {
@@ -188,7 +194,7 @@ export default function EditDeckPage() {
         .insert({
           front: 'New term',
           back: 'New definition',
-          user_id: user.id
+          owner_id: user.id
         })
         .select()
         .single();
@@ -200,7 +206,8 @@ export default function EditDeckPage() {
         .from('CardsToDeck')
         .insert({
           deck_id: deckId,
-          card_id: newCard.card_id
+          card_id: newCard.card_id,
+          owner_id: user.id  // Add this line to satisfy the foreign key constraint
         });
         
       if (linkError) throw linkError;
@@ -230,7 +237,7 @@ export default function EditDeckPage() {
     };
 
     return (
-      <div key={card.card_id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 relative">
         {editing ? (
           <div className="p-4">
             <div className="mb-4">
@@ -371,6 +378,19 @@ export default function EditDeckPage() {
               </svg>
               Add Card
             </button>
+            
+            {/* Practice button */}
+            <button
+              onClick={() => router.push(`/game?deckId=${deckId}`)}
+              className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Practice
+            </button>
+            
             <button
               onClick={() => router.push('/protected')}
               className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"

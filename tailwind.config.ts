@@ -6,11 +6,33 @@ export default {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class', // Important for dark mode toggle
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        // Main theme colors - use CSS variables
+        primary: {
+          light: 'var(--color-primary-light)',
+          DEFAULT: 'var(--color-primary)',
+          dark: 'var(--color-primary-dark)',
+        },
+        secondary: {
+          light: 'var(--color-secondary-light)',
+          DEFAULT: 'var(--color-secondary)',
+          dark: 'var(--color-secondary-dark)',
+        },
+        background: {
+          light: 'var(--color-background-light)',
+          DEFAULT: 'var(--color-background)',
+          dark: 'var(--color-background-dark)',
+        },
+        text_new: {
+          light: 'var(--color-text-light)',
+          DEFAULT: 'var(--color-text)',
+          dark: 'var(--color-text-dark)',
+        },
+        
+        // backwards compatibility
         card: {
           light: "#faf3eb",
           medium: "#e6d8c3",
@@ -33,9 +55,8 @@ export default {
         text: {
           gray_unfilled: "#8C8C8C",
           teal: "#00897B",
-        }
+        },
       },
-
     },
   },
   plugins: [],

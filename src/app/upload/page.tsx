@@ -186,12 +186,19 @@ export default function UploadPage() {
           owner_id: user.id, 
           deck_id: data.deck_id
         }));
+        
         //Upload the link!
         const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
         console.log(connectCardsTodeck);
         
         console.log("Successfully created quiz")
         setResponse(result.responseText || 'Quiz created successfully!')
+
+        // Add a short delay before redirecting to make sure the user sees the success message
+        setTimeout(() => {
+          // Navigate to the edit page for the newly created deck
+          router.push(`/edit?deckId=${data.deck_id}`);
+        }, 1500); // 1.5 second delay
         
       } else {
         throw new Error('Invalid response format');
@@ -370,14 +377,6 @@ export default function UploadPage() {
           )}
         </button>
         
-        {/* Link to play game - preserved from original code */}
-        <div className="mt-8 text-center">
-          <Link href="/game">
-            <button className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-300">
-              Play Typing Game
-            </button>
-          </Link>
-        </div>
         
         {/* Create from scratch link */}
         <div className="text-center mt-4">

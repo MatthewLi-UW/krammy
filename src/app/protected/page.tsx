@@ -65,9 +65,12 @@ export default function ProtectedPage() {
     };
   }) || [];
 
-  const filteredDecks = updatedDecks?.filter(deck => 
-    deck.deck_name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredDecks = updatedDecks
+    ?.filter(deck => deck.deck_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    .sort((a, b) => {
+      // Sort by created_at in descending order (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }) || [];
 
   const handleCreateNewDeck = () => {
     // Implement create new deck functionality

@@ -3,25 +3,129 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base theme (default: beige-teal) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Default theme: Beige-Teal */
+  --color-primary: #2A9D8F;
+  --color-primary-light: #3EB8AA;
+  --color-primary-dark: #238377;
+  
+  --color-secondary: #F5ECD5;
+  --color-secondary-light: #FFFAEC;
+  --color-secondary-dark: #E6D8C3;
+  
+  --color-background: #FFFAEC;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #F5ECD5;
+  
+  --color-text: #4A4A4A;
+  --color-text-light: #8C8C8C;
+  --color-text-dark: #2C2C2C;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Dark theme */
+.dark {
+  --color-primary: #2A9D8F;
+  --color-primary-light: #3EB8AA;
+  --color-primary-dark: #238377;
+  
+  --color-secondary: #333333;
+  --color-secondary-light: #444444;
+  --color-secondary-dark: #222222;
+  
+  --color-background: #121212;
+  --color-background-light: #1E1E1E;
+  --color-background-dark: #0A0A0A;
+  
+  --color-text: #EDEDED;
+  --color-text-light: #BBBBBB;
+  --color-text-dark: #FFFFFF;
 }
 
+/* Ocean Blue theme */
+html[data-theme="ocean-blue"] {
+  --color-primary: #0277BD;
+  --color-primary-light: #039BE5;
+  --color-primary-dark: #01579B;
+  
+  --color-secondary: #E1F5FE;
+  --color-secondary-light: #F5FCFF;
+  --color-secondary-dark: #B3E5FC;
+  
+  --color-background: #E1F5FE;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #B3E5FC;
+  
+  --color-text: #37474F;
+  --color-text-light: #78909C;
+  --color-text-dark: #263238;
+}
+
+/* Lavender theme */
+html[data-theme="lavender"] {
+  --color-primary: #9C27B0;
+  --color-primary-light: #BA68C8;
+  --color-primary-dark: #7B1FA2;
+  
+  --color-secondary: #F3E5F5;
+  --color-secondary-light: #FFF3FF;
+  --color-secondary-dark: #E1BEE7;
+  
+  --color-background: #F3E5F5;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #E1BEE7;
+  
+  --color-text: #4A148C;
+  --color-text-light: #7B1FA2;
+  --color-text-dark: #3E2723;
+}
+
+/* Forest theme */
+html[data-theme="forest"] {
+  --color-primary: #2E7D32;
+  --color-primary-light: #43A047;
+  --color-primary-dark: #1B5E20;
+  
+  --color-secondary: #E8F5E9;
+  --color-secondary-light: #F1F8E9;
+  --color-secondary-dark: #C8E6C9;
+  
+  --color-background: #E8F5E9;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #C8E6C9;
+  
+  --color-text: #1B5E20;
+  --color-text-light: #388E3C;
+  --color-text-dark: #1B5E20;
+}
+
+/* Ruby theme */
+html[data-theme="ruby"] {
+  --color-primary: #C62828;
+  --color-primary-light: #E53935;
+  --color-primary-dark: #B71C1C;
+  
+  --color-secondary: #FFEBEE;
+  --color-secondary-light: #FFF5F5;
+  --color-secondary-dark: #FFCDD2;
+  
+  --color-background: #FFEBEE;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #FFCDD2;
+  
+  --color-text: #B71C1C;
+  --color-text-light: #E53935;
+  --color-text-dark: #7F0000;
+}
+
+/* The rest of your CSS stays the same */
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--color-text);
+  background: var(--color-background);
   font-family: Arial, Helvetica, sans-serif, 'Karla';
 }
 
@@ -30,7 +134,7 @@ body {
 }
 
 input::placeholder {
-  color: #8C8C8C;
+  color: var(--color-text-light);
   font-weight: 500;
 }
 

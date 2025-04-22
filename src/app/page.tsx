@@ -167,12 +167,12 @@ export default function LandingPage() {
             </h2>
 
             {/* CUSTOMIZABLE: Main tagline first part */}
-            <p className="text-lg text-foreground mb-2 text-center">
+            <p className="text-lg text-text mb-2 text-center">
               Transform your study notes into <strong>interactive typing exercises</strong>.
             </p>
 
             {/* CUSTOMIZABLE: Main tagline second part */}
-            <p className="text-lg text-foreground mb-16 text-center">
+            <p className="text-lg text-text mb-16 text-center">
               <strong>Master your material</strong> while improving your typing speed.
             </p>
 

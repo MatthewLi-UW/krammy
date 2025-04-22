@@ -63,11 +63,11 @@ html[data-theme="ocean-blue"] {
 
 /* Lavender theme */
 html[data-theme="lavender"] {
-  --color-primary: #9C27B0;
+  --color-primary: #418333;
   --color-primary-light: #BA68C8;
   --color-primary-dark: #7B1FA2;
   
-  --color-secondary: #F3E5F5;
+  --color-secondary: #f3dbf7;
   --color-secondary-light: #FFF3FF;
   --color-secondary-dark: #E1BEE7;
   
@@ -75,9 +75,9 @@ html[data-theme="lavender"] {
   --color-background-light: #FFFFFF;
   --color-background-dark: #E1BEE7;
   
-  --color-text: #4A148C;
-  --color-text-light: #7B1FA2;
-  --color-text-dark: #3E2723;
+  --color-text: #4A4A4A;
+  --color-text-light: #8C8C8C;
+  --color-text-dark: #2C2C2C;
 }
 
 /* Forest theme */

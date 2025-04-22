@@ -49,12 +49,6 @@ export default {
           dark: 'var(--color-success-dark)',
         },
         
-        // backwards compatibility
-        // card: {
-        //   light: "#faf3eb",
-        //   medium: "#e6d8c3",
-        //   dark: "#d2be9c",
-        // },
         teal: {
           DEFAULT: "#2A9D8F",
           button_hover: '#238377',

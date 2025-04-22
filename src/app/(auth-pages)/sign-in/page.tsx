@@ -10,23 +10,19 @@ import { supabase } from '@/utils/supabase/client';
 
 /**
  * Application header component with logo and navigation
- * CUSTOMIZATION: Modify this component to change header appearance
  */
 const Header = () => (
   <div className="fixed top-0 left-0 p-6 flex items-center gap-3">
     <Link legacyBehavior href="/">
       <a className="flex items-center gap-3">
-        {/* CUSTOMIZATION: Adjust logo size */}
         <KrammyLogo width={40} height={40} />
-        {/* CUSTOMIZATION: Change app name text or styling */}
-        <span className="text-2xl font-bold text-gray-800">Krammy</span>
+        <span className="text-2xl font-bold text-[var(--color-text-dark)]">Krammy</span>
       </a>
     </Link>
   </div>
 );
 
 // Base URL for redirect handling
-// CUSTOMIZATION: Change this to your production URL when deploying
 const baseUrl = "http://localhost:3000";
 
 /**
@@ -65,7 +61,6 @@ export default function Login(props: { searchParams: Promise<Message> }) {
     loadGoogleScript().then(() => {
       if (window.google) {
         google.accounts.id.initialize({
-          // CUSTOMIZATION: Replace with your Google Client ID in .env
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "", 
           callback: handleSignIn,
         });
@@ -96,7 +91,6 @@ export default function Login(props: { searchParams: Promise<Message> }) {
 
   /**
    * Load any messages passed via URL parameters
-   * (e.g., error messages after failed sign-in attempts)
    */
   useEffect(() => {
     const fetchMessage = async () => {
@@ -112,26 +106,22 @@ export default function Login(props: { searchParams: Promise<Message> }) {
 
   return (
     <div 
-      // CUSTOMIZATION: Change page background color
-      className="bg-beige-light flex items-center justify-center min-h-screen font-karla" 
+      className="bg-[var(--color-background)] flex items-center justify-center min-h-screen font-karla" 
     >
       <Header />
       
       <div 
-        // CUSTOMIZATION: Modify card appearance (background, shadow, rounding)
-        className="bg-beige-medium w-full max-w-sm p-8 space-y-6 rounded-xl shadow-md"
+        className="bg-[var(--color-secondary)] w-full max-w-sm p-8 space-y-6 rounded-xl shadow-md"
       >
-        {/* CUSTOMIZATION: Change page title and description */}
-        <h1 className="text-2xl font-bold text-center">Welcome</h1>
-        <p className="text-sm text-center text-gray-dark">
+        <h1 className="text-2xl font-bold text-center text-[var(--color-text-dark)]">Welcome</h1>
+        <p className="text-sm text-center text-[var(--color-text)]">
           Log in to your account to continue to Krammy
         </p>
 
         {/* Error message display - positioned at the top of the form */}
         {message && 'error' in message && (
           <div className="text-center">
-            {/* CUSTOMIZATION: Change error message styling */}
-            <p className="text-red-600 font-medium text-lg">
+            <p className="text-[var(--color-error-text)] font-medium text-lg">
               {message.error}
             </p>
           </div>
@@ -146,8 +136,7 @@ export default function Login(props: { searchParams: Promise<Message> }) {
               name="email" 
               placeholder="Email Address*" 
               required 
-              // CUSTOMIZATION: Modify input field styling
-              className="bg-beige-light w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="bg-[var(--color-secondary-light)] w-full px-3 py-2 border border-[var(--color-card-medium)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
             />
           </div>
 
@@ -158,15 +147,13 @@ export default function Login(props: { searchParams: Promise<Message> }) {
               name="password" 
               placeholder="Password*" 
               required 
-              // CUSTOMIZATION: Modify input field styling
-              className="bg-beige-light w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="bg-[var(--color-secondary-light)] w-full px-3 py-2 border border-[var(--color-card-medium)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
             />
             {/* Forgot password link */}
             <div className="text-right mt-2">
               <Link 
                 href="/forgot-password" 
-                // CUSTOMIZATION: Change link color and hover effect
-                className="text-sm text-teal hover:underline"
+                className="text-sm text-[var(--color-primary)] hover:underline"
               >
                 Forgot password?
               </Link>
@@ -176,8 +163,7 @@ export default function Login(props: { searchParams: Promise<Message> }) {
           {/* Sign-in button */}
           <button 
             type="submit" 
-            // CUSTOMIZATION: Change button color and hover effect
-            className="w-full py-2 text-white bg-teal rounded-md hover:bg-teal-600 transition-colors"
+            className="w-full py-2 text-white bg-[var(--color-primary)] rounded-md hover:bg-[var(--color-primary-dark)] transition-colors"
           >
             Continue
           </button>
@@ -186,27 +172,24 @@ export default function Login(props: { searchParams: Promise<Message> }) {
           {message && !('error' in message) && <FormMessage message={message} />}
 
           {/* Sign-up link */}
-          <div className="text-center text-sm text-gray-600">
-            Don't have an account? <Link href="/sign-up" className="text-teal hover:underline">Sign up</Link>
+          <div className="text-center text-sm text-[var(--color-text-light)]">
+            Don't have an account? <Link href="/sign-up" className="text-[var(--color-primary)] hover:underline">Sign up</Link>
           </div>
 
           {/* Divider with "OR" text */}
           <div className="flex items-center justify-center">
-            <div className="w-full border-t border-gray-300 my-4"></div>
-            {/* CUSTOMIZATION: Change divider style and text */}
-            <span className="px-4 text-gray-600 bg-beige-medium absolute">OR</span>
+            <div className="w-full border-t border-[var(--color-card-medium)] my-4"></div>
+            <span className="px-4 text-[var(--color-text-light)] bg-[var(--color-secondary)] absolute">OR</span>
           </div>
 
           {/* Google Sign-In button */}
           <button 
-            // CUSTOMIZATION: Change Google button style
-            className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-[var(--color-card-medium)] rounded-lg hover:bg-[var(--color-background-light)] transition-colors"
             onClick={() => google.accounts.id.prompt()} 
             type="button"
           >
-            {/* CUSTOMIZATION: Replace with your own Google icon if desired */}
             <Image src="/google-icon.png" alt="Google" width={20} height={20} />
-            <span>Continue with Google</span>
+            <span className="text-[var(--color-text)]">Continue with Google</span>
           </button>
         </form>
       </div>

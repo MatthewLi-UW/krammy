@@ -8,16 +8,13 @@ import KrammyLogo from "@/app/components/logo";
 
 /**
  * Application header component with logo and navigation
- * CUSTOMIZATION: Modify this component to change header appearance
  */
 const Header = () => (
   <div className="fixed top-0 left-0 p-6 flex items-center gap-3">
     <Link legacyBehavior href="/">
       <a className="flex items-center gap-3">
-        {/* CUSTOMIZATION: Adjust logo size */}
         <KrammyLogo width={40} height={40} />
-        {/* CUSTOMIZATION: Change app name text or styling */}
-        <span className="text-2xl font-bold text-gray-800">Krammy</span>
+        <span className="text-2xl font-bold text-[var(--color-text-dark)]">Krammy</span>
       </a>
     </Link>
   </div>
@@ -54,17 +51,14 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
 
   return (
     <div 
-      // CUSTOMIZATION: Change page background color
-      className="bg-beige-light flex items-center justify-center min-h-screen font-karla" 
+      className="bg-[var(--color-background)] flex items-center justify-center min-h-screen font-karla" 
     >
       <Header />
       <div 
-        // CUSTOMIZATION: Modify card appearance (background, shadow, rounding)
-        className="bg-beige-medium w-full max-w-sm p-8 space-y-6 rounded-xl shadow-md"
+        className="bg-[var(--color-secondary)] w-full max-w-sm p-8 space-y-6 rounded-xl shadow-md"
       >
-        {/* CUSTOMIZATION: Change page title and description */}
-        <h1 className="text-2xl font-bold text-center">Create Account</h1>
-        <p className="text-sm text-center text-gray-dark">
+        <h1 className="text-2xl font-bold text-center text-[var(--color-text-dark)]">Create Account</h1>
+        <p className="text-sm text-center text-[var(--color-text)]">
           Sign up to start using Krammy
         </p>
 
@@ -79,8 +73,7 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
               value={email || ""}
               onChange={(e) => setEmail(e.target.value)}
               required 
-              // CUSTOMIZATION: Modify input field styling
-              className="bg-beige-light w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="bg-[var(--color-background-light)] w-full px-3 py-2 border border-[var(--color-card-medium)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
             />
           </div>
 
@@ -92,16 +85,14 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
               placeholder="Password*" 
               required 
               minLength={6}
-              // CUSTOMIZATION: Modify input field styling
-              className="bg-beige-light w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="bg-[var(--color-background-light)] w-full px-3 py-2 border border-[var(--color-card-medium)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
             />
           </div>
 
           {/* Sign-up button */}
           <button 
             type="submit" 
-            // CUSTOMIZATION: Change button color and hover effect
-            className="w-full py-2 text-white bg-teal rounded-md hover:bg-teal-600 transition-colors"
+            className="w-full py-2 text-white bg-[var(--color-primary)] rounded-md hover:bg-[var(--color-primary-dark)] transition-colors"
           >
             Sign Up
           </button>
@@ -110,8 +101,8 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
           {"message" in message && <FormMessage message={message} />}
 
           {/* Sign-in link */}
-          <div className="text-center text-sm text-gray-600">
-            Already have an account? <Link href="/sign-in" className="text-teal hover:underline">Sign in</Link>
+          <div className="text-center text-sm text-[var(--color-text-light)]">
+            Already have an account? <Link href="/sign-in" className="text-[var(--color-primary)] hover:underline">Sign in</Link>
           </div>
         </form>
       </div>

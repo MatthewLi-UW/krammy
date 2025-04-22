@@ -27,7 +27,12 @@
   --color-card-dark: #d2be9c;
 
   --color-unfilled: rgba(140, 140, 140, 0.1);
+  
   --color-error-text: #ef4444;
+
+  --color-success-light: #dcfce7;
+  --color-success: #22c55e;
+  --color-success-dark: #16a34a;
 }
 
 /* Lavender theme - Dark green primary contrasts with purple/lavender */

@@ -42,6 +42,12 @@ export default {
         },
 
         'error-text': 'var(--color-error-text)',
+
+        success: {
+          light: 'var(--color-success-light)',
+          DEFAULT: 'var(--color-success)',
+          dark: 'var(--color-success-dark)',
+        },
         
         // backwards compatibility
         // card: {

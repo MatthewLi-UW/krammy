@@ -2,33 +2,34 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import {createDeck, sendData} from '@/utils/sendData'
+import { createDeck, sendData } from '@/utils/sendData'
 import { User } from "@/types/user";
 import { Deck } from "@/types/Deck";
 import { FlashCard } from "@/types/FlashCard";
 import { supabase } from "@/utils/supabase/client";
 import Loading from '@/app/components/loading';
 import Header from '@/app/components/header';
-import { ArrowLeft, Upload } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Info, X, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function UploadPage() {
-  // Add an authentication loading state
+  // State declarations
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [file, setFile] = useState<File | null>(null)
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [response, setResponse] = useState('')
-  const [detailLevel, setDetailLevel] = useState(1) // For the slider (1-3 range)
+  const [detailLevel, setDetailLevel] = useState(1)
   const [deckName, setDeckName] = useState('')
   const [flashcardArray, setFlashcardArray] = useState<{front: string, back: string}[]>([])
+  const [activeTab, setActiveTab] = useState<'file' | 'text'>('file');
   const router = useRouter()
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
 
+  // Fetch user data
   const fetchUser = async () => {
-    setIsAuthLoading(true); // Set loading to true when starting auth check
+    setIsAuthLoading(true);
     const { data } = await supabase.auth.getUser();
     if (!data.user) {
       router.push("/sign-in");
@@ -40,24 +41,24 @@ export default function UploadPage() {
         image: temp.user_metadata?.avatar_url || undefined
       } : null);
     }
-    setIsAuthLoading(false); // Auth check complete
+    setIsAuthLoading(false);
   }
 
-  // Call fetchUser on page load
   useEffect(() => {
     fetchUser();
   }, []);
 
-  // Show loading state while checking authentication
   if (isAuthLoading) {
     return <Loading />
   }
 
+  // Event handlers
   const handleFileDrop = (e) => {
     e.preventDefault()
     const droppedFile = e.dataTransfer.files[0]
     if (droppedFile?.type === 'text/plain' || droppedFile?.type === 'application/pdf') {
       setFile(droppedFile)
+      setActiveTab('file')
     } else {
       setError('Please upload a .txt or .pdf file')
     }
@@ -67,11 +68,15 @@ export default function UploadPage() {
     const selectedFile = e.target.files?.[0]
     if (selectedFile) {
       setFile(selectedFile)
+      setActiveTab('file')
     }
   }
 
   const handleTextInput = (e) => {
     setText(e.target.value)
+    if (e.target.value.trim()) {
+      setActiveTab('text')
+    }
   }
   
   const handleDeckNameChange = (e) => {
@@ -80,8 +85,6 @@ export default function UploadPage() {
   
   const handleDetailLevelChange = (e) => {
     const value = parseFloat(e.target.value);
-    
-    // Snap to nearest integer if within 0.15 of it
     if (Math.abs(value - Math.round(value)) < 0.15) {
       setDetailLevel(Math.round(value));
     } else {
@@ -89,7 +92,31 @@ export default function UploadPage() {
     }
   }
 
+  const clearFile = () => {
+    setFile(null);
+    if (text) {
+      setActiveTab('text');
+    }
+  }
+
+  const clearText = () => {
+    setText('');
+    if (file) {
+      setActiveTab('file');
+    }
+  }
+
   const handleSubmit = async () => {
+    if (!deckName.trim()) {
+      setError('Please enter a deck name');
+      return;
+    }
+    
+    if (!file && !text.trim()) {
+      setError('Please upload a file or enter text');
+      return;
+    }
+    
     setLoading(true)
     setError('')
     setResponse('')
@@ -100,7 +127,6 @@ export default function UploadPage() {
       if (file) {
         // Different handling based on file type
         if (file.type === 'application/pdf') {
-          // Use the new Flask PDF parser for PDF files
           const formData = new FormData();
           formData.append('pdf', file);
           
@@ -118,7 +144,6 @@ export default function UploadPage() {
           content = uploadResult.text;
         } 
         else if (file.type === 'text/plain') {
-          // Keep existing logic for text files
           const formData = new FormData();
           formData.append('file', file);
           
@@ -140,12 +165,6 @@ export default function UploadPage() {
         }
       }
 
-      console.log("Sending to API:", {
-        content: content.substring(0, 100) + "...", // Log just the beginning
-        deckName,
-        detailLevel
-      });
-
       const aiResponse = await fetch('/api/process', {
         method: 'POST',
         headers: {
@@ -157,35 +176,17 @@ export default function UploadPage() {
       if (!aiResponse.ok) throw new Error('Processing failed')
 
       const result = await aiResponse.json()
-      console.log('API process response:', result)
       
-      // Parse the response text into flashcard array format
       if (result.success && result.responseText) {
-        // Log original response for debugging
-        console.log('Original API response text:', result.responseText);
-        
-        // Remove the header if it exists (like "**Flashcards:**")
         let responseText = result.responseText.replace(/^\*\*Flashcards:\*\*\s*\n+/i, '');
-        
-        // Handle any format of "Front:" and "Back:" with or without asterisks
-        // This will match Front/Back labels with any combination of asterisks
         responseText = responseText.replace(/\*{0,2}Front\*{0,2}:/g, 'Front:');
         responseText = responseText.replace(/\*{0,2}Back\*{0,2}:/g, 'Back:');
-        
-        // Clean up any extra whitespace or formatting
         responseText = responseText.trim();
         
-        console.log('Cleaned response text:', responseText);
-        
-        // Split by pairs of newlines to get individual flashcard entries
         const flashcardEntries = responseText.split(/\n\s*\n/);
-        console.log('Found flashcard entries:', flashcardEntries.length);
         
-        // Parse each entry into a flashcard object
         const parsedFlashcards = flashcardEntries.map((entry, index) => {
-          // Extract front text - more inclusive pattern to catch various formats
           const frontMatch = entry.match(/Front:\s*(.*?)(?=\s*\n\s*Back:|$)/s);
-          // Extract back text - use end of string boundary or next pattern
           const backMatch = entry.match(/Back:\s*(.*?)(?=\s*\n\s*Front:|$)/s);
           
           if (frontMatch && backMatch) {
@@ -194,56 +195,32 @@ export default function UploadPage() {
               back: backMatch[1].trim()
             };
           }
-          console.log(`Failed to parse entry ${index}:`, entry);
           return null;
         }).filter(card => card !== null);
-        console.log('Parsed flashcard objects:', parsedFlashcards);
         
-        // Store flashcards in state
         setFlashcardArray(parsedFlashcards);
-        
-        // Create an exportable string representation
-        const arrayString = `export const flashcards = ${JSON.stringify(parsedFlashcards, null, 2)};`;
-        
-        // Store the formatted response
         setResponse(`Successfully created ${parsedFlashcards.length} flashcards!`);
         
-        //Create an empty deck
         if (!user) {
           throw new Error('User is not authenticated');
         }
         const data = (await createDeck(user.id, deckName))[0] as Deck;
-        console.log('Data:', data)
         
-        //Upload An array of cards - USE THE LOCAL VARIABLE, NOT THE STATE
         const CardsWithUID = parsedFlashcards.map(item => ({...item, owner_id: user.id}))
-        console.log("CardsWithUID:", CardsWithUID);
-        
-        //Upload An array of cards
         const cards = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
-        console.log("Cards:", cards)
-        //We only want the ids for link
         const ArrayofCardID = (await cards).map(item => item.card_id);
 
-        //Create the CardsToDeck object to prepare for upload
         const ConnectedCards = ArrayofCardID.map(card_id => ({
           card_id, 
           owner_id: user.id, 
           deck_id: data.deck_id
         }));
         
-        //Upload the link!
-        const connectCardsTodeck = sendData('CardsToDeck', ConnectedCards );
-        console.log(connectCardsTodeck);
-        
-        console.log("Successfully created quiz")
-        setResponse(result.responseText || 'Quiz created successfully!')
+        await sendData('CardsToDeck', ConnectedCards);
 
-        // Add a short delay before redirecting to make sure the user sees the success message
         setTimeout(() => {
-          // Navigate to the edit page for the newly created deck
           router.push(`/edit?deckId=${data.deck_id}`);
-        }, 1500); // 1.5 second delay
+        }, 1500);
         
       } else {
         throw new Error('Invalid response format');
@@ -266,113 +243,170 @@ export default function UploadPage() {
         throw new Error('User is not authenticated');
       }
       
-      // Create a new deck with a default name
       const data = (await createDeck(user.id, "Untitled Deck"))[0] as Deck;
-      console.log('Created empty deck:', data);
-      
-      // Navigate to the edit page for this deck
       router.push(`/edit?deckId=${data.deck_id}`);
     } catch (err) {
-      console.error('Error creating empty deck:', err);
       setError(err instanceof Error ? err.message : 'Failed to create empty deck');
     } finally {
       setLoading(false);
     }
   };
 
-  // using browser history
   const handleBackNavigation = () => {
-    // Check if there's history to go back to
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      // Fallback to router if no history is available
       setIsNavigating(true);
       router.push('/protected');
     }
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] font-karla">
+    <div className="min-h-screen bg-[var(--color-background)]">
       <Header user={user} />
       
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <button 
-            className="flex items-center gap-2 py-2 px-4 rounded-lg bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-dark)] text-[var(--color-text-dark)] transition-colors cursor-pointer"
-            onClick={handleBackNavigation}
-          >
-            <ArrowLeft size={20} className="text-[var(--color-primary)]" />
-            <span className="font-medium">Back to Decks</span>
-          </button>
-        </div>
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Back button */}
+        <button 
+          onClick={handleBackNavigation}
+          className="group flex items-center text-[var(--color-text)] hover:text-[var(--color-primary)] transition-colors mb-8"
+        >
+          <ArrowLeft size={18} className="mr-2 transition-transform group-hover:-translate-x-1" />
+          <span>Back to Decks</span>
+        </button>
         
-        {/* Page Title */}
-        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)] text-center mb-8">
-          Create New Deck
-        </h1>
-        
-        {/* Deck name input */}
-        <div className="flex justify-center mb-8">
-          <input 
-            type="text" 
-            placeholder="Enter Deck Name"
-            value={deckName}
-            onChange={handleDeckNameChange}
-            className="w-full md:w-2/3 p-4 text-center bg-[var(--color-secondary)] rounded-xl border border-[var(--color-text-light)]/20 text-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
-          />
-        </div>
+        {/* Card container */}
+        <div className="bg-[var(--color-card-light)] rounded-xl shadow-md p-6 md:p-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)] mb-6">Create New Deck</h1>
           
-        {/* Two column layout for file upload and text paste */}
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* File upload section */}
-          <div className="flex-1">
-            <div 
-              onDrop={handleFileDrop}
-              onDragOver={(e) => e.preventDefault()}
-              className="bg-[var(--color-unfilled)] h-64 border-2 border-dashed border-[var(--color-text-light)]/50 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[var(--color-primary)]/50 transition-all duration-300"
-            >
-              <input
-                type="file"
-                onChange={handleFileInput}
-                accept=".txt,.pdf"
-                className="hidden"
-                id="fileInput"
-              />
-              <label htmlFor="fileInput" className="cursor-pointer text-center w-full h-full flex flex-col items-center justify-center">
-                <div className="flex flex-col items-center">
-                  <Upload className="w-10 h-10 text-[var(--color-text-light)] mb-2" />
-                  <span className="text-[var(--color-text)] font-medium">
-                    Upload a File
-                  </span>
-                  {file && <span className="text-sm text-[var(--color-text-light)] mt-1">{file.name}</span>}
-                </div>
-              </label>
+          {/* Deck name input */}
+          <div className="mb-6">
+            <label htmlFor="deckName" className="block text-[var(--color-text)] mb-2 font-medium">
+              Deck Name
+            </label>
+            <input 
+              id="deckName"
+              type="text" 
+              placeholder="Enter a name for your deck"
+              value={deckName}
+              onChange={handleDeckNameChange}
+              className="w-full p-3 bg-[var(--color-background)] rounded-lg border border-[var(--color-card-medium)] text-[var(--color-text-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
+            />
+          </div>
+          
+          {/* Content tabs */}
+          <div className="mb-6">
+            <label className="block text-[var(--color-text)] mb-2 font-medium">Content Source</label>
+            <div className="flex border-b border-[var(--color-card-medium)]">
+              <button 
+                onClick={() => setActiveTab('file')}
+                className={`flex-1 py-2 px-4 text-center font-medium ${
+                  activeTab === 'file' 
+                    ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
+                    : 'text-[var(--color-text-light)] hover:text-[var(--color-text)]'
+                }`}
+              >
+                <Upload size={18} className="inline-block mr-2" />
+                Upload File
+              </button>
+              <button 
+                onClick={() => setActiveTab('text')}
+                className={`flex-1 py-2 px-4 text-center font-medium ${
+                  activeTab === 'text' 
+                    ? 'text-[var(--color-primary)] border-b-2 border-[var(--color-primary)]' 
+                    : 'text-[var(--color-text-light)] hover:text-[var(--color-text)]'
+                }`}
+              >
+                <FileText size={18} className="inline-block mr-2" />
+                Enter Text
+              </button>
+            </div>
+            
+            {/* File upload panel */}
+            <div className={`mt-4 ${activeTab === 'file' ? 'block' : 'hidden'}`}>
+              <div 
+                onDrop={handleFileDrop}
+                onDragOver={(e) => e.preventDefault()}
+                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  file 
+                    ? 'bg-[var(--color-primary)]/5 border-[var(--color-primary)]/50' 
+                    : 'bg-[var(--color-unfilled)] border-[var(--color-text-light)]/30 hover:border-[var(--color-primary)]/40'
+                }`}
+              >
+                <input
+                  type="file"
+                  onChange={handleFileInput}
+                  accept=".txt,.pdf"
+                  className="hidden"
+                  id="fileInput"
+                />
+                
+                {file ? (
+                  <div className="py-4">
+                    <div className="flex items-center justify-center mb-3">
+                      <FileText className="h-8 w-8 text-[var(--color-primary)]" />
+                    </div>
+                    <p className="text-[var(--color-text-dark)] font-medium mb-1">{file.name}</p>
+                    <p className="text-[var(--color-text-light)] text-sm mb-4">
+                      {(file.size / 1024).toFixed(1)} KB
+                    </p>
+                    <button 
+                      onClick={clearFile}
+                      className="inline-flex items-center text-sm text-[var(--color-text)] hover:text-[var(--color-error-text)] transition-colors"
+                    >
+                      <X size={16} className="mr-1" />
+                      Remove file
+                    </button>
+                  </div>
+                ) : (
+                  <label htmlFor="fileInput" className="cursor-pointer block py-8">
+                    <div className="flex items-center justify-center mb-3">
+                      <Upload className="h-8 w-8 text-[var(--color-text-light)]" />
+                    </div>
+                    <p className="text-[var(--color-text)] font-medium mb-1">
+                      Drag & drop a file or click to browse
+                    </p>
+                    <p className="text-[var(--color-text-light)] text-sm">
+                      Support for .txt and .pdf files
+                    </p>
+                  </label>
+                )}
+              </div>
+            </div>
+            
+            {/* Text input panel */}
+            <div className={`mt-4 ${activeTab === 'text' ? 'block' : 'hidden'}`}>
+              <div className="relative">
+                <textarea
+                  value={text}
+                  onChange={handleTextInput}
+                  className="w-full h-48 p-4 rounded-lg bg-[var(--color-unfilled)] border border-[var(--color-text-light)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 resize-none"
+                  placeholder="Paste your text content here..."
+                ></textarea>
+                {text && (
+                  <button 
+                    onClick={clearText}
+                    className="absolute top-3 right-3 text-[var(--color-text-light)] hover:text-[var(--color-error-text)] transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center justify-center">
-            <span className="text-lg font-medium text-[var(--color-text)]">OR</span>
-          </div>
-          
-          {/* Text input section */}
-          <div className="flex-1">
-            <textarea
-              value={text}
-              onChange={handleTextInput}
-              className="w-full h-64 p-4 rounded-xl bg-[var(--color-secondary)] border border-[var(--color-text-light)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 resize-none"
-              placeholder="Paste text..."
-            />
-          </div>
-        </div>
-        
-        {/* Detail level slider - replace with this enhanced version */}
-        <div className="my-8">
-          <div className="text-center text-[var(--color-primary)] font-medium mb-4">
-            {detailLevel === 1 || (detailLevel < 1.5 && detailLevel >= 1) ? 'Low' : 
-             detailLevel === 2 || (detailLevel < 2.5 && detailLevel >= 1.5) ? 'Medium' : 'High'} Detail
-          </div>
-          <div className="relative w-full max-w-full sm:max-w-xl mx-auto px-2">
+          {/* Detail level selector */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-[var(--color-text)] font-medium">
+                Detail Level
+              </label>
+              <div className="text-[var(--color-primary)] font-medium text-sm">
+                {detailLevel === 1 || (detailLevel < 1.5 && detailLevel >= 1) ? 'Low' : 
+                 detailLevel === 2 || (detailLevel < 2.5 && detailLevel >= 1.5) ? 'Medium' : 'High'}
+              </div>
+            </div>
+            
             <input
               type="range"
               min="1"
@@ -380,110 +414,86 @@ export default function UploadPage() {
               step="0.01"
               value={detailLevel}
               onChange={handleDetailLevelChange}
-              onMouseUp={() => {
-                setDetailLevel(Math.round(detailLevel));
-              }}
-              onTouchEnd={() => {
-                setDetailLevel(Math.round(detailLevel));
-              }}
-              className="w-full h-3 appearance-none cursor-pointer bg-[var(--color-card-medium)] rounded-lg 
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 
+              onMouseUp={() => setDetailLevel(Math.round(detailLevel))}
+              onTouchEnd={() => setDetailLevel(Math.round(detailLevel))}
+              className="w-full h-2 appearance-none cursor-pointer bg-[var(--color-card-medium)] rounded-lg 
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 
                         [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--color-primary)] 
                         [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 
                         [&::-webkit-slider-thumb]:border-[var(--color-card-light)]
-                        [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6
+                        [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5
                         [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[var(--color-primary)]
                         [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2
                         [&::-moz-range-thumb]:border-[var(--color-card-light)]"
             />
-            <div className="flex justify-between mt-4">
-              <div className={`transition-all duration-200 ease-in-out w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
-                Math.round(detailLevel) === 1 ? 'bg-[var(--color-primary)]/20 border-2 border-[var(--color-primary)]' : 'bg-[var(--color-card-medium)] border-2 border-transparent'
-              }`}>
-                <span className={`text-xs font-bold ${
-                  Math.round(detailLevel) === 1 ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-light)]'
-                }`}>1</span>
-              </div>
-              <div className={`transition-all duration-200 ease-in-out w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
-                Math.round(detailLevel) === 2 ? 'bg-[var(--color-primary)]/20 border-2 border-[var(--color-primary)]' : 'bg-[var(--color-card-medium)] border-2 border-transparent'
-              }`}>
-                <span className={`text-xs font-bold ${
-                  Math.round(detailLevel) === 2 ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-light)]'
-                }`}>2</span>
-              </div>
-              <div className={`transition-all duration-200 ease-in-out w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
-                Math.round(detailLevel) === 3 ? 'bg-[var(--color-primary)]/20 border-2 border-[var(--color-primary)]' : 'bg-[var(--color-card-medium)] border-2 border-transparent'
-              }`}>
-                <span className={`text-xs font-bold ${
-                  Math.round(detailLevel) === 3 ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-light)]'
-                }`}>3</span>
+            
+            <div className="flex justify-between mt-2">
+              <div className="text-xs font-medium text-[var(--color-text-light)]">Less cards, broader topics</div>
+              <div className="text-xs font-medium text-[var(--color-text-light)]">More cards, detailed content</div>
+            </div>
+          </div>
+          
+          {/* Info tips */}
+          <div className="bg-[var(--color-primary)]/10 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <Info size={18} className="text-[var(--color-primary)] mt-0.5 mr-3 flex-shrink-0" />
+              <div className="text-sm text-[var(--color-text)]">
+                <p className="mb-1"><strong>What happens next?</strong></p>
+                <p>Your content will be analyzed to create flashcards based on the detail level you've selected. Higher detail means more specific cards, while lower detail creates broader concept cards.</p>
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Error message */}
-        {error && (
-          <div className="mb-4 text-red-600 text-sm text-center">
-            {error}
+          
+          {/* Error message */}
+          {error && (
+            <div className="flex items-center bg-[var(--color-error-text)]/10 text-[var(--color-error-text)] p-3 rounded-lg mb-6">
+              <AlertCircle size={16} className="mr-2 flex-shrink-0" />
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+          
+          {/* Success message */}
+          {response && (
+            <div className="flex items-center bg-success-light text-success-dark p-3 rounded-lg mb-6">
+              <CheckCircle2 size={16} className="text-success mr-2 flex-shrink-0" />
+              <p className="text-sm">{response}</p>
+            </div>
+          )}
+          
+          {/* Action buttons */}
+          <div className="flex flex-col space-y-4">
+            <button
+              onClick={handleSubmit}
+              disabled={loading || (!file && !text.trim()) || !deckName.trim()}
+              className={`w-full py-3 rounded-lg text-white font-medium flex items-center justify-center
+                ${loading || (!file && !text.trim()) || !deckName.trim()
+                  ? 'bg-[var(--color-text-light)] cursor-not-allowed' 
+                  : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] transition-colors'
+                }`}
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                  </svg>
+                  Processing...
+                </>
+              ) : (
+                'Generate Flashcards'
+              )}
+            </button>
+            
+            <button 
+              onClick={handleCreateFromScratch}
+              disabled={loading}
+              className="text-[var(--color-primary)] hover:text-[var(--color-primary-dark)] bg-transparent py-2 transition-colors"
+            >
+              Or create an empty deck and add cards manually
+            </button>
           </div>
-        )}
-        
-        {/* Success message */}
-        {response && (
-          <div className="mb-4 text-green-600 text-sm text-center">
-            {response}
-          </div>
-        )}
-        
-        {/* Generate button */}
-        <div className="max-w-xl mx-auto">
-          <button
-            onClick={handleSubmit}
-            disabled={loading || (!file && !text) || !deckName}
-            className={`w-full py-4 rounded-xl text-white font-medium text-lg
-              ${loading || (!file && !text) || !deckName
-                ? 'bg-[var(--color-text-light)] cursor-not-allowed' 
-                : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90 transition-colors duration-300'
-              }`}
-          >
-            {loading ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                  <circle 
-                    className="opacity-25" 
-                    cx="12" 
-                    cy="12" 
-                    r="10" 
-                    stroke="currentColor" 
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path 
-                    className="opacity-75" 
-                    fill="currentColor" 
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Processing...
-              </span>
-            ) : (
-              'Generate Deck'
-            )}
-          </button>
         </div>
-        
-        {/* Create from scratch link */}
-        <div className="text-center mt-4">
-          <button 
-            onClick={handleCreateFromScratch}
-            disabled={loading || !user}
-            className="text-[var(--color-primary)] hover:underline bg-transparent border-none cursor-pointer font-inherit"
-          >
-            I want to create my own deck from scratch
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   )
 }

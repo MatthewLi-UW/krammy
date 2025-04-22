@@ -281,7 +281,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
                       ref={el => { wordsRef.current[idx] = el; }}
                       className={`${
                         char.state === 'pending' ? 'text-[var(--color-text-light)]' :
-                        char.state === 'error' ? 'text-[var(--color-error)]' :
+                        char.state === 'error' ? 'text-[var(--color-error-text)]' : // Changed from --color-error
                         char.state === 'correct' ? 'text-[var(--color-primary)]' :
                         'text-[var(--color-text)]'
                       }`}

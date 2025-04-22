@@ -4,7 +4,7 @@
 THIS FILE HANDLES THE OVERALL FLASHCARD ALTERNATING PROCESS
 */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import FlashcardStack from "../game/stack";
@@ -23,6 +23,22 @@ export default function Game() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const deckId = searchParams.get('deckId');
+  const verticalListContainerRef = useRef<HTMLDivElement>(null);
+
+  const preventScrollReset = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Prevent the default navigation behavior
+    if (verticalListContainerRef.current) {
+      // This maintains the current scroll position
+      const currentScroll = window.scrollY;
+      // Use setTimeout to re-apply the scroll position after any default navigation
+      setTimeout(() => {
+        window.scrollTo(0, currentScroll);
+      }, 0);
+    }
+    return false;
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -135,8 +151,13 @@ export default function Game() {
         </div>
       </div>
       
-      {/* Vertical list section - appears on scroll */}
-      <div className="w-full bg-[var(--color-background)] py-10 mt-16">
+      {/* Vertical list section - with scroll prevention */}
+      <div 
+        ref={verticalListContainerRef}
+        className="w-full bg-[var(--color-background)] py-10 mt-16"
+        onClick={preventScrollReset}
+        onMouseDown={preventScrollReset}
+      >
         <VerticalList 
           flashcards={flashcards}
           deckName={deckName}

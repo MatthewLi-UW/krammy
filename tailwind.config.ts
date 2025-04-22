@@ -40,6 +40,8 @@ export default {
         unfilled: {
           DEFAULT: 'var(--color-unfilled)'
         },
+
+        'error-text': 'var(--color-error-text)',
         
         // backwards compatibility
         // card: {

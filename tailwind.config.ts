@@ -31,6 +31,11 @@ export default {
           DEFAULT: 'var(--color-text)',
           dark: 'var(--color-text-dark)',
         },
+        card_new: {
+          light: 'var(--color-card-light)',
+          medium: 'var(--color-card-medium)',
+          dark: 'var(--color-card-dark)',
+        },
         
         // backwards compatibility
         card: {

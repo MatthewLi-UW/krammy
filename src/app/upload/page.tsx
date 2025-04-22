@@ -257,6 +257,29 @@ export default function UploadPage() {
     }
   }
 
+  const handleCreateFromScratch = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      if (!user) {
+        throw new Error('User is not authenticated');
+      }
+      
+      // Create a new deck with a default name
+      const data = (await createDeck(user.id, "Untitled Deck"))[0] as Deck;
+      console.log('Created empty deck:', data);
+      
+      // Navigate to the edit page for this deck
+      router.push(`/edit?deckId=${data.deck_id}`);
+    } catch (err) {
+      console.error('Error creating empty deck:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create empty deck');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // using browser history
   const handleBackNavigation = () => {
     // Check if there's history to go back to
@@ -452,9 +475,13 @@ export default function UploadPage() {
         
         {/* Create from scratch link */}
         <div className="text-center mt-4">
-          <Link href="/edit" className="text-[var(--color-primary)] hover:underline">
+          <button 
+            onClick={handleCreateFromScratch}
+            disabled={loading || !user}
+            className="text-[var(--color-primary)] hover:underline bg-transparent border-none cursor-pointer font-inherit"
+          >
             I want to create my own deck from scratch
-          </Link>
+          </button>
         </div>
       </div>
     </div>

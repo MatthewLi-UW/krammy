@@ -53,14 +53,14 @@ export default function EditDeckPage() {
         // Get the deck information first
         const { data: deckData, error: deckError } = await supabase
           .from('Deck')
-          .select('deck_name, owner_id')  // Changed from user_id to owner_id
+          .select('deck_name, owner_id')
           .eq('deck_id', deckId)
           .single();
 
         if (deckError) throw deckError;
         
         // Check permissions
-        if (user && deckData.owner_id !== user.id) {  // Changed from user_id to owner_id
+        if (user && deckData.owner_id !== user.id) {
           setToast({message: "You don't have permission to edit this deck", type: 'error'});
           router.push('/protected');
           return;
@@ -207,7 +207,7 @@ export default function EditDeckPage() {
         .insert({
           deck_id: deckId,
           card_id: newCard.card_id,
-          owner_id: user.id  // Add this line to satisfy the foreign key constraint
+          owner_id: user.id
         });
         
       if (linkError) throw linkError;
@@ -237,28 +237,28 @@ export default function EditDeckPage() {
     };
 
     return (
-      <div className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 relative">
+      <div className="bg-[var(--color-card-light)] rounded-xl shadow-md overflow-hidden border border-[var(--color-card-medium)]/50 relative">
         {editing ? (
           <div className="p-4">
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`term-${card.card_id}`}>
+              <label className="block text-[var(--color-text)] text-sm font-bold mb-2" htmlFor={`term-${card.card_id}`}>
                 Term
               </label>
               <textarea
                 id={`term-${card.card_id}`}
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 value={front}
                 onChange={(e) => setFront(e.target.value)}
                 rows={3}
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={`definition-${card.card_id}`}>
+              <label className="block text-[var(--color-text)] text-sm font-bold mb-2" htmlFor={`definition-${card.card_id}`}>
                 Definition
               </label>
               <textarea
                 id={`definition-${card.card_id}`}
-                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 value={back}
                 onChange={(e) => setBack(e.target.value)}
                 rows={3}
@@ -267,13 +267,13 @@ export default function EditDeckPage() {
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setEditing(false)}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-md hover:bg-[var(--color-secondary-dark)] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
+                className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-card-light)] rounded-md hover:bg-[var(--color-primary-dark)] transition-colors"
               >
                 Save
               </button>
@@ -281,18 +281,18 @@ export default function EditDeckPage() {
           </div>
         ) : (
           <div className="flex flex-col md:flex-row">
-            <div className="p-6 md:w-1/2 bg-gradient-to-r from-teal-50 to-white border-b md:border-b-0 md:border-r border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900 mb-1">Term</h3>
-              <p className="text-xl text-gray-800">{card.front}</p>
+            <div className="p-6 md:w-1/2 bg-[var(--color-secondary)]/30 border-b md:border-b-0 md:border-r border-[var(--color-card-medium)]/30">
+              <h3 className="text-lg font-medium text-[var(--color-text-dark)] mb-1">Term</h3>
+              <p className="text-xl text-[var(--color-text-dark)]">{card.front}</p>
             </div>
             <div className="p-6 md:w-1/2">
-              <h3 className="text-lg font-medium text-gray-900 mb-1">Definition</h3>
-              <p className="text-xl text-gray-800">{card.back}</p>
+              <h3 className="text-lg font-medium text-[var(--color-text-dark)] mb-1">Definition</h3>
+              <p className="text-xl text-[var(--color-text-dark)]">{card.back}</p>
             </div>
             <div className="absolute top-3 right-3 flex space-x-2">
               <button
                 onClick={() => setEditing(true)}
-                className="p-1 bg-teal-100 text-teal-600 rounded hover:bg-teal-200 transition-colors"
+                className="p-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded hover:bg-[var(--color-primary)]/20 transition-colors"
                 aria-label="Edit"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -301,7 +301,7 @@ export default function EditDeckPage() {
               </button>
               <button
                 onClick={() => deleteCard(card.card_id.toString())}
-                className="p-1 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors"
+                className="p-1 text-red-600 rounded hover:bg-red-200 transition-colors"
                 aria-label="Delete"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -317,14 +317,14 @@ export default function EditDeckPage() {
 
   if (loading || deckLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-beige-light">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+      <div className="flex items-center justify-center min-h-screen bg-[var(--color-background)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
       </div>
     );
   }
 
   return (
-    <main className="flex flex-col min-h-screen bg-beige-light">
+    <main className="flex flex-col min-h-screen bg-[var(--color-background)]">
       <Header user={user} />
       
       <div className="w-full max-w-6xl mx-auto px-4 py-8">
@@ -335,33 +335,33 @@ export default function EditDeckPage() {
                 type="text"
                 value={deckName}
                 onChange={(e) => setDeckName(e.target.value)}
-                className="text-2xl font-bold rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-500 focus:ring-opacity-50 py-1 px-2"
+                className="text-2xl font-bold rounded-md border-[var(--color-text-light)]/30 shadow-sm focus:border-[var(--color-primary)] focus:ring focus:ring-[var(--color-primary)] focus:ring-opacity-50 py-1 px-2"
                 autoFocus
               />
               <button
                 onClick={updateDeckName}
-                className="p-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
+                className="p-2 bg-[var(--color-primary)] text-[var(--color-card-light)] rounded-md hover:bg-[var(--color-primary-dark)]"
               >
                 Save
               </button>
               <button
                 onClick={() => setEditingDeckName(false)}
-                className="p-2 bg-gray-200 rounded-md hover:bg-gray-300"
+                className="p-2 bg-[var(--color-secondary)] rounded-md hover:bg-[var(--color-secondary-dark)]"
               >
                 Cancel
               </button>
             </div>
           ) : (
             <div className="flex items-center">
-              <h2 className="text-3xl font-bold text-gray-800 mr-3">
+              <h2 className="text-3xl font-bold text-[var(--color-text-dark)] mr-3">
                 {deckName}
               </h2>
               <button
                 onClick={() => setEditingDeckName(true)}
-                className="p-1 bg-teal-100 text-teal-600 rounded hover:bg-teal-200"
+                className="p-1 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded hover:bg-[var(--color-primary)]/20"
                 aria-label="Edit Deck Name"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
               </button>
@@ -371,7 +371,7 @@ export default function EditDeckPage() {
           <div className="flex space-x-3">
             <button
               onClick={addNewCard}
-              className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors flex items-center"
+              className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] transition-colors flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -382,7 +382,7 @@ export default function EditDeckPage() {
             {/* Practice button */}
             <button
               onClick={() => router.push(`/game?deckId=${deckId}`)}
-              className="px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors flex items-center"
+              className="px-4 py-2 bg-[var(--color-primary)] text-white rounded-md hover:bg-[var(--color-primary-dark)] transition-colors flex items-center"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -393,7 +393,7 @@ export default function EditDeckPage() {
             
             <button
               onClick={() => router.push('/protected')}
-              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+              className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-md hover:bg-[var(--color-secondary-dark)] transition-colors"
             >
               Back to Decks
             </button>
@@ -420,11 +420,11 @@ export default function EditDeckPage() {
               <FlashcardEditor key={card.card_id} card={card} />
             ))
           ) : (
-            <div className="text-center p-12 bg-white rounded-xl shadow-md">
-              <p className="text-xl text-gray-600 mb-4">No flashcards in this deck yet</p>
+            <div className="text-center p-12 bg-[var(--color-card-light)] rounded-xl shadow-md">
+              <p className="text-xl text-[var(--color-text)] mb-4">No flashcards in this deck yet</p>
               <button
                 onClick={addNewCard}
-                className="px-6 py-3 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
+                className="px-6 py-3 bg-[var(--color-primary)] text-[var(--color-card-light)] rounded-md hover:bg-[var(--color-primary-dark)] transition-colors"
               >
                 Create your first flashcard
               </button>

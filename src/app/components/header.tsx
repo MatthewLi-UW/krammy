@@ -43,7 +43,7 @@ export default function Header({ user }: HeaderProps) {
       {/* Logo and brand name */}
       <Link href="/" className="flex items-center gap-3">
         <KrammyLogo width={40} height={40} />
-        <span className="text-2xl font-bold text-gray-800">Krammy</span>
+        <span className="text-2xl font-bold text-text">Krammy</span>
       </Link>
       
       {/* Profile dropdown */}

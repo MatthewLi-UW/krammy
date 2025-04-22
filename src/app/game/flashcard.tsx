@@ -13,10 +13,10 @@ type CharacterState = {
 };
 
 interface TypingExerciseProps {
-    front: string;
-    back: string;
-    onNextCard: (wpm: number, accuracy: number) => void;
-  }
+  front: string;
+  back: string;
+  onNextCard: (wpm: number, accuracy: number) => void;
+}
 
 const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard}) => {
   const [input, setInput] = useState('');
@@ -189,7 +189,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
     transform: 'translateY(-50%)',  // Center vertically
     height: '1.2em',               // Reduced from 1.4em
     width: '2px',
-    backgroundColor: '#0d9488',
+    backgroundColor: 'var(--color-primary)', // Using CSS variable instead of hardcoded #0d9488
     marginTop: '0.6em',           // Add offset to align with text
     transition: 'all 0.1s ease-out', // Add smooth transition
     willChange: 'left, top'         // Optimize performance
@@ -241,7 +241,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
           }}
         >
           <div 
-            className="absolute w-full h-full p-8 rounded-lg bg-beige-light flex flex-col shadow-lg"
+            className="absolute w-full h-full p-8 rounded-lg bg-[var(--color-card-light)] flex flex-col shadow-lg"
             onClick={handleFlip}
             style={{ backfaceVisibility: 'hidden' }}
           >
@@ -253,11 +253,11 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
               >
                 <Volume2 
                   className={`w-6 h-6 ${
-                    isSpeaking ? 'text-gray-400' : 'text-teal'
+                    isSpeaking ? 'text-[var(--color-text-light)]' : 'text-[var(--color-primary)]'
                   } transition-colors hover:opacity-80`} 
                 />
               </button>
-              <Star className="w-6 h-6 text-teal" />
+              <Star className="w-6 h-6 text-[var(--color-primary)]" />
             </div>
             
             {/* Centered text content */}
@@ -280,10 +280,10 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
                       key={idx}
                       ref={el => { wordsRef.current[idx] = el; }}
                       className={`${
-                        char.state === 'pending' ? 'text-gray-400' :
-                        char.state === 'error' ? 'text-red-500' :
-                        char.state === 'correct' ? 'text-teal-600' :
-                        'text-[#4A4A4A]'
+                        char.state === 'pending' ? 'text-[var(--color-text-light)]' :
+                        char.state === 'error' ? 'text-[var(--color-error)]' :
+                        char.state === 'correct' ? 'text-[var(--color-primary)]' :
+                        'text-[var(--color-text)]'
                       }`}
                     >
                       {char.char}
@@ -308,12 +308,12 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
                     onMouseLeave={() => setShowTooltip(false)}
                     className="p-2 rounded-full transition-colors duration-300 relative"
                 >
-                    <RotateCcw className="w-6 h-6 text-teal" />
+                    <RotateCcw className="w-6 h-6 text-[var(--color-primary)]" />
 
-                    {/* Tooltip - Only visible when hovered */}
+                    {/* Tooltip - Updated to use theme variables */}
                     <div 
                     className={`absolute top-full left-1/2 transform -translate-x-1/2 mt-1 
-                        bg-gray-800 text-white text-xs py-1 px-2 rounded whitespace-nowrap
+                        bg-[var(--color-text-dark)] text-[var(--color-card-light)] text-xs py-1 px-2 rounded whitespace-nowrap
                         transition-all duration-300 ease-in-out pointer-events-none
                         ${showTooltip ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}`}
                     >
@@ -325,7 +325,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
           </div>
 
           <div 
-            className="absolute w-full h-full p-8 rounded-lg bg-beige-light cursor-pointer flex flex-col shadow-lg"
+            className="absolute w-full h-full p-8 rounded-lg bg-[var(--color-card-light)] cursor-pointer flex flex-col shadow-lg"
             onClick={handleFlip}
             style={{ 
                 backfaceVisibility: 'hidden',
@@ -336,7 +336,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
             <div className="flex-1" />
             
             {/* Centered header */}
-            <h1 className="text-3xl font-bold text-center text-teal-text">
+            <h1 className="text-3xl font-bold text-center text-[var(--color-text-dark)]">
                 {front}
             </h1>
             
@@ -344,7 +344,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
             <div className="flex-1" />
             
             {/* Bottom instruction text */}
-            <div className="text-center text-gray-400 text-sm">
+            <div className="text-center text-[var(--color-text-light)] text-sm">
                 Ctrl + Enter to flip
             </div>
             </div>

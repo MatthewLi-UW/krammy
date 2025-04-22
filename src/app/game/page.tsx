@@ -99,20 +99,20 @@ export default function Game() {
 
   if (loading || deckLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-beige-light">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+      <div className="flex items-center justify-center min-h-screen bg-[var(--color-background)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
       </div>
     );
   }
 
   return (
-    <main className="flex flex-col min-h-screen bg-beige-light">
+    <main className="flex flex-col min-h-screen bg-[var(--color-background)]">
       {/* Header component */}
       <Header user={user} />
       
       {/* Flashcard section */}
       <div className="flex flex-col items-center justify-center p-4 pt-6 min-h-[80vh]">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-8">
+        <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)] mb-8">
           {deckName || "Flashcard Deck"}
         </h2>
         
@@ -125,9 +125,9 @@ export default function Game() {
               />
             </div>
           ) : (
-            <div className="text-center p-12 bg-white rounded-xl shadow-md w-full">
-              <p className="text-xl text-gray-600 mb-6">No flashcards found in this deck.</p>
-              <Link href="/upload" className="text-teal-600 hover:underline text-lg font-medium">
+            <div className="text-center p-12 bg-[var(--color-card-light)] rounded-xl shadow-md w-full">
+              <p className="text-xl text-[var(--color-text)] mb-6">No flashcards found in this deck.</p>
+              <Link href="/upload" className="text-[var(--color-primary)] hover:underline text-lg font-medium">
                 Create some flashcards
               </Link>
             </div>
@@ -136,7 +136,7 @@ export default function Game() {
       </div>
       
       {/* Vertical list section - appears on scroll */}
-      <div className="w-full bg-beige-light py-10 mt-16">
+      <div className="w-full bg-[var(--color-background)] py-10 mt-16">
         <VerticalList 
           flashcards={flashcards}
           deckName={deckName}

@@ -31,18 +31,22 @@ export default {
           DEFAULT: 'var(--color-text)',
           dark: 'var(--color-text-dark)',
         },
-        card_new: {
+        card: {
           light: 'var(--color-card-light)',
           medium: 'var(--color-card-medium)',
           dark: 'var(--color-card-dark)',
         },
+
+        unfilled: {
+          DEFAULT: 'var(--color-unfilled)'
+        },
         
         // backwards compatibility
-        card: {
-          light: "#faf3eb",
-          medium: "#e6d8c3",
-          dark: "#d2be9c",
-        },
+        // card: {
+        //   light: "#faf3eb",
+        //   medium: "#e6d8c3",
+        //   dark: "#d2be9c",
+        // },
         teal: {
           DEFAULT: "#2A9D8F",
           button_hover: '#238377',

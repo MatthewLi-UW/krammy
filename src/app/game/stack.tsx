@@ -12,7 +12,7 @@ import { FlashCard } from "@/types/FlashCard";
 // Add a deck ID parameter to the props
 interface FlashcardStackProps {
   flashcards: FlashCard[];
-  deckId?: string | number; // Add this line
+  deckId?: string | number;
 }
 
 export default function FlashcardStack({ flashcards = [], deckId = 'default' }: FlashcardStackProps) {
@@ -49,7 +49,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     }
     
     setIsInitialized(true);
-  }, [flashcards.length, deckId]); // Add deckId as a dependency
+  }, [flashcards.length, deckId]);
 
   // localStorage save effect
   useEffect(() => {
@@ -63,7 +63,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
   if (!isInitialized) {
     return (
       <div className="flex items-center justify-center w-full h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-teal-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
       </div>
     );
   }
@@ -71,8 +71,8 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
   // If no flashcards are provided, return a placeholder
   if (!flashcards.length) {
     return (
-      <div className="flex items-center justify-center w-full h-64 bg-white rounded-xl shadow-md">
-        <p className="text-gray-400">No flashcards available</p>
+      <div className="flex items-center justify-center w-full h-64 bg-[var(--color-background-light)] rounded-xl shadow-md">
+        <p className="text-[var(--color-text-light)]">No flashcards available</p>
       </div>
     );
   }
@@ -92,7 +92,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     setTimeout(() => {
       setCurrentCardIndex((prevIndex) => (prevIndex - 1 + flashcards.length) % flashcards.length);
     }, 0);
-    }
+  }
 
   const cardVariantsNext = {
     hidden: { x: 0, opacity: 0 },
@@ -152,10 +152,10 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-gradient-to-br from-teal to-card-dark rounded-lg shadow-2xl p-8 text-center text-card-light"
+          className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-card-dark)] rounded-lg shadow-2xl p-8 text-center text-[var(--color-card-light)]"
         >
           <motion.h2
-            className="text-4xl font-bold mb-6 text-card-light"
+            className="text-4xl font-bold mb-6 text-[var(--color-card-light)]"
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -169,8 +169,8 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <Zap className="w-8 h-8 text-card-light" />
-              <p className="text-2xl text-card-light">
+              <Zap className="w-8 h-8 text-[var(--color-card-light)]" />
+              <p className="text-2xl text-[var(--color-card-light)]">
                 Average WPM: <span className="font-bold">{avgWpm}</span>
               </p>
             </motion.div>
@@ -180,15 +180,15 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.6 }}
             >
-              <Award className="w-8 h-8 text-card-light" />
-              <p className="text-2xl text-card-light">
+              <Award className="w-8 h-8 text-[var(--color-card-light)]" />
+              <p className="text-2xl text-[var(--color-card-light)]">
                 Average Accuracy: <span className="font-bold">{avgAccuracy}%</span>
               </p>
             </motion.div>
           </div>
           <motion.button
             onClick={handleRestart}
-            className="flex items-center justify-center space-x-2 mx-auto px-6 py-3 bg-card-light text-teal rounded-full shadow-md transition-all duration-300 hover:bg-card-medium hover:text-teal hover:shadow-lg"
+            className="flex items-center justify-center space-x-2 mx-auto px-6 py-3 bg-[var(--color-card-light)] text-[var(--color-primary)] rounded-full shadow-md transition-all duration-300 hover:bg-[var(--color-card-medium)] hover:text-[var(--color-primary)] hover:shadow-lg"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             initial={{ y: 20, opacity: 0 }}
@@ -210,8 +210,8 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
       <div className="relative w-full max-w-3xl mx-auto">
         <div className="relative h-[310px]">
           {/* Stack effect */}
-          <div className="absolute inset-0 bg-card-dark rounded-lg transform rotate-1 z-0"></div>
-          <div className="absolute inset-0 bg-card-medium rounded-lg transform -rotate-1 z-0"></div>
+          <div className="absolute inset-0 bg-[var(--color-card-dark)] rounded-lg transform rotate-1 z-0"></div>
+          <div className="absolute inset-0 bg-[var(--color-card-medium)] rounded-lg transform -rotate-1 z-0"></div>
 
           {/* Animate Presence ensures smooth transitions */}
           <AnimatePresence mode="wait">
@@ -224,7 +224,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
               className="absolute inset-0 flex justify-center items-center"
             >
               <TypingExercise
-                key={`card-${currentCardIndex}`} // Add this line
+                key={`card-${currentCardIndex}`}
                 front={currentCard.front || ''}
                 back={currentCard.back || ''}
                 onNextCard={handleCardComplete}
@@ -236,19 +236,19 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
       <div className="mt-4 flex space-x-8 relative z-[10]">
         <button
           onClick={handlePreviousCard}
-          className="p-2 rounded-full bg-teal hover:bg-teal-button_hover text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg focus:outline-none hover-pulse"
+          className="p-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg focus:outline-none hover-pulse"
           aria-label="Previous card"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
 
-        <div className="px-4 py-2 bg-[#faf3eb] text-gray-800 rounded-md shadow-md font-serif">
+        <div className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-md shadow-md font-serif">
           {currentCardIndex + 1} / {flashcards.length}
         </div>
         
         <button
           onClick={handleNextCard}
-          className="p-2 rounded-full bg-teal hover:bg-teal-button_hover text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg focus:outline-none hover-pulse"
+          className="p-2 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white shadow-md transition-all duration-300 ease-in-out hover:shadow-lg focus:outline-none hover-pulse"
           aria-label="Next card"
         >
           <ChevronRight className="w-6 h-6" />
@@ -258,10 +258,10 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
       {/* Average Stats */}
       {stats.length > 0 && (
         <div className="flex gap-4 text-sm mt-4">
-          <span className="text-teal-600 bg-white px-3 py-1 rounded-full shadow-sm">
+          <span className="text-[var(--color-primary)] bg-[var(--color-background-light)] px-3 py-1 rounded-full shadow-sm">
             {calculateAverages().avgWpm} WPM
           </span>
-          <span className="text-teal-600 bg-white px-3 py-1 rounded-full shadow-sm">
+          <span className="text-[var(--color-primary)] bg-[var(--color-background-light)] px-3 py-1 rounded-full shadow-sm">
             {calculateAverages().avgAccuracy}% Accuracy
           </span>
         </div>

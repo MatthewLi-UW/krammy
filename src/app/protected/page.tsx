@@ -97,7 +97,7 @@ export default function ProtectedPage() {
   const placeholdersCount = calculatePlaceholders();
 
   return (
-    <div className="min-h-screen bg-beige-light font-karla">
+    <div className="min-h-screen bg-[var(--color-background)] font-karla">
       <Header user={user} />
       
       <div className="max-w-4xl mx-auto px-4 py-2 font-karla">
@@ -105,7 +105,7 @@ export default function ProtectedPage() {
         <div className="relative max-w-md mx-auto mb-8">
           <div className="relative flex items-center">
             <SearchIcon 
-              className="absolute left-3 text-teal-600/60 z-10" 
+              className="absolute left-3 text-[var(--color-primary)]/60 z-10" 
               size={18}
             />
             <input 
@@ -113,13 +113,13 @@ export default function ProtectedPage() {
               placeholder="Search for a deck" 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-beige-medium border border-gray-300/50 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500/50 transition-all duration-200 hover:shadow-md"
+              className="w-full pl-10 pr-10 py-3 bg-[var(--color-secondary)] border border-[var(--color-text-light)]/30 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]/50 transition-all duration-200 hover:shadow-md"
               aria-label="Search for a deck"
             />
             {searchTerm && (
               <button 
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute right-3 text-[var(--color-text-light)] hover:text-[var(--color-text)] transition-colors"
                 aria-label="Clear search"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -135,10 +135,10 @@ export default function ProtectedPage() {
           {/* Create New Deck Card with CSS-based animation */}
           <div 
             onClick={handleCreateNewDeck}
-            className={`bg-gray-light bg-opacity-10 border-2 border-dashed rounded-xl h-48 flex flex-col items-center justify-center cursor-pointer ${
+            className={`bg-[var(--color-unfilled)] border-2 border-dashed rounded-xl h-48 flex flex-col items-center justify-center cursor-pointer ${
               hoveredIndex === -1
-              ? 'scale-105 shadow-lg border-teal-500 border-opacity-50'
-              : 'scale-100 shadow-sm border-gray-300 border-opacity-50'
+              ? 'scale-105 shadow-lg border-[var(--color-primary)] border-opacity-50'
+              : 'scale-100 shadow-sm border-[var(--color-text-light)] border-opacity-50'
             } transition-all duration-300 ease-in-out`}
             onMouseEnter={() => setHoveredIndex(-1)}
             onMouseLeave={() => setHoveredIndex(null)}
@@ -146,9 +146,9 @@ export default function ProtectedPage() {
             <div className={`${
               hoveredIndex === -1 ? 'scale-105' : 'scale-100'
             } transition-transform duration-300 ease-in-out`}>
-              <PlusIcon className="text-gray-400 mb-2" size={40} />
+              <PlusIcon className="text-[var(--color-text-light)] mb-2" size={40} />
             </div>
-            <span className={`text-gray-400 text-lg ${
+            <span className={`text-[var(--color-text-light)] text-lg ${
               hoveredIndex === -1 ? 'scale-105' : 'scale-100'
             } transition-transform duration-300 ease-in-out`}>
               Create New Deck
@@ -160,9 +160,9 @@ export default function ProtectedPage() {
             <div 
               key={deck.deck_id} 
               onClick={() => handleDeckClick(deck.deck_id)}
-              className={`bg-beige-medium rounded-xl border h-48 p-5 flex flex-col justify-center items-center cursor-pointer relative ${
+              className={`bg-[var(--color-secondary)] rounded-xl border h-48 p-5 flex flex-col justify-center items-center cursor-pointer relative ${
                 hoveredIndex === index
-                ? 'scale-105 shadow-lg border-teal-600'
+                ? 'scale-105 shadow-lg border-[var(--color-primary)]'
                 : 'scale-100 shadow-sm border-transparent'
               } transition-all duration-300 ease-in-out`}
               onMouseEnter={() => setHoveredIndex(index)}
@@ -170,21 +170,21 @@ export default function ProtectedPage() {
             >
               <Link href={`/edit?deckId=${deck.deck_id}`}>
                 <div 
-                  className="absolute top-4 right-4 text-gray-400"
+                  className="absolute top-4 right-4 text-[var(--color-text-light)]"
                   onClick={(e) => {
                     e.stopPropagation(); // Prevent the click from bubbling up to the parent div
                   }}
                 >
-                  <PenIcon size={18} className="text-[#D0C8B0] hover:text-teal-600 transition-colors" />
+                  <PenIcon size={18} className="text-[var(--color-card-dark)] hover:text-[var(--color-primary)] transition-colors" />
                 </div>
               </Link>
               <div className="text-center">
-                <h3 className={`font-bold text-xl text-gray-800 ${
+                <h3 className={`font-bold text-xl text-[var(--color-text-dark)] ${
                   hoveredIndex === index ? 'scale-101' : 'scale-100'
                 } transition-transform duration-300 ease-in-out`}>
                   {deck.deck_name}
                 </h3>
-                <p className={`text-teal-600 font-medium mt-1 ${
+                <p className={`text-[var(--color-primary)] font-medium mt-1 ${
                   hoveredIndex === index ? 'scale-101' : 'scale-100'
                 } transition-transform duration-300 ease-in-out`}>
                   {deck.card_count || 0} Terms
@@ -201,41 +201,41 @@ export default function ProtectedPage() {
       </div>
       {/* Sharing Section with improved UI */}
       <div className="max-w-4xl mx-auto px-4 pb-16 font-karla">
-        <div className="mt-16 bg-beige-medium/50 rounded-2xl p-8 shadow-sm">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Share & Receive Decks</h2>
+        <div className="mt-16 bg-[var(--color-secondary)]/50 rounded-2xl p-8 shadow-sm">
+          <h2 className="text-2xl font-bold text-[var(--color-text-dark)] mb-6 text-center">Share & Receive Decks</h2>
           
           <div className="grid md:grid-cols-2 gap-8">
             {/* Share Deck Form */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-[var(--color-background-light)] rounded-xl p-6 shadow-sm border border-[var(--color-background-light)]">
               <div className="flex items-center mb-4">
-                <div className="bg-teal-500/10 p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
+                <div className="bg-[var(--color-primary)]/10 p-2 rounded-full mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)]">
                     <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
                     <polyline points="16 6 12 2 8 6"></polyline>
                     <line x1="12" y1="2" x2="12" y2="15"></line>
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800">Share Your Deck</h3>
+                <h3 className="text-lg font-semibold text-[var(--color-text-dark)]">Share Your Deck</h3>
               </div>
-              <p className="text-gray-600 text-sm mb-4">
+              <p className="text-[var(--color-text)] text-sm mb-4">
                 Share your flashcard decks with friends or colleagues
               </p>
               <ShareDeckForm uuid={user?.id ?? ""} />
             </div>
             
             {/* Receive Deck Form */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+            <div className="bg-[var(--color-background-light)] rounded-xl p-6 shadow-sm border border-[var(--color-background-light)]">
               <div className="flex items-center mb-4">
-                <div className="bg-teal-500/10 p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-teal-600">
+                <div className="bg-[var(--color-primary)]/10 p-2 rounded-full mr-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)]">
                     <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
                     <polyline points="16 16 12 20 8 16"></polyline>
                     <line x1="12" y1="2" x2="12" y2="20"></line>
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-800">Receive a Deck</h3>
+                <h3 className="text-lg font-semibold text-[var(--color-text-dark)]">Receive a Deck</h3>
               </div>
-              <p className="text-gray-600 text-sm mb-4">
+              <p className="text-[var(--color-text)] text-sm mb-4">
                 Access shared decks using a provided share code
               </p>
               <RecieveDeckForm />

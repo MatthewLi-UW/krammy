@@ -28,15 +28,16 @@ export default function FeatureBanner() {
     <div className="w-full bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* if we want a header insert it here */}
-        <h2 className="text-4xl font-medium text-text-teal text-center mb-12"></h2>
+        <h2 className="text-4xl font-medium text-primary text-center mb-12"></h2>
+        
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {features.map((feature, index) => (
             <div
               key={index}
-              className={`relative bg-beige-medium rounded-xl p-8 border ${
+              className={`relative bg-secondary rounded-xl p-8 border ${
                 hoveredIndex === index 
                 ? 'scale-105 shadow-lg border-primary' 
-                : 'scale-100 shadow-sm border-border'
+                : 'scale-100 shadow-sm border-secondary-dark'
               } transition-all duration-300 ease-in-out cursor-pointer`}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
@@ -45,14 +46,14 @@ export default function FeatureBanner() {
                 <div className={`mb-4 p-3 rounded-full bg-primary/10 ${
                   hoveredIndex === index ? 'scale-101' : 'scale-100'
                 } transition-transform duration-300 ease-in-out`}>
-                  <feature.icon className="h-8 w-8 text-primary text-text-teal" />
+                  <feature.icon className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className={`text-xl font-semibold mb-3 text-text-teal ${
+                <h3 className={`text-xl font-semibold mb-3 text-primary ${
                   hoveredIndex === index ? 'scale-101' : 'scale-100'
                 } transition-transform duration-300 ease-in-out`}>
                   {feature.title}
                 </h3>
-                <p className={`text-muted-foreground ${
+                <p className={`text-text-light ${
                   hoveredIndex === index ? 'scale-101' : 'scale-100'
                 } transition-transform duration-300 ease-in-out`}>
                   {feature.description}

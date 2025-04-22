@@ -92,14 +92,14 @@ export default function LandingPage() {
   const scrollToFeatures = () => featuresRef.current?.scrollIntoView({ behavior: 'smooth' })
 
   return (
-    <div className="min-h-screen bg-beige-light font-karla">
+    <div className="min-h-screen bg-background font-karla">
       {/* === Animated Navigation Bar === */}
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: showNav ? 0 : -100 }}
         // CUSTOMIZABLE: Animation speed and style
         transition={{ duration: 0.6, ease: 'easeInOut' }}
-        className="fixed top-0 left-0 right-0 bg-beige-light border-b border-gray-200 z-50"
+        className="fixed top-0 left-0 right-0 bg-background border-b border-secondary-dark z-50"
       >
         <div className="max-w-5xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -107,7 +107,7 @@ export default function LandingPage() {
               {/* CUSTOMIZABLE: Logo size */}
               <KrammyLogo width={40} height={40} />
               {/* CUSTOMIZABLE: Brand name */}
-              <span className="text-gray-dark text-lg font-light">Krammy</span>
+              <span className="text-foreground text-lg font-light">Krammy</span>
             </div>
             <div className="flex items-center space-x-6">
               {/* Updated Login link with auth check */}
@@ -122,14 +122,14 @@ export default function LandingPage() {
                     router.push('/sign-in');
                   }
                 }} 
-                className="text-gray-600 hover:text-gray-900"
+                className="text-text-light hover:text-foreground"
               >
                 Login
               </Link>
               {/* The Get Started button will use handleGetStartedClick */}
               <button 
                 onClick={handleGetStartedClick} 
-                className="px-4 py-2 bg-teal text-white rounded-lg hover:bg-teal-button_hover"
+                className="px-4 py-2 bg-primary text-background-light rounded-lg hover:bg-primary-dark"
               >
                 Get Started
               </button>
@@ -147,11 +147,11 @@ export default function LandingPage() {
               {/* CUSTOMIZABLE: Logo size */}
               <KrammyLogo width={72} height={72} />
               {/* CUSTOMIZABLE: Main logo text */}
-              <h1 className="text-4xl text-gray-dark font-light">Krammy</h1>
+              <h1 className="text-4xl text-foreground font-light">Krammy</h1>
             </div>
 
             {/* CUSTOMIZABLE: Animated headline texts and timing */}
-            <h2 className="text-5xl font-medium mb-8 text-text-teal">
+            <h2 className="text-5xl font-medium mb-8 text-primary">
               <TypeAnimation
                 sequence={[
                   'Learn Smarter,',  // First text
@@ -167,26 +167,26 @@ export default function LandingPage() {
             </h2>
 
             {/* CUSTOMIZABLE: Main tagline first part */}
-            <p className="text-lg text-gray-dark mb-2 text-center">
+            <p className="text-lg text-foreground mb-2 text-center">
               Transform your study notes into <strong>interactive typing exercises</strong>.
             </p>
 
             {/* CUSTOMIZABLE: Main tagline second part */}
-            <p className="text-lg text-gray-dark mb-16 text-center">
+            <p className="text-lg text-foreground mb-16 text-center">
               <strong>Master your material</strong> while improving your typing speed.
             </p>
 
             {/* CUSTOMIZABLE: Main CTA button text */}
             <button
               onClick={handleGetStartedClick} 
-              className="bg-teal text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-teal-600 transition"
+              className="bg-primary text-background-light px-6 py-3 rounded-lg text-lg font-semibold hover:bg-primary-dark transition"
             >
               Get Started
             </button>
           </div>
 
           {/* Right Column - Image Carousel */}
-          <div className="w-1/2 bg-beige-medium rounded-2xl p-6 relative overflow-hidden">
+          <div className="w-1/2 bg-secondary rounded-2xl p-6 relative overflow-hidden">
             {/* CUSTOMIZABLE: Carousel container height */}
             <div className="w-full h-[400px] flex justify-center items-center">
               <Image 
@@ -204,8 +204,10 @@ export default function LandingPage() {
                 <button 
                   key={index} 
                   className={`w-3 h-3 rounded-full ${
-                    index === currentImageIndex ? 'bg-gray-dark' : 'bg-gray-light'
-                  }`}
+                    index === currentImageIndex 
+                      ? 'bg-primary' // Use primary color for active dot
+                      : 'bg-gray-300 dark:bg-gray-600' // Use specific colors for inactive dots
+                  } transition-colors duration-300`}
                   onClick={() => handleDotClick(index)}
                   aria-label={`View image ${index + 1}`}
                 ></button>
@@ -217,7 +219,7 @@ export default function LandingPage() {
         {/* CUSTOMIZABLE: "Learn more" button text */}
         <button
           onClick={scrollToFeatures}
-          className="flex flex-col items-center absolute bottom-8 left-1/2 transform -translate-x-1/2 text-gray-dark hover:text-teal transition-colors"
+          className="flex flex-col items-center absolute bottom-8 left-1/2 transform -translate-x-1/2 text-foreground hover:text-primary transition-colors"
           aria-label="Learn more about features"
         >
           <span className="mb-1">Learn more</span>
@@ -234,20 +236,20 @@ export default function LandingPage() {
       </div>
 
       {/* === CTA Section === */}
-      <section className="py-24 bg-beige-light text-gray-dark">
+      <section className="py-24 bg-background text-foreground">
         <div className="max-w-3xl mx-auto text-center px-6">
           {/* CUSTOMIZABLE: CTA headline */}
           <h2 className="text-3xl font-semibold mb-6">
             Ready to improve your typing and learning?
           </h2>
           {/* CUSTOMIZABLE: CTA subheading */}
-          <p className="text-gray-600 mb-8">
+          <p className="text-text-light mb-8">
             Join students who are already learning faster and typing better.
           </p>
           {/* CUSTOMIZABLE: CTA button text */}
           <button 
             onClick={handleGetStartedClick}
-            className="px-6 py-3 bg-teal text-white rounded-lg hover:bg-teal-button_hover transition-colors"
+            className="px-6 py-3 bg-primary text-background-light rounded-lg hover:bg-primary-dark transition-colors"
           >
             Get Started Free
           </button>
@@ -258,9 +260,9 @@ export default function LandingPage() {
       <footer>
         <div className="max-w-5xl mx-auto px-6 py-12 flex justify-between items-center">
           {/* CUSTOMIZABLE: Footer brand name */}
-          <span className="font-medium">Krammy</span>
+          <span className="font-medium text-foreground">Krammy</span>
           {/* CUSTOMIZABLE: Copyright text */}
-          <p className="text-sm text-gray-600">© 2025 Krammy. All rights reserved.</p>
+          <p className="text-sm text-text-light">© 2025 Krammy. All rights reserved.</p>
         </div>
       </footer>
     </div>

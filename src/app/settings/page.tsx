@@ -127,7 +127,7 @@ export default function SettingsPage() {
               >
                 <div className="bg-[#2A9D8F] h-3 w-12 rounded mb-2"></div> {/* Hardcoded teal color */}
                 <div className="bg-[#F5ECD5] h-3 w-16 rounded"></div> {/* Hardcoded beige-medium color */}
-                <span className="mt-2 text-xs font-medium text-[#4A4A4A]">Default (Beige-Teal)</span> {/* Hardcoded text color */}
+                <span className="mt-2 text-xs font-medium text-[#4A4A4A]">Default (Krammy)</span> {/* Hardcoded text color */}
                 {theme === 'light' && (
                   <div className="absolute -top-2 -right-2 bg-primary text-white rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                   setTheme('ocean-blue');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'ocean-blue' ? 'border-primary shadow-md' : 'border-transparent hover:border-text-light dark:hover:border-text-light'}
+                  ${theme === 'ocean-blue' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-blue-100`}
               >
                 <div className="bg-blue-500 h-3 w-12 rounded mb-2"></div>
@@ -185,7 +185,7 @@ export default function SettingsPage() {
                   setTheme('lavender');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'lavender' ? 'border-primary shadow-md' : 'border-transparent hover:border-text-light dark:hover:border-text-light'}
+                  ${theme === 'lavender' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-purple-100`}
               >
                 <div className="bg-purple-500 h-3 w-12 rounded mb-2"></div>
@@ -206,7 +206,7 @@ export default function SettingsPage() {
                   setTheme('forest');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'forest' ? 'border-primary shadow-md' : 'border-transparent hover:border-text-light dark:hover:border-text-light'}
+                  ${theme === 'forest' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-green-100`}
               >
                 <div className="bg-green-600 h-3 w-12 rounded mb-2"></div>
@@ -227,7 +227,7 @@ export default function SettingsPage() {
                   setTheme('ruby');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'ruby' ? 'border-primary shadow-md' : 'border-transparent hover:border-text-light dark:hover:border-text-light'}
+                  ${theme === 'ruby' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-red-100`}
               >
                 <div className="bg-red-500 h-3 w-12 rounded mb-2"></div>
@@ -245,7 +245,7 @@ export default function SettingsPage() {
             
             <p className="text-sm text-text-light dark:text-text-light mt-2">
               Current theme: {
-                theme === 'light' ? 'Default (Beige-Teal)' : 
+                theme === 'light' ? 'Default (Krammy)' : 
                 theme === 'dark' ? 'Dark' :
                 theme === 'ocean-blue' ? 'Ocean Blue' :
                 theme === 'lavender' ? 'Lavender' :

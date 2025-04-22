@@ -276,7 +276,7 @@ export default function UploadPage() {
         </button>
         
         {/* Card container */}
-        <div className="bg-[var(--color-card-light)] rounded-xl shadow-md p-6 md:p-8">
+        <div className="bg-[var(--color-secondary)] rounded-xl shadow-md p-6 md:p-8">
           <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)] mb-6">Create New Deck</h1>
           
           {/* Deck name input */}
@@ -327,7 +327,7 @@ export default function UploadPage() {
               <div 
                 onDrop={handleFileDrop}
                 onDragOver={(e) => e.preventDefault()}
-                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                className={`relative rounded-lg p-8 text-center transition-colors ${
                   file 
                     ? 'bg-[var(--color-primary)]/5 border-[var(--color-primary)]/50' 
                     : 'bg-[var(--color-unfilled)] border-[var(--color-text-light)]/30 hover:border-[var(--color-primary)]/40'
@@ -380,7 +380,7 @@ export default function UploadPage() {
                 <textarea
                   value={text}
                   onChange={handleTextInput}
-                  className="w-full h-48 p-4 rounded-lg bg-[var(--color-unfilled)] border border-[var(--color-text-light)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 resize-none"
+                  className="w-full h-48 p-4 rounded-lg bg-[var(--color-unfilled)]  focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 resize-none"
                   placeholder="Paste your text content here..."
                 ></textarea>
                 {text && (

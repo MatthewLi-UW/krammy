@@ -7,19 +7,41 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Add retrying logic for rate limit errors
-async function callOpenAIWithRetry(content: string, maxRetries = 3) {
+// Update the function signature to accept detailLevel
+async function callOpenAIWithRetry(content: string, detailLevel: number, maxRetries = 3) {
   let attempt = 0;
   
   while (attempt < maxRetries) {
     try {
+      // Get detail level description
+      const detailDescription = detailLevel === 1 
+        ? "Create minimalist flashcards with only the essential information. Keep definitions extremely concise."
+        : detailLevel === 2 
+        ? "Create balanced flashcards with moderate detail. Include definitions with supporting context where necessary."
+        : "Create comprehensive flashcards with thorough explanations.";
+      
       const response = await openai.chat.completions.create({
         model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
             content:
-              'You are an expert in educational content creation. Convert the provided notes into concise, easy-to-memorize flashcards. Focus on key terms and their definitions, ensuring each term has a clear and simple explanation. Each flashcard is displayed in the format: Front: Back (where "Front" is the term and "Back" is its definition). Keep definitions brief, using clear and simple sentence structures. Ensure every important concept from the text is covered. Do not include any special text effects such as bold or italics.',
+              `You are an expert in educational content creation. Convert the provided notes into ${detailLevel === 1 ? 'concise' : detailLevel === 2 ? 'balanced' : 'comprehensive'}, easy-to-memorize flashcards.
+              
+              Detail level: ${detailLevel}/3 - ${detailDescription}
+              
+              Focus on key terms and their definitions, ensuring each term has a clear explanation in ideally one sentence. 
+              
+              Follow this format exactly:
+              Front: Term or concept
+              Back: Definition or explanation
+
+              Ensure every important concept from the text is covered. Do not include any special text effects such as bold, italics, or asterisks.
+              Be sure to create different content from any examples. Focus exclusively on the user's input content.
+              If there is not enough content to create flashcards, return one empty flashcard exactly like this:
+              Front: Empty card
+              Back: Empty card
+              `,
           }, 
           {
             role: 'user',
@@ -32,8 +54,8 @@ async function callOpenAIWithRetry(content: string, maxRetries = 3) {
               **Example Output:**
               ${exampleCards}
       
-              Now, convert the following text into flashcards:
-              ${content.substring(0, Math.min(content.length, 4000))}`  // Limit content length
+              Now, convert the following text into flashcards with detail level ${detailLevel}/3:
+              ${content.substring(0, Math.min(content.length, 4000))}`
           }
         ]
       });
@@ -76,10 +98,10 @@ export async function POST(req: Request) {
 
     // Limit content length to prevent oversize requests
     const trimmedContent = content.substring(0, Math.min(content.length, 8000));
-    console.log(`Processing content (${trimmedContent.length} chars)...`);
+    console.log(`Processing content (${trimmedContent.length} chars) with detail level ${detailLevel}...`);
 
-    // Send request to OpenAI with retry logic
-    const response = await callOpenAIWithRetry(trimmedContent);
+    // Send request to OpenAI with retry logic and pass the detailLevel
+    const response = await callOpenAIWithRetry(trimmedContent, detailLevel);
 
     // Check for expected response structure
     if (!response.choices?.[0]?.message?.content) {

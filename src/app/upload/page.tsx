@@ -9,20 +9,22 @@ import { Deck } from "@/types/Deck";
 import { FlashCard } from "@/types/FlashCard";
 import { supabase } from "@/utils/supabase/client";
 import Loading from '@/app/components/loading';
+import Header from '@/app/components/header';
+import { ArrowLeft, Upload } from 'lucide-react';
 
 export default function UploadPage() {
   // Add an authentication loading state
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [file, setFile] = useState(null)
+  const [file, setFile] = useState<File | null>(null)
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [response, setResponse] = useState('')
-  const [detailLevel, setDetailLevel] = useState(2) // For the slider (1-3 range)
+  const [detailLevel, setDetailLevel] = useState(1) // For the slider (1-3 range)
   const [deckName, setDeckName] = useState('')
   const [flashcardArray, setFlashcardArray] = useState<{front: string, back: string}[]>([])
   const router = useRouter()
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
   const [isNavigating, setIsNavigating] = useState(false);
 
   const fetchUser = async () => {
@@ -31,8 +33,12 @@ export default function UploadPage() {
     if (!data.user) {
       router.push("/sign-in");
     } else {
-      const user = data.user as User;
-      setUser(user ? { id: user.id, email: user.email } : null);
+      const temp = data.user as User;
+      setUser(temp ? { 
+        id: temp.id, 
+        email: temp.email,
+        image: temp.user_metadata?.avatar_url || undefined
+      } : null);
     }
     setIsAuthLoading(false); // Auth check complete
   }
@@ -44,9 +50,7 @@ export default function UploadPage() {
 
   // Show loading state while checking authentication
   if (isAuthLoading) {
-    return (
-    <Loading />
-    )
+    return <Loading />
   }
 
   const handleFileDrop = (e) => {
@@ -75,7 +79,14 @@ export default function UploadPage() {
   }
   
   const handleDetailLevelChange = (e) => {
-    setDetailLevel(parseInt(e.target.value))
+    const value = parseFloat(e.target.value);
+    
+    // Snap to nearest integer if within 0.15 of it
+    if (Math.abs(value - Math.round(value)) < 0.15) {
+      setDetailLevel(Math.round(value));
+    } else {
+      setDetailLevel(value);
+    }
   }
 
   const handleSubmit = async () => {
@@ -87,20 +98,53 @@ export default function UploadPage() {
       let content = text
 
       if (file) {
-        const formData = new FormData()
-        formData.append('file', file)
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        })
-        
-        if (!uploadResponse.ok) throw new Error('Upload failed')
-        
-        const uploadResult = await uploadResponse.json()
-        console.log('File upload response:', uploadResult)
-        content = uploadResult.text
+        // Different handling based on file type
+        if (file.type === 'application/pdf') {
+          // Use the new Flask PDF parser for PDF files
+          const formData = new FormData();
+          formData.append('pdf', file);
+          
+          const uploadResponse = await fetch('http://localhost:5000/api/parse-pdf', {
+            method: 'POST',
+            body: formData,
+          });
+          
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || 'Failed to parse PDF');
+          }
+          
+          const uploadResult = await uploadResponse.json();
+          content = uploadResult.text;
+        } 
+        else if (file.type === 'text/plain') {
+          // Keep existing logic for text files
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || 'Upload failed');
+          }
+          
+          const uploadResult = await uploadResponse.json();
+          content = uploadResult.text;
+        }
+        else {
+          throw new Error('Unsupported file type. Please upload a .txt or .pdf file');
+        }
       }
+
+      console.log("Sending to API:", {
+        content: content.substring(0, 100) + "...", // Log just the beginning
+        deckName,
+        detailLevel
+      });
 
       const aiResponse = await fetch('/api/process', {
         method: 'POST',
@@ -165,6 +209,9 @@ export default function UploadPage() {
         setResponse(`Successfully created ${parsedFlashcards.length} flashcards!`);
         
         //Create an empty deck
+        if (!user) {
+          throw new Error('User is not authenticated');
+        }
         const data = (await createDeck(user.id, deckName))[0] as Deck;
         console.log('Data:', data)
         
@@ -173,8 +220,6 @@ export default function UploadPage() {
         console.log("CardsWithUID:", CardsWithUID);
         
         //Upload An array of cards
-        // const CardsWithUID = flashcardArray.map(item => ({...item, owner_id: user.id}) )
-        // console.log("CardsWithUID:", CardsWithUID)
         const cards = (await sendData('FlashCard',CardsWithUID)) as FlashCard[];
         console.log("Cards:", cards)
         //We only want the ids for link
@@ -225,29 +270,33 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-beige-light font-karla">
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        {/* Back button and user icon */}
-        <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-[var(--color-background)] font-karla">
+      <Header user={user} />
+      
+      <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="mb-8">
           <button 
-            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            className="flex items-center gap-2 py-2 px-4 rounded-lg bg-[var(--color-secondary)] hover:bg-[var(--color-secondary-dark)] text-[var(--color-text-dark)] transition-colors cursor-pointer"
             onClick={handleBackNavigation}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"></path>
-            </svg>
+            <ArrowLeft size={20} className="text-[var(--color-primary)]" />
+            <span className="font-medium">Back to Decks</span>
           </button>
-          <div className="w-10 h-10 rounded-full bg-gray-300"></div>
         </div>
+        
+        {/* Page Title */}
+        <h1 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)] text-center mb-8">
+          Create New Deck
+        </h1>
         
         {/* Deck name input */}
         <div className="flex justify-center mb-8">
           <input 
             type="text" 
-            placeholder="Deck Name"
+            placeholder="Enter Deck Name"
             value={deckName}
             onChange={handleDeckNameChange}
-            className="w-1/2 p-4 text-center bg-beige-medium rounded-md border-none text-xl focus:outline-none"
+            className="w-full md:w-2/3 p-4 text-center bg-[var(--color-secondary)] rounded-xl border border-[var(--color-text-light)]/20 text-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
           />
         </div>
           
@@ -258,7 +307,7 @@ export default function UploadPage() {
             <div 
               onDrop={handleFileDrop}
               onDragOver={(e) => e.preventDefault()}
-              className="bg-gray-dark bg-opacity-5 h-64 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-all duration-300"
+              className="bg-[var(--color-unfilled)] h-64 border-2 border-dashed border-[var(--color-text-light)]/50 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-[var(--color-primary)]/50 transition-all duration-300"
             >
               <input
                 type="file"
@@ -269,30 +318,18 @@ export default function UploadPage() {
               />
               <label htmlFor="fileInput" className="cursor-pointer text-center w-full h-full flex flex-col items-center justify-center">
                 <div className="flex flex-col items-center">
-                  <svg 
-                    className="w-10 h-10 text-gray-400 mb-2" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round" 
-                      strokeWidth={2} 
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
-                  <span className="text-gray-500 font-medium">
+                  <Upload className="w-10 h-10 text-[var(--color-text-light)] mb-2" />
+                  <span className="text-[var(--color-text)] font-medium">
                     Upload a File
                   </span>
-                  {file && <span className="text-sm text-gray-400 mt-1">{file.name}</span>}
+                  {file && <span className="text-sm text-[var(--color-text-light)] mt-1">{file.name}</span>}
                 </div>
               </label>
             </div>
           </div>
           
           <div className="flex items-center justify-center">
-            <span className="text-lg font-medium">OR</span>
+            <span className="text-lg font-medium text-[var(--color-text)]">OR</span>
           </div>
           
           {/* Text input section */}
@@ -300,30 +337,64 @@ export default function UploadPage() {
             <textarea
               value={text}
               onChange={handleTextInput}
-              className="w-full h-64 p-4 rounded-lg bg-beige-medium border-none focus:outline-none resize-none"
+              className="w-full h-64 p-4 rounded-xl bg-[var(--color-secondary)] border border-[var(--color-text-light)]/20 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 resize-none"
               placeholder="Paste text..."
             />
           </div>
         </div>
         
-        {/* Detail level slider */}
+        {/* Detail level slider - replace with this enhanced version */}
         <div className="my-8">
-          <div className="text-center text-[#2AA296] font-medium mb-4">
-            {detailLevel === 1 ? 'Low' : detailLevel === 2 ? 'Medium' : 'High'} Detail
+          <div className="text-center text-[var(--color-primary)] font-medium mb-4">
+            {detailLevel === 1 || (detailLevel < 1.5 && detailLevel >= 1) ? 'Low' : 
+             detailLevel === 2 || (detailLevel < 2.5 && detailLevel >= 1.5) ? 'Medium' : 'High'} Detail
           </div>
-          <div className="relative w-full">
+          <div className="relative w-full max-w-full sm:max-w-xl mx-auto px-2">
             <input
               type="range"
               min="1"
               max="3"
+              step="0.01"
               value={detailLevel}
               onChange={handleDetailLevelChange}
-              className="w-full h-2 bg-[#2AA296] rounded-lg appearance-none cursor-pointer"
+              onMouseUp={() => {
+                setDetailLevel(Math.round(detailLevel));
+              }}
+              onTouchEnd={() => {
+                setDetailLevel(Math.round(detailLevel));
+              }}
+              className="w-full h-3 appearance-none cursor-pointer bg-[var(--color-card-medium)] rounded-lg 
+                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 
+                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--color-primary)] 
+                        [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:border-2 
+                        [&::-webkit-slider-thumb]:border-[var(--color-card-light)]
+                        [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6
+                        [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[var(--color-primary)]
+                        [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2
+                        [&::-moz-range-thumb]:border-[var(--color-card-light)]"
             />
-            <div className="flex justify-between mt-2">
-              <div className={`w-4 h-4 ${detailLevel === 1 ? 'bg-[#2AA296]' : 'bg-[#E0E0E0]'} rounded-full`}></div>
-              <div className={`w-4 h-4 ${detailLevel === 2 ? 'bg-[#2AA296]' : 'bg-[#E0E0E0]'} rounded-full`}></div>
-              <div className={`w-4 h-4 ${detailLevel === 3 ? 'bg-[#2AA296]' : 'bg-[#E0E0E0]'} rounded-full`}></div>
+            <div className="flex justify-between mt-4">
+              <div className={`transition-all duration-200 ease-in-out w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
+                Math.round(detailLevel) === 1 ? 'bg-[var(--color-primary)]/20 border-2 border-[var(--color-primary)]' : 'bg-[var(--color-card-medium)] border-2 border-transparent'
+              }`}>
+                <span className={`text-xs font-bold ${
+                  Math.round(detailLevel) === 1 ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-light)]'
+                }`}>1</span>
+              </div>
+              <div className={`transition-all duration-200 ease-in-out w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
+                Math.round(detailLevel) === 2 ? 'bg-[var(--color-primary)]/20 border-2 border-[var(--color-primary)]' : 'bg-[var(--color-card-medium)] border-2 border-transparent'
+              }`}>
+                <span className={`text-xs font-bold ${
+                  Math.round(detailLevel) === 2 ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-light)]'
+                }`}>2</span>
+              </div>
+              <div className={`transition-all duration-200 ease-in-out w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
+                Math.round(detailLevel) === 3 ? 'bg-[var(--color-primary)]/20 border-2 border-[var(--color-primary)]' : 'bg-[var(--color-card-medium)] border-2 border-transparent'
+              }`}>
+                <span className={`text-xs font-bold ${
+                  Math.round(detailLevel) === 3 ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-light)]'
+                }`}>3</span>
+              </div>
             </div>
           </div>
         </div>
@@ -343,46 +414,47 @@ export default function UploadPage() {
         )}
         
         {/* Generate button */}
-        <button
-          onClick={handleSubmit}
-          disabled={loading || (!file && !text)}
-          className={`w-full py-4 rounded-lg text-white font-medium text-lg
-            ${loading 
-              ? 'bg-gray-300 cursor-not-allowed' 
-              : 'bg-[#2AA296] hover:bg-[#249185] transition-colors duration-300'
-            }`}
-        >
-          {loading ? (
-            <span className="flex items-center justify-center">
-              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                <circle 
-                  className="opacity-25" 
-                  cx="12" 
-                  cy="12" 
-                  r="10" 
-                  stroke="currentColor" 
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path 
-                  className="opacity-75" 
-                  fill="currentColor" 
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-              Processing...
-            </span>
-          ) : (
-            'Generate Deck'
-          )}
-        </button>
-        
+        <div className="max-w-xl mx-auto">
+          <button
+            onClick={handleSubmit}
+            disabled={loading || (!file && !text) || !deckName}
+            className={`w-full py-4 rounded-xl text-white font-medium text-lg
+              ${loading || (!file && !text) || !deckName
+                ? 'bg-[var(--color-text-light)] cursor-not-allowed' 
+                : 'bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90 transition-colors duration-300'
+              }`}
+          >
+            {loading ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                  <circle 
+                    className="opacity-25" 
+                    cx="12" 
+                    cy="12" 
+                    r="10" 
+                    stroke="currentColor" 
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path 
+                    className="opacity-75" 
+                    fill="currentColor" 
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                  />
+                </svg>
+                Processing...
+              </span>
+            ) : (
+              'Generate Deck'
+            )}
+          </button>
+        </div>
         
         {/* Create from scratch link */}
         <div className="text-center mt-4">
-          <a href="#" className="text-[#2AA296] hover:underline">
+          <Link href="/edit" className="text-[var(--color-primary)] hover:underline">
             I want to create my own deck from scratch
-          </a>
+          </Link>
         </div>
       </div>
     </div>

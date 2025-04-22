@@ -5,7 +5,7 @@
 
 /* Base theme (default: beige-teal) */
 :root {
-  /* Default theme: Beige-Teal */
+  /* Default theme: Beige-Teal - Teal primary contrasts with beige */
   --color-primary: #2A9D8F;
   --color-primary-light: #3EB8AA;
   --color-primary-dark: #238377;
@@ -29,28 +29,32 @@
   --color-unfilled: rgba(140, 140, 140, 0.1);
 }
 
-/* Lavender theme */
+/* Lavender theme - Dark green primary contrasts with purple/lavender */
 html[data-theme="lavender"] {
   --color-primary: #295128;
-  --color-primary-light: #a2d870;
-  --color-primary-dark: #e5eec5;
+  --color-primary-light: #3A6D39;
+  --color-primary-dark: #1A3A1A;
   
-  --color-secondary: #f3dbf7;
-  --color-secondary-light: #FFF3FF;
-  --color-secondary-dark: #E1BEE7;
+  --color-secondary: #E1BEE7;
+  --color-secondary-light: #F3E5F5;
+  --color-secondary-dark: #CE93D8;
   
   --color-background: #F3E5F5;
   --color-background-light: #FFFFFF;
   --color-background-dark: #E1BEE7;
   
-  --color-text: #4A4A4A;
-  --color-text-light: #8C8C8C;
-  --color-text-dark: #2C2C2C;
+  --color-text: #3A3A3A;
+  --color-text-light: #757575;
+  --color-text-dark: #212121;
+
+  --color-card-light: #f5eaf8;
+  --color-card-medium: #e1bee7;
+  --color-card-dark: #ce93d8;
 
   --color-unfilled: rgba(140, 140, 140, 0.1);
 }
 
-/* Dark theme */
+/* Dark theme - Teal primary contrasts with dark background */
 .dark {
   --color-primary: #2A9D8F;
   --color-primary-light: #3EB8AA;
@@ -75,15 +79,15 @@ html[data-theme="lavender"] {
   --color-unfilled: rgba(140, 140, 140, 0.1);
 }
 
-/* Ocean Blue theme */
+/* Ocean Blue theme - Coral/orange primary contrasts with blue */
 html[data-theme="ocean-blue"] {
-  --color-primary: #0277BD;
-  --color-primary-light: #039BE5;
-  --color-primary-dark: #01579B;
+  --color-primary: #FF7043;
+  --color-primary-light: #FF8A65;
+  --color-primary-dark: #E64A19;
   
-  --color-secondary: #d2f1ff;
-  --color-secondary-light: #F5FCFF;
-  --color-secondary-dark: #B3E5FC;
+  --color-secondary: #B3E5FC;
+  --color-secondary-light: #E1F5FE;
+  --color-secondary-dark: #81D4FA;
   
   --color-background: #E1F5FE;
   --color-background-light: #FFFFFF;
@@ -92,49 +96,65 @@ html[data-theme="ocean-blue"] {
   --color-text: #37474F;
   --color-text-light: #78909C;
   --color-text-dark: #263238;
+
+  --color-card-light: #e1f5fe;
+  --color-card-medium: #b3e5fc;
+  --color-card-dark: #81d4fa;
+
+  --color-unfilled: rgba(120, 144, 156, 0.1);
 }
 
-
-
-/* Forest theme */
+/* Forest theme - Warm amber primary contrasts with green */
 html[data-theme="forest"] {
-  --color-primary: #2E7D32;
-  --color-primary-light: #43A047;
-  --color-primary-dark: #1B5E20;
+  --color-primary: #FF8F00;
+  --color-primary-light: #FFA726;
+  --color-primary-dark: #EF6C00;
   
-  --color-secondary: #E8F5E9;
-  --color-secondary-light: #F1F8E9;
-  --color-secondary-dark: #C8E6C9;
+  --color-secondary: #C8E6C9;
+  --color-secondary-light: #E8F5E9;
+  --color-secondary-dark: #A5D6A7;
   
   --color-background: #E8F5E9;
   --color-background-light: #FFFFFF;
   --color-background-dark: #C8E6C9;
   
-  --color-text: #1B5E20;
-  --color-text-light: #388E3C;
+  --color-text: #33691E;
+  --color-text-light: #558B2F;
   --color-text-dark: #1B5E20;
+
+  --color-card-light: #e8f5e9;
+  --color-card-medium: #c8e6c9;
+  --color-card-dark: #a5d6a7;
+
+  --color-unfilled: rgba(85, 139, 47, 0.1);
 }
 
-/* Ruby theme */
+/* Ruby theme - Deep teal primary contrasts with red */
 html[data-theme="ruby"] {
-  --color-primary: #C62828;
-  --color-primary-light: #E53935;
-  --color-primary-dark: #B71C1C;
+  --color-primary: #00796B;
+  --color-primary-light: #009688;
+  --color-primary-dark: #00695C;
   
-  --color-secondary: #FFEBEE;
-  --color-secondary-light: #FFF5F5;
-  --color-secondary-dark: #FFCDD2;
+  --color-secondary: #FFCDD2;
+  --color-secondary-light: #FFEBEE;
+  --color-secondary-dark: #EF9A9A;
   
   --color-background: #FFEBEE;
   --color-background-light: #FFFFFF;
   --color-background-dark: #FFCDD2;
   
-  --color-text: #B71C1C;
-  --color-text-light: #E53935;
-  --color-text-dark: #7F0000;
+  --color-text: #7F0000;
+  --color-text-light: #C62828;
+  --color-text-dark: #5D0000;
+
+  --color-card-light: #ffebee;
+  --color-card-medium: #ffcdd2;
+  --color-card-dark: #ef9a9a;
+
+  --color-unfilled: rgba(198, 40, 40, 0.1);
 }
 
-/* The rest of your CSS stays the same */
+
 html {
   scroll-behavior: smooth;
 }

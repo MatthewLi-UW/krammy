@@ -8,6 +8,7 @@ import TypingExercise from "./flashcard"
 import { ChevronLeft, ChevronRight, RotateCcw, Award, Zap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlashCard } from "@/types/FlashCard";
+import Link from "next/link";
 
 // Add a deck ID parameter to the props
 interface FlashcardStackProps {
@@ -145,62 +146,98 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
   }
 
   if (isDeckCompleted) {
-    const { avgWpm, avgAccuracy } = calculateAverages();
-
     return (
-      <div className="relative w-full max-w-3xl mx-auto flex flex-col items-center">
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-card-dark)] rounded-lg shadow-2xl p-8 text-center text-[var(--color-card-light)]"
-        >
-          <motion.h2
-            className="text-4xl font-bold mb-6 text-[var(--color-card-light)]"
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            🎉 Congratulations!
-          </motion.h2>
-          <div className="space-y-6 mb-8">
-            <motion.div
-              className="flex items-center justify-center space-x-4"
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Zap className="w-8 h-8 text-[var(--color-card-light)]" />
-              <p className="text-2xl text-[var(--color-card-light)]">
-                Average WPM: <span className="font-bold">{avgWpm}</span>
-              </p>
-            </motion.div>
-            <motion.div
-              className="flex items-center justify-center space-x-4"
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-            >
-              <Award className="w-8 h-8 text-[var(--color-card-light)]" />
-              <p className="text-2xl text-[var(--color-card-light)]">
-                Average Accuracy: <span className="font-bold">{avgAccuracy}%</span>
-              </p>
-            </motion.div>
+      <div className="w-full flex flex-col items-center justify-center p-6">
+        <div className="bg-[var(--color-card-light)] rounded-2xl shadow-lg w-full max-w-2xl overflow-hidden">
+          {/* Header section with gradient and celebration icon */}
+          <div className="bg-gradient-to-r from-[var(--color-primary)]/20 via-[var(--color-primary)]/30 to-[var(--color-primary)]/20 px-8 py-6 flex items-center justify-center">
+            <div className="bg-[var(--color-primary)]/20 rounded-full p-4">
+              <Award className="h-12 w-12 text-[var(--color-primary)]" />
+            </div>
           </div>
-          <motion.button
-            onClick={handleRestart}
-            className="flex items-center justify-center space-x-2 mx-auto px-6 py-3 bg-[var(--color-card-light)] text-[var(--color-primary)] rounded-full shadow-md transition-all duration-300 hover:bg-[var(--color-card-medium)] hover:text-[var(--color-primary)] hover:shadow-lg"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.8 }}
-          >
-            <RotateCcw className="w-5 h-5" />
-            <span className="font-semibold">Restart Deck</span>
-          </motion.button>
-        </motion.div>
+          
+          {/* Content section */}
+          <div className="p-8 flex flex-col items-center">
+            <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)] mb-2">
+              Congratulations!
+            </h2>
+            <p className="text-[var(--color-text)] text-center mb-6">
+              You've completed the entire deck!
+            </p>
+            
+            {/* Stats section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8">
+              <div className="bg-[var(--color-background-light)] rounded-xl p-5 flex flex-col items-center">
+                <div className="text-[var(--color-primary)] mb-1">Average WPM</div>
+                <div className="text-2xl font-bold text-[var(--color-text-dark)]">
+                  {stats.length > 0 
+                    ? Math.round(stats.reduce((sum, stat) => sum + stat.wpm, 0) / stats.length) 
+                    : 0}
+                </div>
+              </div>
+              
+              <div className="bg-[var(--color-background-light)] rounded-xl p-5 flex flex-col items-center">
+                <div className="text-[var(--color-primary)] mb-1">Average Accuracy</div>
+                <div className="text-2xl font-bold text-[var(--color-text-dark)]">
+                  {stats.length > 0 
+                    ? Math.round(stats.reduce((sum, stat) => sum + stat.accuracy, 0) / stats.length) 
+                    : 0}%
+                </div>
+              </div>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="flex flex-col md:flex-row gap-4 w-full">
+              <button 
+                onClick={() => {
+                  setIsDeckCompleted(false);
+                  setCurrentCardIndex(0);
+                  setStats([]);
+                }}
+                className="flex-1 py-3 px-4 bg-[var(--color-primary)] text-white rounded-xl hover:bg-[var(--color-primary)]/90 transition-colors font-medium flex items-center justify-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Restart Deck
+              </button>
+              
+              <Link 
+                href="/protected"
+                className="flex-1 py-3 px-4 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-xl hover:bg-[var(--color-secondary-dark)] transition-colors font-medium text-center flex items-center justify-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Decks
+              </Link>
+            </div>
+          </div>
+        </div>
+        
+        {/* Progress streak visualization */}
+        <div className="mt-12 w-full max-w-xl">
+          <h3 className="text-xl font-medium text-[var(--color-text-dark)] mb-4 text-center">
+            Your progress
+          </h3>
+          <div className="flex gap-2 justify-center flex-wrap">
+            {stats.map((stat, index) => (
+              <div 
+                key={index}
+                className="group relative cursor-help"
+              >
+                <div 
+                  className={`h-3 w-12 rounded-full ${
+                    stat.accuracy > 90 ? 'bg-green-500' : 
+                    stat.accuracy > 75 ? 'bg-[var(--color-primary)]' : 
+                    stat.accuracy > 60 ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}
+                />
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[var(--color-card-dark)] text-white rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  Card {index + 1}: {stat.wpm} WPM / {stat.accuracy}% accuracy
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    )
+    );
   }
 
   const currentCard = flashcards[currentCardIndex];

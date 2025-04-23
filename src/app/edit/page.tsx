@@ -115,10 +115,6 @@ export default function EditDeckPage() {
         
       if (error) throw error;
 
-      await supabase
-        .from('Deck')
-        .eq('deck_id', deckId);
-
       setEditingDeckName(false);
       setToast({message: "Deck name updated successfully", type: 'success'});
     } catch (error) {

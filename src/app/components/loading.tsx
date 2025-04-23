@@ -56,7 +56,7 @@ export default function Loading({
 
   // Return fullscreen wrapper or just the spinner
   return fullScreen ? (
-    <div className="min-h-screen bg-beige-light flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       {spinner}
     </div>
   ) : spinner;

@@ -117,7 +117,6 @@ export default function EditDeckPage() {
 
       await supabase
         .from('Deck')
-        .update({ last_edited: new Date().toISOString() })
         .eq('deck_id', deckId);
 
       setEditingDeckName(false);

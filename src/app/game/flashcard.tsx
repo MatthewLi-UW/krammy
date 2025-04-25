@@ -257,7 +257,6 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
                   } transition-colors hover:opacity-80`} 
                 />
               </button>
-              <Star className="w-6 h-6 text-[var(--color-primary)]" />
             </div>
             
             {/* Centered text content */}

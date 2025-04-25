@@ -68,6 +68,40 @@ export default {
           teal: "#00897B",
         },
       },
+      keyframes: {
+        slideUpFade: {
+          '0%': { transform: 'translateY(100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        fadeOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        scaleIn: {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        breathe: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.03)' }
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-1000px 0' },
+          '100%': { backgroundPosition: '1000px 0' }
+        },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(-2deg)' },
+          '50%': { transform: 'rotate(2deg)' }
+        }
+      },
+      animation: {
+        slideUpFade: 'slideUpFade 0.3s ease-out forwards',
+        fadeOut: 'fadeOut 0.3s ease-out forwards',
+        scaleIn: 'scaleIn 0.3s ease-out forwards',
+        breathe: 'breathe 2s ease-in-out infinite',
+        shimmer: 'shimmer 2s linear infinite',
+        wiggle: 'wiggle 0.5s ease-in-out'
+      },
     },
   },
   plugins: [],

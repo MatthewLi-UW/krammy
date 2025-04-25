@@ -126,26 +126,28 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     localStorage.setItem(indexKey, '0');
   }
 
-  const calculateAverages = () => {
-    if (stats.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
+  const calculateStats = () => {
+    // Filter out any null or undefined stats first
+    const validStats = stats.filter(stat => stat !== null && stat !== undefined);
     
-    // Filter out undefined entries
-    const validStats = stats.filter(stat => stat !== undefined && stat !== null);
+    if (validStats.length === 0) {
+      return { avgWpm: 0, avgAccuracy: 0 };
+    }
     
-    if (validStats.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
+    const avgWpm = Math.round(
+      validStats.reduce((sum, stat) => sum + stat.wpm, 0) / validStats.length
+    );
     
-    const total = validStats.reduce((acc, stat) => ({
-      wpm: acc.wpm + stat.wpm,
-      accuracy: acc.accuracy + stat.accuracy
-    }), { wpm: 0, accuracy: 0 });
-
-    return {
-      avgWpm: Math.round(total.wpm / validStats.length),
-      avgAccuracy: Math.round(total.accuracy / validStats.length)
-    };
-  }
+    const avgAccuracy = Math.round(
+      validStats.reduce((sum, stat) => sum + stat.accuracy, 0) / validStats.length
+    );
+    
+    return { avgWpm, avgAccuracy };
+  };
 
   if (isDeckCompleted) {
+    const { avgWpm, avgAccuracy } = calculateStats();
+
     return (
       <div className="w-full flex flex-col items-center justify-center p-6">
         <div className="bg-[var(--color-card-light)] rounded-2xl shadow-lg w-full max-w-2xl overflow-hidden">
@@ -170,18 +172,14 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
               <div className="bg-[var(--color-background-light)] rounded-xl p-5 flex flex-col items-center">
                 <div className="text-[var(--color-primary)] mb-1">Average WPM</div>
                 <div className="text-2xl font-bold text-[var(--color-text-dark)]">
-                  {stats.length > 0 
-                    ? Math.round(stats.reduce((sum, stat) => sum + stat.wpm, 0) / stats.length) 
-                    : 0}
+                  {avgWpm}
                 </div>
               </div>
               
               <div className="bg-[var(--color-background-light)] rounded-xl p-5 flex flex-col items-center">
                 <div className="text-[var(--color-primary)] mb-1">Average Accuracy</div>
                 <div className="text-2xl font-bold text-[var(--color-text-dark)]">
-                  {stats.length > 0 
-                    ? Math.round(stats.reduce((sum, stat) => sum + stat.accuracy, 0) / stats.length) 
-                    : 0}%
+                  {avgAccuracy}%
                 </div>
               </div>
             </div>
@@ -217,23 +215,28 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
             Your progress
           </h3>
           <div className="flex gap-2 justify-center flex-wrap">
-            {stats.map((stat, index) => (
-              <div 
-                key={index}
-                className="group relative cursor-help"
-              >
-                <div 
-                  className={`h-3 w-12 rounded-full ${
-                    stat.accuracy > 90 ? 'bg-green-500' : 
-                    stat.accuracy > 75 ? 'bg-[var(--color-primary)]' : 
-                    stat.accuracy > 60 ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}
-                />
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[var(--color-card-dark)] text-white rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  Card {index + 1}: {stat.wpm} WPM / {stat.accuracy}% accuracy
-                </div>
-              </div>
-            ))}
+            {stats
+              .map((stat, index) => 
+                stat ? ( // Only render if stat exists
+                  <div 
+                    key={index}
+                    className="group relative cursor-help"
+                  >
+                    <div 
+                      className={`h-3 w-12 rounded-full ${
+                        stat.accuracy > 90 ? 'bg-green-500' : 
+                        stat.accuracy > 75 ? 'bg-[var(--color-primary)]' : 
+                        stat.accuracy > 60 ? 'bg-yellow-500' : 'bg-red-500'
+                      }`}
+                    />
+                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-[var(--color-card-dark)] text-white rounded px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      Card {index + 1}: {stat.wpm} WPM / {stat.accuracy}% accuracy
+                    </div>
+                  </div>
+                ) : (
+                  <div key={index} className="h-3 w-12 rounded-full bg-gray-300" /> // Placeholder for skipped cards
+                )
+              )}
           </div>
         </div>
       </div>
@@ -296,10 +299,10 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
       {stats.length > 0 && (
         <div className="flex gap-4 text-sm mt-4">
           <span className="text-[var(--color-primary)] bg-[var(--color-background-light)] px-3 py-1 rounded-full shadow-sm">
-            {calculateAverages().avgWpm} WPM
+            {calculateStats().avgWpm} WPM
           </span>
           <span className="text-[var(--color-primary)] bg-[var(--color-background-light)] px-3 py-1 rounded-full shadow-sm">
-            {calculateAverages().avgAccuracy}% Accuracy
+            {calculateStats().avgAccuracy}% Accuracy
           </span>
         </div>
       )}

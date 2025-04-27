@@ -81,7 +81,7 @@ export default function EditDeckPage() {
         if (deckError) throw deckError;
         
         // Check permissions
-        if (user && deckData.owner_id !== user.id) {
+        if (!user) {
           setToast({message: "You don't have permission to edit this deck", type: 'error'});
           router.push('/protected');
           return;

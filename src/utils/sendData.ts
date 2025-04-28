@@ -59,7 +59,7 @@ export const shareADeck = async (deckID: number, access_type: AccessType = ACCES
 
     if (shareError) throw shareError;
 
-    const shareLink = `https://yourdomain.com/share/${shareData.share_token}`;
+    const shareLink = `${shareData.share_token}`;
 
     return { shareLink, expiresAt: shareData.expiry_date };
   } catch (error) {

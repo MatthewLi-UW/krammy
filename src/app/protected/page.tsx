@@ -14,6 +14,8 @@ import ShareDeckForm from "./recievePage";
 import RecieveDeckForm from "./sharePage";
 import Header from "../components/header";
 import Loading from '@/app/components/loading';
+import ShareModal from "@/app/protected/shareModal";
+import ImportModal from "@/app/protected/importModal";
 
 export default function ProtectedPage() {
   const [loading, setLoading] = useState(true);
@@ -22,6 +24,11 @@ export default function ProtectedPage() {
   const [deckCounts, setDeckCounts] = useState<{deck_id: number, count: number}[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
+  const [selectedDeckName, setSelectedDeckName] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -82,6 +89,46 @@ export default function ProtectedPage() {
     router.push(`/game?deckId=${deckId}`);
   };
 
+  const handleShareDeck = (deckId: number) => {
+    const deck = filteredDecks.find(d => d.deck_id === deckId);
+    setSelectedDeckId(deckId);
+    setSelectedDeckName(deck?.deck_name || '');
+    setShareModalOpen(true);
+  };
+
+  const handleImportSuccess = () => {
+    // Show success message
+    setToast({
+      message: "Deck imported successfully!",
+      type: "success"
+    });
+    
+    // Fetch the updated deck list
+    const deckListGet = async () => {
+      try {
+        const decks = await getData("Deck") as Deck[];
+        const deckIds = decks?.map(deck => deck.deck_id) || [];
+        const deckCounts = await cardsPerDeck(deckIds);
+        setDeckCounts(deckCounts);
+        
+        // Update card counts for each deck
+        decks?.forEach(deck => {
+          const match = deckCounts.find((extra: { deck_id: number, count: number }) => 
+            extra.deck_id === deck.deck_id
+          );
+          deck.card_count = match ? match.count : 0; 
+        });
+        
+        setDeckList(decks);
+      } catch (error) {
+        console.error("Error refreshing deck list:", error);
+      }
+    };
+    
+    // Call the function to refresh decks
+    deckListGet();
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -101,23 +148,23 @@ export default function ProtectedPage() {
       <Header user={user} />
       
       <div className="max-w-4xl mx-auto px-4 py-2 font-karla">
-        {/* Enhanced Search Bar */}
-        <div className="relative max-w-md mx-auto mb-8">
-          <div className="relative flex items-center">
+        <div className="relative max-w-md mx-auto mb-8 flex items-center gap-3">
+          {/* Search bar - updated SearchIcon positioning */}
+          <div className="relative flex-1">
             <SearchIcon 
-              className="absolute left-3 text-[var(--color-primary)]/60 z-10" 
-              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-primary)]/60 z-10" 
+              size={18} 
             />
-            <input 
-              type="text" 
-              placeholder="Search for a deck" 
+            <input
+              type="text"
+              placeholder="Search for a deck"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-10 py-3 bg-[var(--color-secondary)] border border-[var(--color-text-light)]/30 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)]/50 transition-all duration-200 hover:shadow-md"
               aria-label="Search for a deck"
             />
             {searchTerm && (
-              <button 
+              <button
                 onClick={() => setSearchTerm('')}
                 className="absolute right-3 text-[var(--color-text-light)] hover:text-[var(--color-text)] transition-colors"
                 aria-label="Clear search"
@@ -129,6 +176,29 @@ export default function ProtectedPage() {
               </button>
             )}
           </div>
+          
+          {/* New Import button next to search bar */}
+          <button
+            onClick={() => setImportModalOpen(true)}
+            className="flex-shrink-0 py-3 px-4 bg-[var(--color-primary)] text-white rounded-xl hover:bg-[var(--color-primary-dark)] transition-colors flex items-center gap-2"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="16" 
+              height="16" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+              <polyline points="16 16 12 20 8 16" />
+              <line x1="12" y1="2" x2="12" y2="20" />
+            </svg>
+            <span>Import Deck</span>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -159,7 +229,6 @@ export default function ProtectedPage() {
           {filteredDecks.map((deck, index) => (
             <div 
               key={deck.deck_id} 
-              onClick={() => handleDeckClick(deck.deck_id)}
               className={`bg-[var(--color-secondary)] rounded-xl border h-48 p-5 flex flex-col justify-center items-center cursor-pointer relative ${
                 hoveredIndex === index
                 ? 'scale-105 shadow-lg border-[var(--color-primary)]'
@@ -167,26 +236,44 @@ export default function ProtectedPage() {
               } transition-all duration-300 ease-in-out`}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
+              onClick={() => handleDeckClick(deck.deck_id)}
             >
-              <Link href={`/edit?deckId=${deck.deck_id}`}>
-                <div 
-                  className="absolute top-4 right-4 text-[var(--color-text-light)]"
+              {/* Share button - moved to top-left */}
+              <div className="absolute top-4 left-4">
+                <button 
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent the click from bubbling up to the parent div
+                    e.stopPropagation();
+                    handleShareDeck(deck.deck_id);
                   }}
+                  className="p-1.5 rounded-full text-[var(--color-text-light)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] transition-colors"
+                  aria-label="Share Deck"
                 >
-                  <PenIcon size={18} className="text-[var(--color-card-dark)] hover:text-[var(--color-primary)] transition-colors" />
-                </div>
-              </Link>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                    <polyline points="16 6 12 2 8 6" />
+                    <line x1="12" y1="2" x2="12" y2="15" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Edit link - remains in top-right */}
+              <div className="absolute top-4 right-4">
+                <Link 
+                  href={`/edit?deckId=${deck.deck_id}`}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="p-1.5 rounded-full hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)] transition-colors">
+                    <PenIcon size={16} />
+                  </div>
+                </Link>
+              </div>
+              
+              {/* Deck content remains the same */}
               <div className="text-center">
-                <h3 className={`font-bold text-xl text-[var(--color-text-dark)] ${
-                  hoveredIndex === index ? 'scale-101' : 'scale-100'
-                } transition-transform duration-300 ease-in-out`}>
+                <h3 className="font-bold text-xl text-[var(--color-text-dark)]">
                   {deck.deck_name}
                 </h3>
-                <p className={`text-[var(--color-primary)] font-medium mt-1 ${
-                  hoveredIndex === index ? 'scale-101' : 'scale-100'
-                } transition-transform duration-300 ease-in-out`}>
+                <p className="text-[var(--color-primary)] font-medium mt-1">
                   {deck.card_count || 0} Terms
                 </p>
               </div>
@@ -243,6 +330,35 @@ export default function ProtectedPage() {
           </div>
         </div>
       </div>
+
+      {/* Import button (floating action button) */}
+      <button
+        onClick={() => setImportModalOpen(true)}
+        className="fixed bottom-6 right-6 p-4 bg-[var(--color-primary)] text-white rounded-full shadow-lg hover:bg-[var(--color-primary-dark)] transition-all hover:scale-105 z-20"
+        aria-label="Import Deck"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+          <polyline points="16 16 12 20 8 16" />
+          <line x1="12" y1="2" x2="12" y2="20" />
+        </svg>
+      </button>
+
+      {/* Share Modal */}
+      <ShareModal
+        deckId={selectedDeckId}
+        deckName={selectedDeckName}
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+      />
+
+      {/* Import Modal */}
+      <ImportModal
+        userId={user?.id || ''}
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onImportSuccess={handleImportSuccess}
+      />
     </div>
   );
 }

@@ -22,10 +22,10 @@ def parse_pdf():
     Returns JSON with the extracted text.
     """
     # file size check (limit to 10MB)
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
+    MAX_FILE_SIZE = 16 * 1024 * 1024  # 10MB in bytes
     
     if request.content_length > MAX_FILE_SIZE:
-        return jsonify({"error": "File too large. Maximum size is 10MB"}), 413
+        return jsonify({"error": "File too large. Maximum size is 16MB"}), 413
 
     if 'pdf' not in request.files:
         return jsonify({"error": "No PDF file provided"}), 400

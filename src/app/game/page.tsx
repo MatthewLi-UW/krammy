@@ -143,7 +143,7 @@ export default function Game() {
           ) : (
             <div className="text-center p-12 bg-[var(--color-card-light)] rounded-xl shadow-md w-full">
               <p className="text-xl text-[var(--color-text)] mb-6">No flashcards found in this deck.</p>
-              <Link href="/upload" className="text-[var(--color-primary)] hover:underline text-lg font-medium">
+              <Link href={`/edit?deckId=${deckId}`} className="text-[var(--color-primary)] hover:underline text-lg font-medium">
                 Create some flashcards
               </Link>
             </div>

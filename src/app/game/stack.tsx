@@ -147,6 +147,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
 
   if (isDeckCompleted) {
     const { avgWpm, avgAccuracy } = calculateStats();
+    const validStats = stats.filter(stat => stat !== null && stat !== undefined);
 
     return (
       <div className="w-full flex flex-col items-center justify-center p-6">
@@ -175,7 +176,6 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
                   {avgWpm}
                 </div>
               </div>
-              
               <div className="bg-[var(--color-background-light)] rounded-xl p-5 flex flex-col items-center">
                 <div className="text-[var(--color-primary)] mb-1">Average Accuracy</div>
                 <div className="text-2xl font-bold text-[var(--color-text-dark)]">
@@ -184,20 +184,15 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
               </div>
             </div>
             
-            {/* Action buttons */}
-            <div className="flex flex-col md:flex-row gap-4 w-full">
-              <button 
-                onClick={() => {
-                  setIsDeckCompleted(false);
-                  setCurrentCardIndex(0);
-                  setStats([]);
-                }}
-                className="flex-1 py-3 px-4 bg-[var(--color-primary)] text-white rounded-xl hover:bg-[var(--color-primary)]/90 transition-colors font-medium flex items-center justify-center gap-2"
+            {/* Buttons */}
+            <div className="flex flex-col md:flex-row gap-3 w-full">
+              <button
+                onClick={handleRestart}
+                className="flex-1 py-3 px-4 bg-[var(--color-primary)] text-white rounded-xl hover:bg-[var(--color-primary-dark)] transition-colors font-medium flex items-center justify-center gap-2"
               >
                 <RotateCcw className="h-4 w-4" />
-                Restart Deck
+                Practice Again
               </button>
-              
               <Link 
                 href="/protected"
                 className="flex-1 py-3 px-4 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-xl hover:bg-[var(--color-secondary-dark)] transition-colors font-medium text-center flex items-center justify-center gap-2"
@@ -209,15 +204,15 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
           </div>
         </div>
         
-        {/* Progress streak visualization */}
-        <div className="mt-12 w-full max-w-xl">
-          <h3 className="text-xl font-medium text-[var(--color-text-dark)] mb-4 text-center">
-            Your progress
-          </h3>
-          <div className="flex gap-2 justify-center flex-wrap">
-            {stats
-              .map((stat, index) => 
-                stat ? ( // Only render if stat exists
+        {/* Progress streak visualization - only show if there are valid stats */}
+        {validStats.length > 0 && (
+          <div className="mt-12 w-full max-w-xl">
+            <h3 className="text-xl font-medium text-[var(--color-text-dark)] mb-4 text-center">
+              Your progress
+            </h3>
+            <div className="flex gap-2 justify-center flex-wrap">
+              {stats.map((stat, index) => 
+                stat ? (
                   <div 
                     key={index}
                     className="group relative cursor-help"
@@ -234,11 +229,12 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
                     </div>
                   </div>
                 ) : (
-                  <div key={index} className="h-3 w-12 rounded-full bg-gray-300" /> // Placeholder for skipped cards
+                  <div key={index} className="h-3 w-12 rounded-full bg-gray-300" />
                 )
               )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }

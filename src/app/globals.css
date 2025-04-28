@@ -35,6 +35,32 @@
   --color-success-dark: #16a34a;
 }
 
+/* Dark theme - Teal primary contrasts with dark background */
+.dark {
+  --color-primary: #2A9D8F;
+  --color-primary-light: #3EB8AA;
+  --color-primary-dark: #238377;
+  
+  --color-secondary: #333333;
+  --color-secondary-light: #444444;
+  --color-secondary-dark: #222222;
+  
+  --color-background: #121212;
+  --color-background-light: #1E1E1E;
+  --color-background-dark: #0A0A0A;
+  
+  --color-text: #EDEDED;
+  --color-text-light: #BBBBBB;
+  --color-text-dark: #FFFFFF;
+
+  --color-card-light: #575757;
+  --color-card-medium: #444444;
+  --color-card-dark: #222222;
+
+  --color-unfilled: rgba(140, 140, 140, 0.1);
+  --color-error-text: #f87171;
+}
+
 /* Lavender theme - Dark green primary contrasts with purple/lavender */
 html[data-theme="lavender"] {
   --color-primary: #295128;
@@ -62,31 +88,6 @@ html[data-theme="lavender"] {
   
 }
 
-/* Dark theme - Teal primary contrasts with dark background */
-.dark {
-  --color-primary: #2A9D8F;
-  --color-primary-light: #3EB8AA;
-  --color-primary-dark: #238377;
-  
-  --color-secondary: #333333;
-  --color-secondary-light: #444444;
-  --color-secondary-dark: #222222;
-  
-  --color-background: #121212;
-  --color-background-light: #1E1E1E;
-  --color-background-dark: #0A0A0A;
-  
-  --color-text: #EDEDED;
-  --color-text-light: #BBBBBB;
-  --color-text-dark: #FFFFFF;
-
-  --color-card-light: #575757;
-  --color-card-medium: #444444;
-  --color-card-dark: #222222;
-
-  --color-unfilled: rgba(140, 140, 140, 0.1);
-  --color-error-text: #f87171;
-}
 
 /* Ocean Blue theme - Coral/orange primary contrasts with blue */
 html[data-theme="ocean-blue"] {
@@ -113,31 +114,6 @@ html[data-theme="ocean-blue"] {
   --color-unfilled: rgba(120, 144, 156, 0.1);
 }
 
-/* Forest theme - Warm amber primary contrasts with green */
-html[data-theme="forest"] {
-  --color-primary: #FF8F00;
-  --color-primary-light: #FFA726;
-  --color-primary-dark: #EF6C00;
-  
-  --color-secondary: #C8E6C9;
-  --color-secondary-light: #E8F5E9;
-  --color-secondary-dark: #A5D6A7;
-  
-  --color-background: #E8F5E9;
-  --color-background-light: #FFFFFF;
-  --color-background-dark: #C8E6C9;
-  
-  --color-text: #33691E;
-  --color-text-light: #558B2F;
-  --color-text-dark: #1B5E20;
-
-  --color-card-light: #e8f5e9;
-  --color-card-medium: #c8e6c9;
-  --color-card-dark: #a5d6a7;
-
-  --color-unfilled: rgba(85, 139, 47, 0.1);
-}
-
 /* Ruby theme - Deep teal primary contrasts with red */
 html[data-theme="ruby"] {
   --color-primary: #00796B;
@@ -161,6 +137,31 @@ html[data-theme="ruby"] {
   --color-card-dark: #ef9a9a;
 
   --color-unfilled: rgba(198, 40, 40, 0.1);
+}
+
+/* Forest theme - Warm amber primary contrasts with green */
+html[data-theme="forest"] {
+  --color-primary: #FF8F00;
+  --color-primary-light: #FFA726;
+  --color-primary-dark: #EF6C00;
+  
+  --color-secondary: #C8E6C9;
+  --color-secondary-light: #E8F5E9;
+  --color-secondary-dark: #A5D6A7;
+  
+  --color-background: #E8F5E9;
+  --color-background-light: #FFFFFF;
+  --color-background-dark: #C8E6C9;
+  
+  --color-text: #33691E;
+  --color-text-light: #558B2F;
+  --color-text-dark: #1B5E20;
+
+  --color-card-light: #e8f5e9;
+  --color-card-medium: #c8e6c9;
+  --color-card-dark: #a5d6a7;
+
+  --color-unfilled: rgba(85, 139, 47, 0.1);
 }
 
 

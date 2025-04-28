@@ -81,12 +81,20 @@ export default function Header({ user }: HeaderProps) {
                 </p>
               </div>
               
-              <Link href="/protected" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <Link 
+                href="/protected" 
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsDropdownOpen(false)}
+              >
                 <UserIcon size={16} className="mr-2 shrink-0" />
                 My Decks
               </Link>
               
-              <Link href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <Link 
+                href="/settings" 
+                className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setIsDropdownOpen(false)}
+              >
                 <SettingsIcon size={16} className="mr-2 shrink-0" />
                 Settings
               </Link>

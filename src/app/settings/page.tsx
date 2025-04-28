@@ -179,19 +179,19 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              {/* Lavender theme */}
+              {/* faerie-lavender theme */}
               <div 
                 onClick={() => {
-                  setTheme('lavender');
+                  setTheme('faerie-lavender');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'lavender' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
+                  ${theme === 'faerie-lavender' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-purple-100`}
               >
                 <div className="bg-purple-500 h-3 w-12 rounded mb-2"></div>
                 <div className="bg-purple-200 h-3 w-16 rounded"></div>
-                <span className="mt-2 text-xs font-medium text-gray-900">Lavender</span>
-                {theme === 'lavender' && (
+                <span className="mt-2 text-xs font-medium text-gray-900">Faerie Lavender</span>
+                {theme === 'faerie-lavender' && (
                   <div className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -200,19 +200,19 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              {/* Ruby theme */}
+              {/* strawberry-red theme */}
               <div 
                 onClick={() => {
-                  setTheme('ruby');
+                  setTheme('strawberry-red');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'ruby' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
+                  ${theme === 'strawberry-red' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-red-100`}
               >
                 <div className="bg-red-500 h-3 w-12 rounded mb-2"></div>
                 <div className="bg-red-200 h-3 w-16 rounded"></div>
-                <span className="mt-2 text-xs font-medium text-gray-900">Ruby</span>
-                {theme === 'ruby' && (
+                <span className="mt-2 text-xs font-medium text-gray-900">Strawberry Red</span>
+                {theme === 'strawberry-red' && (
                   <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -239,9 +239,9 @@ export default function SettingsPage() {
                 theme === 'light' ? 'Default (Krammy)' : 
                 theme === 'dark' ? 'Dark' :
                 theme === 'ocean-blue' ? 'Ocean Blue' :
-                theme === 'lavender' ? 'Lavender' :
+                theme === 'faerie-lavender' ? 'Faerie Lavender' :
                 theme === 'forest' ? 'Forest' :
-                theme === 'ruby' ? 'Ruby' : 'Custom'
+                theme === 'strawberry-red' ? 'Strawberry Red' : 'Custom'
               }
             </p>
           </div>

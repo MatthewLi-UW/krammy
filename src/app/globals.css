@@ -62,7 +62,7 @@
 }
 
 /* Lavender theme - Dark green primary contrasts with purple/lavender */
-html[data-theme="lavender"] {
+html[data-theme="faerie-lavender"] {
   --color-primary: #295128;
   --color-primary-light: #3A6D39;
   --color-primary-dark: #1A3A1A;
@@ -115,7 +115,7 @@ html[data-theme="ocean-blue"] {
 }
 
 /* Ruby theme - Deep teal primary contrasts with red */
-html[data-theme="ruby"] {
+html[data-theme="strawberry-red"] {
   --color-primary: #00796B;
   --color-primary-light: #009688;
   --color-primary-dark: #00695C;

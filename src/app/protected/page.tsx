@@ -286,63 +286,8 @@ export default function ProtectedPage() {
           ))}
         </div>
       </div>
-      {/* Sharing Section with improved UI */}
-      <div className="max-w-4xl mx-auto px-4 pb-16 font-karla">
-        <div className="mt-16 bg-[var(--color-secondary)]/50 rounded-2xl p-8 shadow-sm">
-          <h2 className="text-2xl font-bold text-[var(--color-text-dark)] mb-6 text-center">Share & Receive Decks</h2>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Share Deck Form */}
-            <div className="bg-[var(--color-background-light)] rounded-xl p-6 shadow-sm border border-[var(--color-background-light)]">
-              <div className="flex items-center mb-4">
-                <div className="bg-[var(--color-primary)]/10 p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)]">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                    <polyline points="16 6 12 2 8 6"></polyline>
-                    <line x1="12" y1="2" x2="12" y2="15"></line>
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-[var(--color-text-dark)]">Share Your Deck</h3>
-              </div>
-              <p className="text-[var(--color-text)] text-sm mb-4">
-                Share your flashcard decks with friends or colleagues
-              </p>
-              <ShareDeckForm uuid={user?.id ?? ""} />
-            </div>
-            
-            {/* Receive Deck Form */}
-            <div className="bg-[var(--color-background-light)] rounded-xl p-6 shadow-sm border border-[var(--color-background-light)]">
-              <div className="flex items-center mb-4">
-                <div className="bg-[var(--color-primary)]/10 p-2 rounded-full mr-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--color-primary)]">
-                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                    <polyline points="16 16 12 20 8 16"></polyline>
-                    <line x1="12" y1="2" x2="12" y2="20"></line>
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-[var(--color-text-dark)]">Receive a Deck</h3>
-              </div>
-              <p className="text-[var(--color-text)] text-sm mb-4">
-                Access shared decks using a provided share code
-              </p>
-              <RecieveDeckForm />
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Import button (floating action button) */}
-      <button
-        onClick={() => setImportModalOpen(true)}
-        className="fixed bottom-6 right-6 p-4 bg-[var(--color-primary)] text-white rounded-full shadow-lg hover:bg-[var(--color-primary-dark)] transition-all hover:scale-105 z-20"
-        aria-label="Import Deck"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-          <polyline points="16 16 12 20 8 16" />
-          <line x1="12" y1="2" x2="12" y2="20" />
-        </svg>
-      </button>
+
 
       {/* Share Modal */}
       <ShareModal

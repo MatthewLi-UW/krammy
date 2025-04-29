@@ -141,39 +141,39 @@ export default function LandingPage() {
 
       {/* === Hero Section === */}
       <div className="min-h-screen flex items-center justify-center p-4 relative">
-        <div className="w-full max-w-7xl flex items-center">
+        <div className="w-full max-w-7xl flex flex-col md:flex-row items-center">
           {/* Left Column - Value Proposition */}
-          <div className="w-1/2 pr-12 flex flex-col items-center">
-            <div className="flex flex-col items-center mb-16">
+          <div className="w-full md:w-1/2 md:pr-12 flex flex-col items-center mb-8 md:mb-0">
+            <div className="flex flex-col items-center mb-8 md:mb-16">
               {/* CUSTOMIZABLE: Logo size */}
               <KrammyLogo width={72} height={72} />
               {/* CUSTOMIZABLE: Main logo text */}
-              <h1 className="text-4xl text-foreground font-light">Krammy</h1>
+              <h1 className="text-3xl md:text-4xl text-foreground font-light">Krammy</h1>
             </div>
 
             {/* CUSTOMIZABLE: Animated headline texts and timing */}
-            <h2 className="text-5xl font-medium mb-8 text-primary">
+            <h2 className="text-4xl md:text-5xl font-medium mb-6 md:mb-8 text-primary text-center">
               <TypeAnimation
                 sequence={[
-                  'Learn Smarter,',  // First text
-                  2000,              // Pause duration in ms
-                  'Study Faster',    // Second text 
-                  2000,              // Pause duration in ms
+                  'Learn Smarter,',
+                  2000,
+                  'Study Faster',
+                  2000,
                 ]}
                 wrapper="span"
-                speed={50}           // Typing speed
+                speed={50}
                 repeat={Infinity}
                 className="block"
               />
             </h2>
 
             {/* CUSTOMIZABLE: Main tagline first part */}
-            <p className="text-lg text-text mb-2 text-center">
+            <p className="text-lg text-text mb-2 text-center px-4 md:px-0">
               Transform your study notes into <strong>interactive typing exercises</strong>.
             </p>
 
             {/* CUSTOMIZABLE: Main tagline second part */}
-            <p className="text-lg text-text mb-16 text-center">
+            <p className="text-lg text-text mb-8 md:mb-16 text-center px-4 md:px-0">
               <strong>Master your material</strong> while improving your typing speed.
             </p>
 
@@ -187,8 +187,8 @@ export default function LandingPage() {
           </div>
 
           {/* Right Column - Image Carousel */}
-          <div className="w-1/2 bg-secondary rounded-2xl p-6 relative overflow-hidden">
-          <FeatureShowcase />
+          <div className="w-full md:w-1/2 bg-secondary rounded-2xl p-4 md:p-6 relative overflow-hidden">
+            <FeatureShowcase />
           </div>
         </div>
         

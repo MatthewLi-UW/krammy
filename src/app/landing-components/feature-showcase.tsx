@@ -574,15 +574,15 @@ const FeatureCarousel = () => {
   return (
     <div className="w-full max-w-4xl mx-auto py-16">
       {/* Feature navigation dots */}
-      <div className="flex justify-center space-x-2 mb-12">
+      <div className="flex justify-center space-x-3 mb-12">
         {features.map((feature, i) => (
           <button
             key={i}
             onClick={() => handleDotClick(i)}
-            className={`w-2.5 h-2.5 rounded-full transition-all ${
+            className={`w-3 h-3 rounded-full transition-all ${
               currentFeature === i 
-                ? "bg-[var(--color-primary)] w-8" 
-                : "bg-[var(--color-card-medium)]"
+                ? "bg-[var(--color-primary)] ring-2 ring-[var(--color-primary-light)] ring-opacity-50" 
+                : "bg-[var(--color-card-medium)] hover:bg-[var(--color-card-dark)]"
             }`}
             aria-label={`View ${feature.name}`}
           />

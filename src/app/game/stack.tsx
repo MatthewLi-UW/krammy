@@ -186,6 +186,13 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
             
             {/* Buttons */}
             <div className="flex flex-col md:flex-row gap-3 w-full">
+            <Link 
+                href="/protected"
+                className="flex-1 py-3 px-4 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-xl hover:bg-[var(--color-secondary-dark)] transition-colors font-medium text-center flex items-center justify-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back to Decks
+              </Link>
               <button
                 onClick={handleRestart}
                 className="flex-1 py-3 px-4 bg-[var(--color-primary)] text-white rounded-xl hover:bg-[var(--color-primary-dark)] transition-colors font-medium flex items-center justify-center gap-2"
@@ -193,13 +200,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
                 <RotateCcw className="h-4 w-4" />
                 Practice Again
               </button>
-              <Link 
-                href="/protected"
-                className="flex-1 py-3 px-4 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-xl hover:bg-[var(--color-secondary-dark)] transition-colors font-medium text-center flex items-center justify-center gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Back to Decks
-              </Link>
+              
             </div>
           </div>
         </div>

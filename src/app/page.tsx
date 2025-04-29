@@ -8,6 +8,7 @@ import { TypeAnimation } from 'react-type-animation'
 import { useRouter } from 'next/navigation'
 import KrammyLogo from "@/app/components/logo"
 import FeatureBanner from './landing-components/feature-banner'
+import FeatureShowcase from './landing-components/feature-showcase'
 // Import supabase client
 import { supabase } from '@/utils/supabase/client'
 
@@ -187,32 +188,7 @@ export default function LandingPage() {
 
           {/* Right Column - Image Carousel */}
           <div className="w-1/2 bg-secondary rounded-2xl p-6 relative overflow-hidden">
-            {/* CUSTOMIZABLE: Carousel container height */}
-            <div className="w-full h-[400px] flex justify-center items-center">
-              <Image 
-                src={carouselImages[currentImageIndex]} 
-                alt="Krammy Application Preview" 
-                width={500}  // CUSTOMIZABLE: Image max width
-                height={400} // CUSTOMIZABLE: Image max height
-                className="object-contain transition-opacity duration-500"
-              />
-            </div>
-            
-            {/* Carousel Navigation Dots */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {carouselImages.map((_, index) => (
-                <button 
-                  key={index} 
-                  className={`w-3 h-3 rounded-full ${
-                    index === currentImageIndex 
-                      ? 'bg-primary' // Use primary color for active dot
-                      : 'bg-gray-300 dark:bg-gray-600' // Use specific colors for inactive dots
-                  } transition-colors duration-300`}
-                  onClick={() => handleDotClick(index)}
-                  aria-label={`View image ${index + 1}`}
-                ></button>
-              ))}
-            </div>
+          <FeatureShowcase />
           </div>
         </div>
         

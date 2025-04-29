@@ -47,7 +47,10 @@ def parse_pdf():
             page_text = page.extract_text()
             if page_text:
                 text += page_text + "\n"
-        
+
+        if not text.strip():
+            text = "No text extracted"
+
         return jsonify({"text": text})
     
     except Exception as e:

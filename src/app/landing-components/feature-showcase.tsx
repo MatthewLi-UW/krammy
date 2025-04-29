@@ -10,17 +10,17 @@ const UploadAnimation = () => {
   useEffect(() => {
     const sequence = async () => {
       setAnimationState('initial');
-      await sleep(1000);
-      setAnimationState('hover');
-      await sleep(800);
-      setAnimationState('dropping');
-      await sleep(600);
-      setAnimationState('processing');
       await sleep(1200);
+      setAnimationState('hover');
+      await sleep(1000);
+      setAnimationState('dropping');
+      await sleep(800);
+      setAnimationState('processing');
+      await sleep(1400);
       setAnimationState('complete');
-      await sleep(2000);
+      await sleep(2200);
       // Loop the animation
-      sequence();
+    //   sequence();
     };
     
     sequence();
@@ -296,7 +296,6 @@ const TypingAnimation = () => {
 };
 
 const ThemeAnimation = () => {
-  // Update themes array to include only the three specified themes
   const themes = ["default", "midnight", "ocean-blue"];
   const [currentTheme, setCurrentTheme] = useState(0);
   

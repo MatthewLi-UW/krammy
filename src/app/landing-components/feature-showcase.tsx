@@ -1,34 +1,48 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { FileText, Star } from "lucide-react";
 import { sleep } from "openai/core.mjs";
-import { features } from "process";
 import { useEffect, useState, useRef } from "react";
 
+/**
+ * UploadAnimation Component
+ * 
+ * Demonstrates the PDF upload and processing experience.
+ * Shows animation sequence: initial → hover → dropping → processing → complete
+ */
 const UploadAnimation = () => {
   const [animationState, setAnimationState] = useState('initial');
+  
+  // CUSTOMIZATION: Modify these timings to adjust animation speed
+  const timings = {
+    hover: 1200,
+    dropping: 1000,
+    processing: 800,
+    complete: 1400,
+    reset: 2200
+  };
   
   useEffect(() => {
     const sequence = async () => {
       setAnimationState('initial');
-      await sleep(1200);
+      await sleep(timings.hover);
       setAnimationState('hover');
-      await sleep(1000);
+      await sleep(timings.dropping);
       setAnimationState('dropping');
-      await sleep(800);
+      await sleep(timings.processing);
       setAnimationState('processing');
-      await sleep(1400);
+      await sleep(timings.complete);
       setAnimationState('complete');
-      await sleep(2200);
-      // Loop the animation
-    //   sequence();
+      await sleep(timings.reset);
+      // Uncomment below to make animation loop continuously
+      // sequence();
     };
     
     sequence();
   }, []);
   
   return (
-    <motion.div className="relative w-full h-64 bg-background/90 rounded-xl  border-gray-300 flex items-center justify-center">
-      {/* PDF file that animates from top to center */}
+    <motion.div className="relative w-full h-64 bg-background/90 rounded-xl border-gray-300 flex items-center justify-center">
+      {/* PDF file animation */}
       <motion.div 
         className="absolute flex flex-col items-center justify-center"
         initial={{ top: "10%", left: "50%", x: "-50%", opacity: 0 }}
@@ -41,17 +55,18 @@ const UploadAnimation = () => {
         }}
         transition={{ type: "spring", bounce: 0.4 }}
       >
-        {/* PDF file styling */}
+        {/* CUSTOMIZATION: Change file icon or appearance */}
         <div className="relative">
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-sm flex items-center justify-center">
             <span className="text-white text-[8px] font-bold">PDF</span>
           </div>
           <FileText size={48} className="text-red-500 drop-shadow-md" />
         </div>
+        {/* CUSTOMIZATION: Change file name */}
         <span className="text-xs mt-1 text-gray-500">course_notes.pdf</span>
       </motion.div>
       
-      {/* Upload text that changes based on state */}
+      {/* Status text */}
       <motion.div 
         className="absolute bottom-8 left-0 right-0 text-center"
         animate={{
@@ -63,6 +78,7 @@ const UploadAnimation = () => {
         }}
         transition={{ duration: 0.3 }}
       >
+        {/* CUSTOMIZATION: Customize status messages */}
         {animationState === 'complete' 
           ? <span className="text-green-500 font-medium">PDF processed! 12 flashcards created</span>
           : animationState === 'processing'
@@ -71,7 +87,7 @@ const UploadAnimation = () => {
         }
       </motion.div>
       
-      {/* Blue highlight overlay when hovering */}
+      {/* Upload area highlight effect */}
       <motion.div 
         className="absolute inset-0 rounded-xl bg-primary/10 pointer-events-none"
         initial={{ opacity: 0 }}
@@ -97,7 +113,7 @@ const UploadAnimation = () => {
         </motion.div>
       )}
       
-      {/* Success checkmark animation */}
+      {/* Success checkmark */}
       {animationState === 'complete' && (
         <motion.div
           className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
@@ -116,9 +132,17 @@ const UploadAnimation = () => {
   );
 };
 
+/**
+ * TypingAnimation Component
+ * 
+ * Demonstrates the interactive typing experience on flashcards
+ * with a flip animation and typing effect.
+ */
 const TypingAnimation = () => {
+  // CUSTOMIZATION: Change the card content here
   const title = "Dual-coding theory";
   const text = "Dual-coding theory holds that memory is enhanced by forming semantic and visual codes.";
+  
   const [typedText, setTypedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
@@ -126,14 +150,12 @@ const TypingAnimation = () => {
   const textRef = useRef<HTMLSpanElement>(null);
   const [cursorPosition, setCursorPosition] = useState(0);
   
-  // Update cursor position when text changes
+  // Update cursor position while typing
   useEffect(() => {
     if (textRef.current && typedText.length > 0) {
       const textContainer = textRef.current;
-      // Get the span that contains the last typed character
       const lastCharSpan = textContainer.childNodes[typedText.length - 1] as HTMLSpanElement;
       if (lastCharSpan) {
-        // Get position of the end of the last character
         const containerRect = textContainer.getBoundingClientRect();
         const spanRect = lastCharSpan.getBoundingClientRect();
         const position = spanRect.right - containerRect.left;
@@ -144,7 +166,7 @@ const TypingAnimation = () => {
     }
   }, [typedText]);
   
-  // Card flip and typing sequence
+  // Card flip animation sequence
   useEffect(() => {
     const sequence = async () => {
       // Reset states
@@ -153,13 +175,13 @@ const TypingAnimation = () => {
       setCurrentIndex(0);
       setTypingStarted(false);
       
-      // Show front of card
+      // CUSTOMIZATION: Adjust timing for showing front of card
       await sleep(1500);
       
       // Flip the card
       setIsFlipped(true);
       
-      // Wait for flip animation to complete before typing
+      // Wait for flip animation before typing
       await sleep(800);
       setTypingStarted(true);
     };
@@ -172,14 +194,21 @@ const TypingAnimation = () => {
     if (!typingStarted) return;
     
     if (currentIndex < text.length) {
+      // CUSTOMIZATION: Adjust typing speed here
+      const typingSpeed = 80; // Base typing speed
+      const randomVariation = 50; // Random variation to make typing look natural
+      
       const timeout = setTimeout(() => {
         setTypedText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
-      }, 80 + Math.random() * 50); // Slightly randomized typing speed
+      }, typingSpeed + Math.random() * randomVariation);
       
       return () => clearTimeout(timeout);
     } else {
-      // Reset after completion and delay
+      // Reset after completion
+      // CUSTOMIZATION: Adjust how long to wait after typing completes
+      const pauseDelay = 3000;
+      
       const resetTimer = setTimeout(() => {
         setIsFlipped(false);
         setTypedText("");
@@ -187,17 +216,18 @@ const TypingAnimation = () => {
         setTypingStarted(false);
         
         // Restart sequence
+        // CUSTOMIZATION: Adjust timing for start of next cycle
         const newCardTimer = setTimeout(() => {
           setIsFlipped(true);
           setTimeout(() => setTypingStarted(true), 800);
         }, 1500);
         
         return () => clearTimeout(newCardTimer);
-      }, 3000);
+      }, pauseDelay);
       
       return () => clearTimeout(resetTimer);
     }
-  }, [currentIndex, typingStarted]);
+  }, [currentIndex, typingStarted, text]);
   
   return (
     <div className="relative w-full max-w-lg mx-auto perspective-1000">
@@ -220,7 +250,7 @@ const TypingAnimation = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-        <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-6">
             <div className="h-4"></div>
           </div>
 
@@ -263,7 +293,7 @@ const TypingAnimation = () => {
                 ))}
               </span>
               
-              {/* Cursor with improved positioning */}
+              {/* Typing cursor */}
               {typingStarted && (
                 <div
                   className="absolute inline-block w-0.5 bg-[var(--color-primary)]"
@@ -287,6 +317,7 @@ const TypingAnimation = () => {
             className="absolute top-4 right-4 text-sm text-[var(--color-text-light)]"
             animate={{ opacity: typedText.length > 10 ? 1 : 0 }}
           >
+            {/* CUSTOMIZATION: Adjust WPM calculation */}
             {Math.floor(typedText.length / 5 * (60 / 12))} WPM
           </motion.div>
         </motion.div>
@@ -295,17 +326,57 @@ const TypingAnimation = () => {
   );
 };
 
+/**
+ * ThemeAnimation Component
+ * 
+ * Shows different theme options available in the application
+ * with smooth transitions between themes.
+ */
 const ThemeAnimation = () => {
+  // CUSTOMIZATION: Add or modify theme options
   const themes = ["default", "midnight", "ocean-blue"];
   const [currentTheme, setCurrentTheme] = useState(0);
   
   useEffect(() => {
+    // CUSTOMIZATION: Adjust theme rotation speed (3000ms = 3 seconds)
+    const intervalTime = 3000;
+    
     const interval = setInterval(() => {
       setCurrentTheme((prev) => (prev + 1) % themes.length);
-    }, 3000);
+    }, intervalTime);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [themes.length]);
+  
+  // CUSTOMIZATION: Theme color mappings - modify colors here
+  const themeColors = {
+    default: {
+      background: "#fffaec",
+      header: "#f5ecd5",
+      accent: "#2a9d8f",
+      text: "#4a4a4a",
+      card: "#faf3eb",
+      secondary: "#e6d8c3",
+    },
+    midnight: {
+      background: "#121212",
+      header: "#333333",
+      accent: "#2A9D8F",
+      text: "#ededed",
+      card: "#575757",
+      secondary: "#333333",
+    },
+    "ocean-blue": {
+      background: "#e8f5fb",
+      header: "#dae4ff",
+      accent: "#00bcd4",
+      text: "#1e3a5f",
+      card: "#edf2ff",
+      secondary: "#b0c0ff",
+    }
+  };
+  
+  const currentThemeColors = themeColors[themes[currentTheme] as keyof typeof themeColors];
   
   return (
     <div className="relative w-full max-w-md mx-auto">
@@ -314,39 +385,23 @@ const ThemeAnimation = () => {
         {/* Screen that changes themes */}
         <motion.div 
           className="w-full h-full p-4"
-          animate={{ 
-            backgroundColor: currentTheme === 0 ? "#fffaec" : 
-                            currentTheme === 1 ? "#121212" : 
-                            "#e8f5fb" // ocean-blue
-          }}
+          animate={{ backgroundColor: currentThemeColors.background }}
           transition={{ duration: 1 }}
         >
           {/* Header */}
           <motion.div 
             className="w-full h-12 rounded-lg mb-4 flex items-center px-3"
-            animate={{ 
-              backgroundColor: currentTheme === 0 ? "#f5ecd5" : 
-                              currentTheme === 1 ? "#333333" : 
-                              "#dae4ff" // ocean-blue
-            }}
+            animate={{ backgroundColor: currentThemeColors.header }}
             transition={{ duration: 1 }}
           >
             <motion.div 
               className="w-8 h-8 rounded-full mr-3"
-              animate={{ 
-                backgroundColor: currentTheme === 0 ? "#2a9d8f" : 
-                                currentTheme === 1 ? "#2A9D8F" : 
-                                "#00bcd4" // ocean-blue
-              }}
+              animate={{ backgroundColor: currentThemeColors.accent }}
               transition={{ duration: 1 }}
             />
             <motion.div 
               className="h-4 w-20 rounded"
-              animate={{ 
-                backgroundColor: currentTheme === 0 ? "#4a4a4a" : 
-                                currentTheme === 1 ? "#ededed" : 
-                                "#1e3a5f" // ocean-blue
-              }}
+              animate={{ backgroundColor: currentThemeColors.text }}
               transition={{ duration: 1 }}
             />
           </motion.div>
@@ -357,9 +412,7 @@ const ThemeAnimation = () => {
               key={i}
               className="w-full h-24 rounded-lg mb-3 p-4"
               animate={{ 
-                backgroundColor: currentTheme === 0 ? "#faf3eb" : 
-                                currentTheme === 1 ? "#575757" : 
-                                "#edf2ff", // ocean-blue
+                backgroundColor: currentThemeColors.card,
                 y: [0, -5, 0],
               }}
               transition={{ 
@@ -369,29 +422,17 @@ const ThemeAnimation = () => {
             >
               <motion.div 
                 className="h-3 w-20 rounded mb-2"
-                animate={{ 
-                  backgroundColor: currentTheme === 0 ? "#2a9d8f" : 
-                                  currentTheme === 1 ? "#2a9d8f" : 
-                                  "#00bcd4" // ocean-blue
-                }}
+                animate={{ backgroundColor: currentThemeColors.accent }}
                 transition={{ duration: 1 }}
               />
               <motion.div 
                 className="h-3 w-full rounded mb-2"
-                animate={{ 
-                  backgroundColor: currentTheme === 0 ? "#e6d8c3" : 
-                                  currentTheme === 1 ? "#333333" : 
-                                  "#b0c0ff" // ocean-blue
-                }}
+                animate={{ backgroundColor: currentThemeColors.secondary }}
                 transition={{ duration: 1 }}
               />
               <motion.div 
                 className="h-3 w-3/4 rounded"
-                animate={{ 
-                  backgroundColor: currentTheme === 0 ? "#e6d8c3" : 
-                                  currentTheme === 1 ? "#333333" : 
-                                  "#b0c0ff" // ocean-blue
-                }}
+                animate={{ backgroundColor: currentThemeColors.secondary }}
                 transition={{ duration: 1 }}
               />
             </motion.div>
@@ -402,11 +443,7 @@ const ThemeAnimation = () => {
       {/* Theme label */}
       <motion.div 
         className="absolute bottom-[-30px] left-0 right-0 text-center font-medium"
-        animate={{ 
-          color: currentTheme === 0 ? "#2a9d8f" : 
-                currentTheme === 1 ? "#2A9D8F" : 
-                "#00bcd4" // ocean-blue
-        }}
+        animate={{ color: currentThemeColors.accent }}
         transition={{ duration: 1 }}
       >
         {themes[currentTheme].split('-').map(word => 
@@ -417,25 +454,43 @@ const ThemeAnimation = () => {
   );
 };
 
+/**
+ * ProgressAnimation Component
+ * 
+ * Demonstrates the progress tracking feature with animated
+ * statistics and achievement markers.
+ */
 const ProgressAnimation = () => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // CUSTOMIZATION: Adjust progress animation speed
+    const progressSpeed = 50; // Lower = faster
+    const progressIncrement = 0.5; // How much to increase each step
+    
     const interval = setInterval(() => {
       setProgress(prev => {
         if (prev >= 100) {
           return 0;
         }
-        return prev + 0.5;
+        return prev + progressIncrement;
       });
-    }, 50);
+    }, progressSpeed);
     
     return () => clearInterval(interval);
   }, []);
   
+  // CUSTOMIZATION: Configure how metrics are calculated based on progress
   const accuracy = Math.floor(85 + (progress / 10));
   const streak = Math.floor(progress / 10);
   const wpm = Math.floor(40 + (progress / 4));
+  
+  // CUSTOMIZATION: Configure metrics display
+  const metrics = [
+    { label: "Accuracy", value: accuracy, suffix: "%" },
+    { label: "Current Streak", value: streak, suffix: " days" },
+    { label: "Average WPM", value: wpm, suffix: "" }
+  ];
   
   return (
     <div className="w-full max-w-md mx-auto bg-[var(--color-card-light)] rounded-xl p-6 shadow-lg">
@@ -443,6 +498,7 @@ const ProgressAnimation = () => {
         Your Learning Progress
       </h3>
       
+      {/* Progress bar */}
       <div className="w-full h-3 bg-[var(--color-card-medium)] rounded-full mb-6 overflow-hidden">
         <motion.div 
           className="h-full bg-[var(--color-primary)]"
@@ -451,12 +507,9 @@ const ProgressAnimation = () => {
         />
       </div>
       
+      {/* Metrics grid */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        {[
-          { label: "Accuracy", value: accuracy, suffix: "%" },
-          { label: "Current Streak", value: streak, suffix: " days" },
-          { label: "Average WPM", value: wpm, suffix: "" }
-        ].map((metric, i) => (
+        {metrics.map((metric, i) => (
           <motion.div 
             key={i}
             className="bg-[var(--color-background-light)] p-3 rounded-lg text-center"
@@ -492,6 +545,7 @@ const ProgressAnimation = () => {
         ))}
       </div>
       
+      {/* Achievement stars */}
       <div className="flex justify-center space-x-4">
         {[...Array(5)].map((_, i) => {
           const isActive = progress > i * 20;
@@ -531,7 +585,13 @@ const ProgressAnimation = () => {
   );
 };
 
+/**
+ * FeatureCarousel - Main Component
+ * 
+ * Displays all feature demos in a rotating carousel with navigation dots.
+ */
 const FeatureCarousel = () => {
+  // CUSTOMIZATION: Configure features to display and their order
   const features = [
     { name: "Upload Files", component: <UploadAnimation /> },
     { name: "Type to Learn", component: <TypingAnimation /> },
@@ -548,9 +608,12 @@ const FeatureCarousel = () => {
       clearInterval(intervalRef.current);
     }
     
+    // CUSTOMIZATION: Change rotation speed (milliseconds per feature)
+    const rotationSpeed = 8000;
+    
     intervalRef.current = setInterval(() => {
       setCurrentFeature((prev) => (prev + 1) % features.length);
-    }, 8000); // 8 seconds per feature
+    }, rotationSpeed);
   };
   
   // Set up auto-rotation with timer
@@ -562,7 +625,7 @@ const FeatureCarousel = () => {
         clearInterval(intervalRef.current);
       }
     };
-  }, []);
+  }, [features.length]);
   
   // Handler for dot clicks that includes timer reset
   const handleDotClick = (index: number) => {

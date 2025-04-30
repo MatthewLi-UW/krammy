@@ -18,6 +18,7 @@ export default function EditDeckPage() {
   const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
+  const [showDeleteDeckModal, setShowDeleteDeckModal] = useState(false);
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -247,6 +248,85 @@ export default function EditDeckPage() {
     }
   };
 
+  // Delete deck
+  const deleteDeck = async () => {
+    if (!deckId) return;
+    
+    try {
+      // Convert deckId to a number for database operations
+      const numericDeckId = parseInt(deckId, 10);
+      
+      console.log("Attempting to delete deck ID:", numericDeckId);
+
+      const { error: cardLinkError } = await supabase
+        .from('CardsToDeck')
+        .delete()
+        .eq('deck_id', numericDeckId);
+        
+      if (cardLinkError) {
+        console.error("Error deleting CardsToDeck:", cardLinkError);
+        throw cardLinkError;
+      }
+      
+      const { error: userToDeckError } = await supabase
+        .from('UserToDeck')
+        .delete()
+        .eq('deck_id', numericDeckId);
+        
+      if (userToDeckError) {
+        console.error("Error deleting UserToDeck:", userToDeckError);
+        throw userToDeckError;
+      }
+      
+      const { error: sharedDecksError } = await supabase
+        .from('SharedDecks')
+        .delete()
+        .eq('deck_id', numericDeckId);
+        
+      if (sharedDecksError && !sharedDecksError.message.includes('does not exist')) {
+        console.error("Error deleting SharedDecks:", sharedDecksError);
+        throw sharedDecksError;
+      }
+      
+      const { data: deckData, error: fetchError } = await supabase
+        .from('Deck')
+        .select('*')
+        .eq('deck_id', numericDeckId)
+        .single();
+        
+      if (fetchError) {
+        console.error("Error fetching deck before deletion:", fetchError);
+        throw fetchError;
+      }
+      
+      console.log("Found deck to delete:", deckData);
+      
+      const { error } = await supabase
+        .from('Deck')
+        .delete()
+        .eq('deck_id', numericDeckId);
+        
+      if (error) {
+        console.error("Error deleting Deck:", error);
+        throw error;
+      }
+      
+      setTimeout(() => {
+        router.push('/protected');
+      }, 500);
+    } catch (error) {
+      console.error("Error deleting deck:", error);
+      setToast({message: "Failed to delete deck", type: 'error'});
+      // Show the detailed error message
+      if (error instanceof Error && error.message) {
+        console.error("Error message:", error.message);
+      }
+      if (error instanceof Error && 'details' in error) {
+        console.error("Error details:", error.details);
+      }
+    }
+  };
+
   // Card editor component
   const FlashcardEditor = ({ card }: { card: FlashCard }) => {
     const [editing, setEditing] = useState(false);
@@ -431,15 +511,26 @@ export default function EditDeckPage() {
               <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)]">
                 {deckName}
               </h2>
-              <button
-                onClick={() => setEditingDeckName(true)}
-                className="p-2 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg hover:bg-[var(--color-primary)]/20 transition-colors"
-                aria-label="Edit Deck Name"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </button>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setEditingDeckName(true)}
+                  className="p-2 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg hover:bg-[var(--color-primary)]/20 transition-colors"
+                  aria-label="Edit Deck Name"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setShowDeleteDeckModal(true)}
+                  className="p-2 bg-[var(--color-error-text)]/10 text-[var(--color-error-text)] rounded-lg hover:bg-[var(--color-error-text)]/20 transition-colors"
+                  aria-label="Delete Deck"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
           
@@ -564,6 +655,50 @@ export default function EditDeckPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
                 Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete deck confirmation modal */}
+      {showDeleteDeckModal && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fadeIn"
+          onClick={() => setShowDeleteDeckModal(false)}
+        >
+          <div 
+            className="bg-[var(--color-card-light)] rounded-xl p-6 max-w-md w-full mx-4 shadow-xl animate-scaleIn"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start mb-4">
+              <div className="bg-[var(--color-error-text)]/10 p-2 rounded-full mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-[var(--color-error-text)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-[var(--color-text-dark)]">Delete Entire Deck</h3>
+                <p className="text-[var(--color-text)] mt-1">
+                  Are you sure you want to delete the entire <strong>"{deckName}"</strong> deck? This will remove all {flashcards.length} flashcards and cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setShowDeleteDeckModal(false)}
+                className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteDeck}
+                className="px-4 py-2 bg-[var(--color-error-text)] text-white rounded-lg hover:opacity-90 transition-colors flex items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Entire Deck
               </button>
             </div>
           </div>

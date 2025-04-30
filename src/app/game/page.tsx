@@ -62,7 +62,10 @@ export default function Game() {
 
   useEffect(() => {
     const fetchDeckCards = async () => {
-      if (!deckId) return;
+      if (!deckId) {
+        router.push('/protected'); // Redirect if no deckId
+        return;
+      }
 
       setDeckLoading(true);
 
@@ -70,12 +73,45 @@ export default function Game() {
         // Get the deck information
         const { data: deckData, error: deckError } = await supabase
           .from('Deck')
-          .select('deck_name')
+          .select('deck_name, owner_id')
           .eq('deck_id', deckId)
           .single();
 
-        if (deckError) throw deckError;
+        if (deckError) {
+          // Redirect if deck doesn't exist
+          router.push('/protected');
+          return;
+        }
+        
+        // Check if user is authenticated
+        if (!user) {
+          router.push('/protected');
+          return;
+        }
+        
+        // Set deck name if available
         if (deckData) setDeckName(deckData.deck_name);
+
+        // Check if user has access (as owner or through sharing)
+        const isOwner = deckData.owner_id === user.id;
+        
+        if (!isOwner) {
+          // Check if user has access through UserToDeck (shared access)
+          const { data: userToDeckData, error: accessError } = await supabase
+            .from('UserToDeck')
+            .select('*')
+            .eq('deck_id', deckId)
+            .eq('owner_id', user.id)
+            .single();
+            
+          // If not owner and no shared access, redirect
+          if (!userToDeckData && accessError) {
+            router.push('/protected');
+            return;
+          }
+        }
+        
+        // Once access is confirmed, proceed with loading cards
 
         // Get the card IDs for this deck from CardsToDeck
         const { data: cardLinks, error: cardLinksError } = await supabase
@@ -111,7 +147,7 @@ export default function Game() {
     if (!loading) {
       fetchDeckCards();
     }
-  }, [deckId, loading]);
+  }, [deckId, loading, user, router]);
 
   if (loading || deckLoading) {
     return (

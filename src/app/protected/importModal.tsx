@@ -47,7 +47,8 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
       setDeckPreview({
         cards: cardData,
         accessType: shareData.access_type,
-        deckName: deckData?.deck_name || `Imported Deck`
+        deckName: deckData?.deck_name || `Imported Deck`,
+        deckId: shareData.deck_id
       });
       
       setStep(2);
@@ -69,40 +70,75 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
     setError(''); // Clear any previous errors
     
     try {
-      // Create a new deck with the original deck's name
-      const data = (await createDeck(userId, deckPreview.deckName))[0];
+      // Extract deck details for clarity
+      const { accessType, deckId: originalDeckId, deckName: originalDeckName, cards } = deckPreview;
       
-      // Prepare and create cards
-      if (!deckPreview.cards) {
-        setError('Deck preview is not available.');
-        return;
+      // Check if the user already has access to this deck (to prevent duplicates)
+      const { data: existingAccess } = await supabase
+        .from('UserToDeck')
+        .select('*')
+        .eq('deck_id', originalDeckId)
+        .eq('owner_id', userId)
+        .maybeSingle();
+      
+      if (accessType === 'READ') {
+        // READ ACCESS: Only create a local copy, don't add UserToDeck entry
+        console.log("Creating local copy for READ access");
+        
+        // 1. Create a new deck with a clear "(Copy)" indicator
+        const newDeckResponse = await createDeck(userId, originalDeckName + " (Copy)");
+        const newDeck = newDeckResponse[0];
+        
+        if (!newDeck || !newDeck.deck_id) {
+          throw new Error('Failed to create new deck');
+        }
+        
+        // 2. Create new flashcards owned by the user
+        const cardData = cards.map(card => ({
+          front: card.front,
+          back: card.back,
+          owner_id: userId
+        }));
+        
+        const newCards = await sendData('FlashCard', cardData);
+        
+        // 3. Link the new cards to the new deck
+        const cardLinks = newCards.map(card => ({
+          card_id: card.card_id,
+          deck_id: newDeck.deck_id,
+          owner_id: userId
+        }));
+        
+        await sendData('CardsToDeck', cardLinks);
+        
+        // Important: Remove any existing access to the original deck if it exists
+        if (existingAccess) {
+          await supabase
+            .from('UserToDeck')
+            .delete()
+            .eq('deck_id', originalDeckId)
+            .eq('owner_id', userId);
+        }
+      } 
+      else {
+        // WRITE ACCESS: Only add a link to the original deck, don't create a copy
+        console.log("Adding link to original deck for WRITE access");
+        
+        // Only add the link if it doesn't already exist
+        if (!existingAccess) {
+          await supabase
+            .from('UserToDeck')
+            .insert({ 
+              owner_id: userId, 
+              deck_id: originalDeckId
+            });
+        }
       }
-
-      const cardsWithUserId = deckPreview.cards.map(card => ({
-        front: card.front,
-        back: card.back,
-        owner_id: userId
-      }));
       
-      const newCards = await sendData('FlashCard', cardsWithUserId);
-      
-      // Link cards to the deck
-      const cardLinks = newCards.map(card => ({
-        card_id: card.card_id,
-        deck_id: data.deck_id,
-        owner_id: userId
-      }));
-      
-      await sendData('CardsToDeck', cardLinks);
-      
-      // Success! Call the success callback and close the modal
-      onImportSuccess(); // This refreshes the deck list
-      
-      // Then close the modal after a brief delay to allow success message to be seen
+      onImportSuccess();
       setTimeout(() => {
         onClose();
       }, 1000);
-      
     } catch (err) {
       console.error("Import error:", err);
       setError('Failed to import deck. Please try again.');

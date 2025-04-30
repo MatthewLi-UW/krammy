@@ -67,7 +67,10 @@ export default function EditDeckPage() {
   // Fetch deck data
   useEffect(() => {
     const fetchDeckCards = async () => {
-      if (!deckId) return;
+      if (!deckId) {
+        router.push('/protected'); // Redirect if no deckId
+        return;
+      }
 
       setDeckLoading(true);
 
@@ -79,11 +82,14 @@ export default function EditDeckPage() {
           .eq('deck_id', deckId)
           .single();
 
-        if (deckError) throw deckError;
+        if (deckError) {
+          // Redirect for any deck errors (not found, permission denied, etc.)
+          router.push('/protected');
+          return;
+        }
         
         // Check permissions
         if (!user) {
-          setToast({message: "You don't have permission to edit this deck", type: 'error'});
           router.push('/protected');
           return;
         }
@@ -99,22 +105,24 @@ export default function EditDeckPage() {
           `)
           .eq('deck_id', deckId);
         
-        if (joinError) throw joinError;
+        if (joinError) {
+          // Redirect for any errors loading cards
+          router.push('/protected');
+          return;
+        }
         
-        console.log("Join query result:", joinData);
-        
+        // Process cards normally if everything is successful
         if (joinData && joinData.length > 0) {
-          // Extract cards from the nested structure
           const cards = joinData.map(item => item.FlashCard).flat();
-          console.log("Extracted cards:", cards);
           setFlashcards(cards);
         } else {
-          console.log("No cards found for this deck");
           setFlashcards([]);
         }
       } catch (error) {
-        console.error("Error fetching deck cards:", error);
-        setToast({message: "Failed to load deck data", type: 'error'});
+        // Catch-all error handler - redirect for any other errors
+        console.error("Error in deck page:", error);
+        router.push('/protected');
+        return;
       } finally {
         setDeckLoading(false);
       }
@@ -258,15 +266,16 @@ export default function EditDeckPage() {
       
       console.log("Attempting to delete deck ID:", numericDeckId);
 
-      const { error: cardLinkError } = await supabase
-        .from('CardsToDeck')
-        .delete()
-        .eq('deck_id', numericDeckId);
+      // delete from CardsToDeck
+      // const { error: cardLinkError } = await supabase
+      //   .from('CardsToDeck')
+      //   .delete()
+      //   .eq('deck_id', numericDeckId);
         
-      if (cardLinkError) {
-        console.error("Error deleting CardsToDeck:", cardLinkError);
-        throw cardLinkError;
-      }
+      // if (cardLinkError) {
+      //   console.error("Error deleting CardsToDeck:", cardLinkError);
+      //   throw cardLinkError;
+      // }
       
       const { error: userToDeckError } = await supabase
         .from('UserToDeck')
@@ -278,15 +287,16 @@ export default function EditDeckPage() {
         throw userToDeckError;
       }
       
-      const { error: sharedDecksError } = await supabase
-        .from('SharedDecks')
-        .delete()
-        .eq('deck_id', numericDeckId);
+      // Delete from SharedDecks
+      // const { error: sharedDecksError } = await supabase
+      //   .from('SharedDecks')
+      //   .delete()
+      //   .eq('deck_id', numericDeckId);
         
-      if (sharedDecksError && !sharedDecksError.message.includes('does not exist')) {
-        console.error("Error deleting SharedDecks:", sharedDecksError);
-        throw sharedDecksError;
-      }
+      // if (sharedDecksError && !sharedDecksError.message.includes('does not exist')) {
+      //   console.error("Error deleting SharedDecks:", sharedDecksError);
+      //   throw sharedDecksError;
+      // }
       
       const { data: deckData, error: fetchError } = await supabase
         .from('Deck')
@@ -301,15 +311,16 @@ export default function EditDeckPage() {
       
       console.log("Found deck to delete:", deckData);
       
-      const { error } = await supabase
-        .from('Deck')
-        .delete()
-        .eq('deck_id', numericDeckId);
+      // Delete from Deck
+      // const { error } = await supabase
+      //   .from('Deck')
+      //   .delete()
+      //   .eq('deck_id', numericDeckId);
         
-      if (error) {
-        console.error("Error deleting Deck:", error);
-        throw error;
-      }
+      // if (error) {
+      //   console.error("Error deleting Deck:", error);
+      //   throw error;
+      // }
       
       setTimeout(() => {
         router.push('/protected');

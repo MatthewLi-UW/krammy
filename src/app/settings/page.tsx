@@ -79,10 +79,10 @@ export default function SettingsPage() {
 
   return (
     // Main container
-    <main className="flex flex-col min-h-screen bg-background dark:bg-background-dark transition-colors duration-200">
+    <main className="flex flex-col min-h-screen bg-background dark:bg-background-dark transition-colors duration-200 font-karla">
       <Header user={user} />
       
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+      <div className="w-full max-w-4xl mx-auto px-4 py-4">
         <h1 className="text-3xl font-bold text-foreground dark:text-foreground mb-8">Settings</h1>
         
         {/* Stats Section */}
@@ -247,15 +247,7 @@ export default function SettingsPage() {
           </div>
         </section>
         
-        {/* Back button */}
-        <div className="mt-8">
-          <button
-            onClick={() => router.push('/protected')}
-            className="px-4 py-2 bg-secondary dark:bg-secondary-dark text-foreground dark:text-foreground rounded-md hover:bg-secondary-dark dark:hover:bg-secondary transition-colors"
-          >
-            Back to Decks
-          </button>
-        </div>
+
       </div>
     </main>
   );

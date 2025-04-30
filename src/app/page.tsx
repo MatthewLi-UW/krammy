@@ -163,7 +163,7 @@ export default function LandingPage() {
                 wrapper="span"
                 speed={50}
                 repeat={Infinity}
-                className="block"s
+                className="block"
               />
             </h2>
 

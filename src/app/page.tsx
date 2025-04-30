@@ -140,7 +140,7 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* === Hero Section === */}
-      <div className="min-h-screen flex items-center justify-center p-4 relative">
+      <div className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24 relative">
         <div className="w-full max-w-7xl flex flex-col md:flex-row items-center">
           {/* Left Column - Value Proposition */}
           <div className="w-full md:w-1/2 md:pr-12 flex flex-col items-center mb-8 md:mb-0">
@@ -163,7 +163,7 @@ export default function LandingPage() {
                 wrapper="span"
                 speed={50}
                 repeat={Infinity}
-                className="block"
+                className="block"s
               />
             </h2>
 
@@ -187,7 +187,8 @@ export default function LandingPage() {
           </div>
 
           {/* Right Column - Image Carousel */}
-          <div className="w-full md:w-1/2 bg-secondary rounded-2xl p-4 md:p-6 relative overflow-hidden">
+          <div className="w-full md:w-1/2 bg-secondary rounded-2xl p-6 sm:p-8 mx-auto my-4 
+                          relative overflow-hidden max-w-lg max-h-[500px]">
             <FeatureShowcase />
           </div>
         </div>
@@ -195,7 +196,7 @@ export default function LandingPage() {
         {/* CUSTOMIZABLE: "Learn more" button text */}
         <button
           onClick={scrollToFeatures}
-          className="flex flex-col items-center absolute bottom-8 left-1/2 transform -translate-x-1/2 text-foreground hover:text-primary transition-colors"
+          className="flex flex-col items-center absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 text-foreground hover:text-primary transition-colors"
           aria-label="Learn more about features"
         >
           <span className="mb-1">Learn more</span>

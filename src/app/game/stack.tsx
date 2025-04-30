@@ -1,34 +1,42 @@
-/*
-THIS FILE HANDLES THE STACK OF FLASHCARDS
-*/
+/**
+ * FLASHCARD STACK COMPONENT
+ * 
+ * This component manages the flashcard learning experience including:
+ * - Card navigation and animations
+ * - Progress tracking and statistics
+ * - Persistent storage of user progress
+ * - Keyboard navigation
+ * - Completion screen with performance metrics
+ */
 
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import TypingExercise from "./flashcard"
-import { ChevronLeft, ChevronRight, RotateCcw, Award, Zap } from "lucide-react"
+import { ChevronLeft, ChevronRight, RotateCcw, Award } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlashCard } from "@/types/FlashCard";
 import Link from "next/link";
 
-// Add a deck ID parameter to the props
 interface FlashcardStackProps {
-  flashcards: FlashCard[];
-  deckId?: string | number;
+  flashcards: FlashCard[];  // Array of flashcards to display
+  deckId?: string | number; // Unique identifier for the deck (for storage)
 }
 
 export default function FlashcardStack({ flashcards = [], deckId = 'default' }: FlashcardStackProps) {
+  // --- STATE MANAGEMENT ---
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [direction, setDirection] = useState<'next' | 'previous'>('next');
   const [isDeckCompleted, setIsDeckCompleted] = useState(false);
   const [stats, setStats] = useState<Array<{ wpm: number; accuracy: number }>>([]);
 
-  //  localStorage key to be deck-specific
+  // --- STORAGE KEYS ---
+  // CUSTOMIZATION: Change the storage prefix if needed for different use cases
   const storagePrefix = `flashcard_deck_${deckId}`;
   const indexKey = `${storagePrefix}_index`;
   const statsKey = `${storagePrefix}_stats`;
 
-  // localStorage load effect
+  // --- LOAD DATA FROM STORAGE ---
   useEffect(() => {
     // Reset states when deck changes
     setCurrentCardIndex(0);
@@ -52,7 +60,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     setIsInitialized(true);
   }, [flashcards.length, deckId]);
 
-  // localStorage save effect
+  // --- SAVE DATA TO STORAGE ---
   useEffect(() => {
     if (isInitialized) {
       localStorage.setItem(indexKey, currentCardIndex.toString());
@@ -60,25 +68,8 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     }
   }, [currentCardIndex, stats, isInitialized, indexKey, statsKey]);
 
-  // Don't render until initialized
-  if (!isInitialized) {
-    return (
-      <div className="flex items-center justify-center w-full h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
-      </div>
-    );
-  }
-
-  // If no flashcards are provided, return a placeholder
-  if (!flashcards.length) {
-    return (
-      <div className="flex items-center justify-center w-full h-64 bg-[var(--color-background-light)] rounded-xl shadow-md">
-        <p className="text-[var(--color-text-light)]">No flashcards available</p>
-      </div>
-    );
-  }
-
-  const handleNextCard = () => {
+  // --- NAVIGATION HANDLERS ---
+  const handleNextCard = useCallback(() => {
     setDirection('next');
     // Check if this is the last card
     if (currentCardIndex === flashcards.length - 1) {
@@ -86,15 +77,58 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     } else {
       setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
     }
-  }
+  }, [currentCardIndex, flashcards.length]);
 
-  const handlePreviousCard = () => {
+  const handlePreviousCard = useCallback(() => {
     setDirection('previous');
+    // Timeout ensures smooth animation transition
     setTimeout(() => {
       setCurrentCardIndex((prevIndex) => (prevIndex - 1 + flashcards.length) % flashcards.length);
     }, 0);
+  }, [flashcards.length]);
+
+  // --- KEYBOARD NAVIGATION ---
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isDeckCompleted) return; // Don't navigate if deck is completed
+      
+      // CUSTOMIZATION: You can change these keys to any keys you prefer
+      if (e.key === 'ArrowLeft') {
+        handlePreviousCard();
+      } else if (e.key === 'ArrowRight') {
+        handleNextCard();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDeckCompleted, handleNextCard, handlePreviousCard]);
+
+  // --- LOADING STATE ---
+  if (!isInitialized) {
+    return (
+      <div className="flex items-center justify-center w-full h-64">
+        {/* CUSTOMIZATION: Change the loading spinner appearance here */}
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
+      </div>
+    );
   }
 
+  // --- EMPTY STATE ---
+  if (!flashcards.length) {
+    return (
+      <div className="flex items-center justify-center w-full h-64 bg-[var(--color-background-light)] rounded-xl shadow-md">
+        {/* CUSTOMIZATION: Change the empty state message here */}
+        <p className="text-[var(--color-text-light)]">No flashcards available</p>
+      </div>
+    );
+  }
+
+  // --- ANIMATION VARIANTS ---
+  // CUSTOMIZATION: Modify these values to change card transition animations
   const cardVariantsNext = {
     hidden: { x: 0, opacity: 0 },
     visible: { x: 0, opacity: 1, transition: { duration: 0.2 } },
@@ -107,7 +141,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     exit: { x: 0, opacity: 0 },
   };
 
-  
+  // --- CARD COMPLETION HANDLER ---
   const handleCardComplete = (wpm: number, accuracy: number) => {
     const newStats = [...stats];
     newStats[currentCardIndex] = { wpm, accuracy };
@@ -117,7 +151,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     handleNextCard();
   };
 
-  //  restart function
+  // --- RESTART HANDLER ---
   const handleRestart = () => {
     setCurrentCardIndex(0);
     setStats([]);
@@ -126,6 +160,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     localStorage.setItem(indexKey, '0');
   }
 
+  // --- STATISTICS CALCULATOR ---
   const calculateStats = () => {
     // Filter out any null or undefined stats first
     const validStats = stats.filter(stat => stat !== null && stat !== undefined);
@@ -145,6 +180,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     return { avgWpm, avgAccuracy };
   };
 
+  // --- COMPLETION SCREEN ---
   if (isDeckCompleted) {
     const { avgWpm, avgAccuracy } = calculateStats();
     const validStats = stats.filter(stat => stat !== null && stat !== undefined);
@@ -152,7 +188,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     return (
       <div className="w-full flex flex-col items-center justify-center p-6">
         <div className="bg-[var(--color-card-light)] rounded-2xl shadow-lg w-full max-w-2xl overflow-hidden">
-          {/* Header section with gradient and celebration icon */}
+          {/* CUSTOMIZATION: Change the header gradient and icon here */}
           <div className="bg-gradient-to-r from-[var(--color-primary)]/20 via-[var(--color-primary)]/30 to-[var(--color-primary)]/20 px-8 py-6 flex items-center justify-center">
             <div className="bg-[var(--color-primary)]/20 rounded-full p-4">
               <Award className="h-12 w-12 text-[var(--color-primary)]" />
@@ -161,6 +197,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
           
           {/* Content section */}
           <div className="p-8 flex flex-col items-center">
+            {/* CUSTOMIZATION: Change completion messages here */}
             <h2 className="text-2xl md:text-3xl font-bold text-[var(--color-text-dark)] mb-2">
               Congratulations!
             </h2>
@@ -170,6 +207,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
             
             {/* Stats section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-8">
+              {/* CUSTOMIZATION: Change stat box design here */}
               <div className="bg-[var(--color-background-light)] rounded-xl p-5 flex flex-col items-center">
                 <div className="text-[var(--color-primary)] mb-1">Average WPM</div>
                 <div className="text-2xl font-bold text-[var(--color-text-dark)]">
@@ -186,7 +224,8 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
             
             {/* Buttons */}
             <div className="flex flex-col md:flex-row gap-3 w-full">
-            <Link 
+              {/* CUSTOMIZATION: Change button link and styling here */}
+              <Link 
                 href="/protected"
                 className="flex-1 py-3 px-4 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-xl hover:bg-[var(--color-secondary-dark)] transition-colors font-medium text-center flex items-center justify-center gap-2"
               >
@@ -200,7 +239,6 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
                 <RotateCcw className="h-4 w-4" />
                 Practice Again
               </button>
-              
             </div>
           </div>
         </div>
@@ -211,6 +249,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
             <h3 className="text-xl font-medium text-[var(--color-text-dark)] mb-4 text-center">
               Your progress
             </h3>
+            {/* CUSTOMIZATION: Change the progress visualization styles here */}
             <div className="flex gap-2 justify-center flex-wrap">
               {stats.map((stat, index) => 
                 stat ? (
@@ -240,17 +279,18 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     );
   }
 
+  // --- MAIN FLASHCARD VIEW ---
   const currentCard = flashcards[currentCardIndex];
 
   return (
     <div className="relative w-full max-w-3xl mx-auto flex flex-col items-center">
       <div className="relative w-full max-w-3xl mx-auto">
         <div className="relative h-[310px]">
-          {/* Stack effect */}
+          {/* CUSTOMIZATION: Change the stack effect appearance here */}
           <div className="absolute inset-0 bg-[var(--color-card-dark)] rounded-lg transform rotate-1 z-0"></div>
           <div className="absolute inset-0 bg-[var(--color-card-medium)] rounded-lg transform -rotate-1 z-0"></div>
 
-          {/* Animate Presence ensures smooth transitions */}
+          {/* Card content with animations */}
           <AnimatePresence mode="wait">
             <motion.div
               key={currentCardIndex}
@@ -270,6 +310,8 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
           </AnimatePresence>
         </div>
       </div>
+
+      {/* CUSTOMIZATION: Change navigation controls appearance here */}
       <div className="mt-4 flex space-x-8 relative z-[10]">
         <button
           onClick={handlePreviousCard}
@@ -292,7 +334,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
         </button>
       </div>
 
-      {/* Average Stats */}
+      {/* CUSTOMIZATION: Change stats display appearance here */}
       {stats.length > 0 && (
         <div className="flex gap-4 text-sm mt-4">
           <span className="text-[var(--color-primary)] bg-[var(--color-background-light)] px-3 py-1 rounded-full shadow-sm">

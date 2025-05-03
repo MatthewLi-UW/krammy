@@ -147,7 +147,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
 
   if (isDeckCompleted) {
     const { avgWpm, avgAccuracy } = calculateStats();
-
+    
     return (
       <div className="w-full flex flex-col items-center justify-center p-6">
         <div className="bg-[var(--color-card-light)] rounded-2xl shadow-lg w-full max-w-2xl overflow-hidden">

@@ -67,3 +67,13 @@ export const shareADeck = async (deckID: number, access_type: AccessType = ACCES
     throw error; 
   }
 };
+
+
+export const sentDeckStats = async (deckID: number) => {
+  const { data: deckStats, error: deckError } = await supabase
+  .from('DeckMetrics')
+  .insert({deck_id: deckID}).select();
+    if (deckError) throw deckError;
+    console.log(deckStats)
+    return deckStats;
+}

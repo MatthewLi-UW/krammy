@@ -7,7 +7,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {
-    "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+    "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "https://krammy.vercel.app"],
     "methods": ["POST", "OPTIONS"],
     "allow_headers": ["Content-Type"]
 }})
@@ -86,6 +86,11 @@ def health_check():
     return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
-    # For development
-    app.run(debug=True, port=5000)
+    # Check if running in production
+    if os.environ.get('RENDER'):
+        # For production - gunicorn will be used instead
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
+    else:
+        # For development
+        app.run(debug=True, port=5000)
 

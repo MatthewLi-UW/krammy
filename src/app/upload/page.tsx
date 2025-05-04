@@ -127,8 +127,8 @@ export default function UploadPage() {
         if (file.type === 'application/pdf') {
           const formData = new FormData();
           formData.append('pdf', file);
-          
-          const uploadResponse = await fetch('http://localhost:5000/api/parse-pdf', {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+          const uploadResponse = await fetch(`${apiUrl}/api/parse-pdf`, {
             method: 'POST',
             body: formData,
           });

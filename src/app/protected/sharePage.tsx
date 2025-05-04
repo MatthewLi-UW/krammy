@@ -15,7 +15,7 @@ const RecieveDeckForm = () => {
     e.preventDefault();
     setError(''); // Reset any previous errors
     try {
-      const { shareLink, expiresAt } = await shareADeck(parseInt(deckID), accessType);
+      const { shareLink, expiresAt } = await shareADeck(parseInt(deckID), accessType, 10000);
       console.log(deckID)
       console.log(accessType)
       setShareLink(shareLink);

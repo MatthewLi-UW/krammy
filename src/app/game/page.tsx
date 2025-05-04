@@ -4,17 +4,18 @@
 THIS FILE HANDLES THE OVERALL FLASHCARD ALTERNATING PROCESS
 */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import FlashcardStack from "../game/stack";
 import Header from "../components/header";
 import { supabase } from "@/utils/supabase/client";
 import { User } from "@/types/user";
-import { FlashCard } from "@/types/FlashCard"; // Make sure this type exists
+import { FlashCard } from "@/types/FlashCard";
 import VerticalList from './vertical_list';
 
-export default function Game() {
+// Content component that uses useSearchParams
+function GameContent() {
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [deckLoading, setDeckLoading] = useState(true);
@@ -200,5 +201,18 @@ export default function Game() {
         />
       </div>
     </main>
+  );
+}
+
+// Main component with Suspense boundary
+export default function Game() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-[var(--color-background)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
+      </div>
+    }>
+      <GameContent />
+    </Suspense>
   );
 }

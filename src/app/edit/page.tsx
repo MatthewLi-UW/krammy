@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from "../components/header";
 import { supabase } from "@/utils/supabase/client";
 import { User } from "@/types/user";
 import { FlashCard } from "@/types/FlashCard";
 
-export default function EditDeckPage() {
+// Content component that uses useSearchParams
+function EditDeckContent() {
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [deckLoading, setDeckLoading] = useState(true);
@@ -715,5 +716,18 @@ export default function EditDeckPage() {
         </div>
       )}
     </main>
+  );
+}
+
+// Main exported component with Suspense boundary
+export default function EditDeckPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-[var(--color-background)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
+      </div>
+    }>
+      <EditDeckContent />
+    </Suspense>
   );
 }

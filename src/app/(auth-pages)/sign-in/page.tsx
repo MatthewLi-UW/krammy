@@ -23,7 +23,8 @@ const Header = () => (
 );
 
 // Base URL for redirect handling
-const baseUrl = "http://localhost:3000";
+const isProduction = process.env.NODE_ENV === 'production';
+const baseUrl = isProduction? "https://krammy.vercel.app": "http://localhost:3000";
 
 /**
  * Login/Sign-in Page Component

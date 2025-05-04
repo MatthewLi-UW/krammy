@@ -202,7 +202,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
               Congratulations!
             </h2>
             <p className="text-[var(--color-text)] text-center mb-6">
-              You've completed the entire deck!
+              You&apos;ve completed the entire deck!
             </p>
             
             {/* Stats section */}

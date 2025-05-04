@@ -198,7 +198,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
                   {deckPreview?.deckName}
                 </h4>
                 <p className="text-[var(--color-text-light)] text-sm">
-                  You're about to import this deck to your collection
+                  You&apos;re about to import this deck to your collection
                 </p>
               </div>
               

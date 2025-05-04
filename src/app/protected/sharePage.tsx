@@ -20,7 +20,7 @@ const RecieveDeckForm = () => {
       console.log(accessType)
       setShareLink(shareLink);
       setExpiresAt(expiresAt);
-    } catch (err) {
+    } catch {
       setError('Failed to generate share link. Please try again.');
     }
   };

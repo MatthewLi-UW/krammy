@@ -44,7 +44,7 @@ export default function ShareModal({ deckId, deckName, onClose, isOpen }: ShareM
       <div className="bg-[var(--color-background-light)] rounded-xl shadow-lg max-w-md w-full animate-scaleIn">
         <div className="p-5 border-b border-[var(--color-card-medium)]/30">
           <h3 className="text-xl font-bold text-[var(--color-text-dark)]">
-            Share "{deckName}"
+            Share &quot;{deckName}&quot;
           </h3>
         </div>
         

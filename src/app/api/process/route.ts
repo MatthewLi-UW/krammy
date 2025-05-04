@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     }
 
     // Parse and validate request body
-    const { content, deckName, detailLevel } = await req.json();
+    const { content, detailLevel } = await req.json();
     if (!content || typeof content !== 'string') {
       return NextResponse.json(
         { error: 'Invalid content provided' },

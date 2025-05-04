@@ -10,8 +10,6 @@ import { User } from "@/types/user";
 import { Deck } from "@/types/Deck";
 import { cardsPerDeck, getData } from "@/utils/getData";
 
-import ShareDeckForm from "./recievePage";
-import RecieveDeckForm from "./sharePage";
 import Header from "../components/header";
 import Loading from '@/app/components/loading';
 import ShareModal from "@/app/protected/shareModal";
@@ -28,7 +26,6 @@ export default function ProtectedPage() {
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
   const [selectedDeckName, setSelectedDeckName] = useState('');
-  const [toast, setToast] = useState<{ message: string; type: string } | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -97,11 +94,7 @@ export default function ProtectedPage() {
   };
 
   const handleImportSuccess = () => {
-    // Show success message
-    setToast({
-      message: "Deck imported successfully!",
-      type: "success"
-    });
+    
     
     // Fetch the updated deck list
     const deckListGet = async () => {

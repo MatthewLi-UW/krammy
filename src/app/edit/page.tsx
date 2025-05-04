@@ -6,7 +6,6 @@ import Header from "../components/header";
 import { supabase } from "@/utils/supabase/client";
 import { User } from "@/types/user";
 import { FlashCard } from "@/types/FlashCard";
-import { getADeck } from '@/utils/getData';
 
 export default function EditDeckPage() {
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
@@ -691,7 +690,7 @@ export default function EditDeckPage() {
               <div>
                 <h3 className="text-xl font-bold text-[var(--color-text-dark)]">Delete Entire Deck</h3>
                 <p className="text-[var(--color-text)] mt-1">
-                  Are you sure you want to delete the entire <strong>"{deckName}"</strong> deck? This will remove all {flashcards.length} flashcards and cannot be undone.
+                  Are you sure you want to delete the entire <strong>&quot;{deckName}&quot;</strong> deck? This will remove all {flashcards.length} flashcards and cannot be undone.
                 </p>
               </div>
             </div>

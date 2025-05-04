@@ -31,16 +31,7 @@ export default function LandingPage() {
   const [showNav, setShowNav] = useState(false)
   
   // Carousel state
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  
-  // CUSTOMIZABLE: Carousel images - add or replace image paths here
-  // Images should be placed in the public folder
-  const carouselImages = [
-    "/samplecards.png",
-    "/krammy_logo.png",
-    "/keyboard_bg.jpg"
-  ]
 
   // *** EFFECTS & LIFECYCLE ***
   
@@ -52,33 +43,8 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
   
-  // Initialize and clean up carousel timer
-  useEffect(() => {
-    const startCarousel = () => {
-      // CUSTOMIZABLE: Change 3000 to adjust carousel speed (value is in milliseconds)
-      intervalRef.current = setInterval(() => {
-        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length)
-      }, 3000)
-    }
-
-    startCarousel()
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [])
-
   // *** EVENT HANDLERS ***
   
-  // Reset carousel timer when manually changing image
-  const handleDotClick = (index: number) => {
-    setCurrentImageIndex(index)
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    // CUSTOMIZABLE: Change 3000 to adjust carousel speed after manual navigation
-    intervalRef.current = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length)
-    }, 3000)
-  }
-
   // Updated navigation handlers with auth check
   const handleGetStartedClick = async () => {
     const { data } = await supabase.auth.getSession();

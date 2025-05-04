@@ -22,7 +22,6 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
           setCardsList(cardData);
         } else {
           const cardData = await getADeck(data.deck_id);
-          const joinedDeckData = await joinSharedDeck(uuid ,data.deck_id)
           setCardsList(cardData);
         }
   
@@ -62,8 +61,6 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
           deck_id: data.deck_id
         }));
     
-        // Upload the link!
-        const connectCardsTodeck = await sendData('CardsToDeck', ConnectedCards);
     
         
       } catch (error) {

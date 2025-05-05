@@ -16,6 +16,10 @@ import { ChevronLeft, ChevronRight, RotateCcw, Award } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlashCard } from "@/types/FlashCard";
 import Link from "next/link";
+import { sentStats } from "@/utils/sendData";
+import { User } from "@/types/user";
+import { supabase } from "@/utils/supabase/client";
+import { getStats } from "@/utils/getData";
 
 interface FlashcardStackProps {
   flashcards: FlashCard[];  // Array of flashcards to display
@@ -29,6 +33,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
   const [direction, setDirection] = useState<'next' | 'previous'>('next');
   const [isDeckCompleted, setIsDeckCompleted] = useState(false);
   const [stats, setStats] = useState<Array<{ wpm: number; accuracy: number }>>([]);
+  const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
 
   // --- STORAGE KEYS ---
   // CUSTOMIZATION: Change the storage prefix if needed for different use cases
@@ -78,6 +83,20 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
       setCurrentCardIndex((prevIndex) => (prevIndex + 1) % flashcards.length);
     }
   }, [currentCardIndex, flashcards.length]);
+
+
+  const fetchUser = async () => {
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) {
+    } else {
+      const temp = data.user as User;
+      setUser(temp ? { 
+        id: temp.id, 
+        email: temp.email,
+        image: temp.user_metadata?.avatar_url || undefined
+      } : null);
+    }
+  }
 
   const handlePreviousCard = useCallback(() => {
     setDirection('previous');
@@ -182,7 +201,15 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
 
   // --- COMPLETION SCREEN ---
   if (isDeckCompleted) {
+    fetchUser();
     const { avgWpm, avgAccuracy } = calculateStats();
+
+    if (user) {
+     // const {data} = getStats(user.id, Number(deckId), "DECK")
+     // sentStats(user.id,avgAccuracy,avgWpm,Number(deckId));
+    }
+
+
     const validStats = stats.filter(stat => stat !== null && stat !== undefined);
 
     return (

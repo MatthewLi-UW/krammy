@@ -9,6 +9,10 @@ import { ChevronLeft, ChevronRight, RotateCcw, Award, Zap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlashCard } from "@/types/FlashCard";
 import Link from "next/link";
+import { sentDeckStats } from "@/utils/sendData";
+import { User } from "@/types/user";
+import { supabase } from "@/utils/supabase/client";
+import { getDeckStats } from "@/utils/getData";
 
 // Add a deck ID parameter to the props
 interface FlashcardStackProps {
@@ -22,7 +26,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
   const [direction, setDirection] = useState<'next' | 'previous'>('next');
   const [isDeckCompleted, setIsDeckCompleted] = useState(false);
   const [stats, setStats] = useState<Array<{ wpm: number; accuracy: number }>>([]);
-
+  const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
   //  localStorage key to be deck-specific
   const storagePrefix = `flashcard_deck_${deckId}`;
   const indexKey = `${storagePrefix}_index`;
@@ -77,6 +81,18 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
       </div>
     );
   }
+    const fetchUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+      } else {
+        const temp = data.user as User;
+        setUser(temp ? { 
+          id: temp.id, 
+          email: temp.email,
+          image: temp.user_metadata?.avatar_url || undefined
+        } : null);
+      }
+    }
 
   const handleNextCard = () => {
     setDirection('next');
@@ -146,7 +162,13 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
   };
 
   if (isDeckCompleted) {
+    fetchUser();
     const { avgWpm, avgAccuracy } = calculateStats();
+
+    if (user){
+      getDeckStats(user.id, Number(deckId))
+      //sentDeckStats(user.id,Number(deckId),avgAccuracy,avgWpm);
+    }
     
     return (
       <div className="w-full flex flex-col items-center justify-center p-6">

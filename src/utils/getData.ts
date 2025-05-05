@@ -57,10 +57,10 @@ export const cardsPerDeck = async (deckID: number[]) => {
 }
 
 
-export const getDeckStats = async (deckID: number) => {
+export const getDeckStats = async ( user_id: string, deckID: number) => {
   const { data: deckStats, error: deckError } = await supabase
   .from('DeckMetrics')
-  .select().eq('deck_id', deckID);
+  .select().eq('deck_id', deckID).eq('user_id', user_id);
     if (deckError) throw deckError;
     console.log(deckStats)
     return deckStats;

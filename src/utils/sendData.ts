@@ -69,10 +69,10 @@ export const shareADeck = async (deckID: number, access_type: AccessType = ACCES
 };
 
 
-export const sentDeckStats = async (deckID: number) => {
+export const sentDeckStats = async (userid: string, deckID: number, accuracy: number, wpm: number) => {
   const { data: deckStats, error: deckError } = await supabase
   .from('DeckMetrics')
-  .insert({deck_id: deckID}).select();
+  .insert({user_id: userid, deck_id: deckID, accuracy: accuracy, wpm: wpm}).select();
     if (deckError) throw deckError;
     console.log(deckStats)
     return deckStats;

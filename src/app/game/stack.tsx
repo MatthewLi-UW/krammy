@@ -34,6 +34,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
   const [isDeckCompleted, setIsDeckCompleted] = useState(false);
   const [stats, setStats] = useState<Array<{ wpm: number; accuracy: number }>>([]);
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
+  const [statsSubmitted, setStatsSubmitted] = useState(false);
 
   // --- STORAGE KEYS ---
   // CUSTOMIZATION: Change the storage prefix if needed for different use cases
@@ -126,6 +127,30 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     };
   }, [isDeckCompleted, handleNextCard, handlePreviousCard]);
 
+  // --- USER FETCHING ---
+  useEffect(() => {
+    // Only fetch the user when the deck is completed
+    if (isDeckCompleted) {
+      fetchUser();
+    }
+  }, [isDeckCompleted]);
+
+  // --- STATS SUBMISSION ---
+  useEffect(() => {
+    const submitStats = async () => {
+      if (isDeckCompleted && !statsSubmitted && user) {
+        const { avgWpm, avgAccuracy } = calculateStats();
+        await sentStats(user.id, avgAccuracy, avgWpm, Number(deckId));
+        setStatsSubmitted(true);
+        console.log('Stats submitted successfully');
+      }
+    };
+
+    if (isDeckCompleted && user && !statsSubmitted) {
+      submitStats();
+    }
+  }, [isDeckCompleted, user, statsSubmitted]);
+
   // --- LOADING STATE ---
   if (!isInitialized) {
     return (
@@ -201,14 +226,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
 
   // --- COMPLETION SCREEN ---
   if (isDeckCompleted) {
-    fetchUser();
     const { avgWpm, avgAccuracy } = calculateStats();
-
-    if (user) {
-     // const {data} = getStats(user.id, Number(deckId), "DECK")
-     // sentStats(user.id,avgAccuracy,avgWpm,Number(deckId));
-    }
-
 
     const validStats = stats.filter(stat => stat !== null && stat !== undefined);
 

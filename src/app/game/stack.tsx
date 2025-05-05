@@ -9,10 +9,10 @@ import { ChevronLeft, ChevronRight, RotateCcw, Award, Zap } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { FlashCard } from "@/types/FlashCard";
 import Link from "next/link";
-import { sentDeckStats } from "@/utils/sendData";
+import { sentStats } from "@/utils/sendData";
 import { User } from "@/types/user";
 import { supabase } from "@/utils/supabase/client";
-import { getDeckStats } from "@/utils/getData";
+import { getStats } from "@/utils/getData";
 
 // Add a deck ID parameter to the props
 interface FlashcardStackProps {
@@ -165,9 +165,9 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
     fetchUser();
     const { avgWpm, avgAccuracy } = calculateStats();
 
-    if (user){
-      getDeckStats(user.id, Number(deckId))
-      //sentDeckStats(user.id,Number(deckId),avgAccuracy,avgWpm);
+    if (user) {
+     // const {data} = getStats(user.id, Number(deckId), "DECK")
+     // sentStats(user.id,avgAccuracy,avgWpm,Number(deckId));
     }
     
     return (

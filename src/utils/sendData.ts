@@ -69,11 +69,23 @@ export const shareADeck = async (deckID: number, access_type: AccessType = ACCES
 };
 
 
-export const sentDeckStats = async (userid: string, deckID: number, accuracy: number, wpm: number) => {
-  const { data: deckStats, error: deckError } = await supabase
-  .from('DeckMetrics')
-  .insert({user_id: userid, deck_id: deckID, accuracy: accuracy, wpm: wpm}).select();
+export const sentStats = async (userid: string, accuracy: number, wpm: number,deckID?: number, cardID?: number) => {
+  console.log("sentStats")
+  if (deckID){
+    const { data: deckStats, error: deckError } = await supabase
+    .from('DeckMetrics')
+    .insert({user_id: userid, deck_id: deckID, accuracy: accuracy, wpm: wpm}).select();
     if (deckError) throw deckError;
     console.log(deckStats)
     return deckStats;
+  } else if (cardID) {
+    const { data: deckStats, error: deckError } = await supabase
+    .from('DeckMetrics')
+    .insert({user_id: userid, card_id: cardID, accuracy: accuracy, wpm: wpm}).select();
+    if (deckError) throw deckError;
+    console.log(deckStats)
+    return deckStats;
+  } else {
+    console.log("ERROR not a valid sentStats")
+  }
 }

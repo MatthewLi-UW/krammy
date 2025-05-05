@@ -57,11 +57,23 @@ export const cardsPerDeck = async (deckID: number[]) => {
 }
 
 
-export const getDeckStats = async ( user_id: string, deckID: number) => {
+export const getStats = async ( user_id: string, deckID: number, dataType: string) => {
+  console.log("getStats")
+  if (dataType == "DECK") {
+    const { data: deckStats, error: deckError } = await supabase
+    .from('DeckMetrics')
+    .select().eq('deck_id', deckID).eq('user_id', user_id);
+      if (deckError) throw deckError;
+      console.log(deckStats)
+      return deckStats;
+  } else if (dataType == "CARD") {
   const { data: deckStats, error: deckError } = await supabase
   .from('DeckMetrics')
-  .select().eq('deck_id', deckID).eq('user_id', user_id);
+  .select().eq('card_id', deckID).eq('user_id', user_id);
     if (deckError) throw deckError;
     console.log(deckStats)
     return deckStats;
+  } else {
+    console.log("ERROR provide type DECK or CARD")
+  }
 }

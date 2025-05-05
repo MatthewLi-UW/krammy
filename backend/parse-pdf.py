@@ -3,14 +3,48 @@ import PyPDF2
 import io
 import tempfile
 import os
+import requests
 from flask_cors import CORS
+from flask_apscheduler import APScheduler
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {
-    "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+    "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "https://krammy.vercel.app"],
     "methods": ["POST", "OPTIONS"],
     "allow_headers": ["Content-Type"]
 }})
+
+# Initialize scheduler
+scheduler = APScheduler()
+scheduler.init_app(app)
+
+# Keep-alive ping configuration
+RENDER_EXTERNAL_URL = os.environ.get('RENDER_EXTERNAL_URL')
+
+def keep_alive_ping():
+    """Send a request to the application to prevent Render from spinning it down."""
+    if RENDER_EXTERNAL_URL:
+        url = f"{RENDER_EXTERNAL_URL}/api/health"
+        try:
+            response = requests.get(url, timeout=10)
+            logger.info(f"Keep-alive ping sent. Status: {response.status_code}")
+        except Exception as e:
+            logger.error(f"Keep-alive ping failed: {str(e)}")
+    else:
+        logger.info("Keep-alive ping skipped (not running on Render)")
+
+# Add the scheduler job only in production
+if os.environ.get('RENDER'):
+    # Schedule the keep-alive ping every 14 minutes
+    app.config['SCHEDULER_API_ENABLED'] = True
+    scheduler.add_job(id='keep_alive_job', func=keep_alive_ping, 
+                      trigger='interval', minutes=14)
+    scheduler.start()
 
 
 @app.route('/api/parse-pdf', methods=['POST'])
@@ -22,10 +56,10 @@ def parse_pdf():
     Returns JSON with the extracted text.
     """
     # file size check (limit to 10MB)
-    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB in bytes
+    MAX_FILE_SIZE = 20 * 1024 * 1024  # 10MB in bytes
     
     if request.content_length > MAX_FILE_SIZE:
-        return jsonify({"error": "File too large. Maximum size is 10MB"}), 413
+        return jsonify({"error": "File too large. Maximum size is 16MB"}), 413
 
     if 'pdf' not in request.files:
         return jsonify({"error": "No PDF file provided"}), 400
@@ -47,7 +81,10 @@ def parse_pdf():
             page_text = page.extract_text()
             if page_text:
                 text += page_text + "\n"
-        
+
+        if not text.strip():
+            text = "No text extracted"
+
         return jsonify({"text": text})
     
     except Exception as e:
@@ -80,9 +117,15 @@ def extract_text_from_pdf_bytes(pdf_bytes):
 
 @app.route('/api/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "ok"})
+    """Health check endpoint used for monitoring and keep-alive pings."""
+    return jsonify({"status": "ok", "message": "PDF parsing service is running"})
 
 if __name__ == "__main__":
-    # For development
-    app.run(debug=True, port=5000)
+    # Check if running in production
+    if os.environ.get('RENDER'):
+        # For production - gunicorn will be used instead
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
+    else:
+        # For development
+        app.run(debug=True, port=5000)
 

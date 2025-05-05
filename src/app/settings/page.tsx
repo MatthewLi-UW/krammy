@@ -79,10 +79,10 @@ export default function SettingsPage() {
 
   return (
     // Main container
-    <main className="flex flex-col min-h-screen bg-background dark:bg-background-dark transition-colors duration-200">
+    <main className="flex flex-col min-h-screen bg-background dark:bg-background-dark transition-colors duration-200 font-karla">
       <Header user={user} />
       
-      <div className="w-full max-w-4xl mx-auto px-4 py-8">
+      <div className="w-full max-w-4xl mx-auto px-4 py-4">
         <h1 className="text-3xl font-bold text-foreground dark:text-foreground mb-8">Settings</h1>
         
         {/* Stats Section */}
@@ -107,7 +107,7 @@ export default function SettingsPage() {
           </div>
         </section>
         
-        {/* Theme Switcher - Monkeytype style */}
+        {/* Theme Switcher */}
         <section className="bg-background-light dark:bg-background rounded-xl shadow-md p-6">
           <h2 className="text-xl font-semibold text-foreground dark:text-foreground mb-4">Appearance</h2>
           
@@ -119,16 +119,16 @@ export default function SettingsPage() {
               {/* Default theme */}
               <div 
                 onClick={() => {
-                  setTheme('light');
+                  setTheme('krammy');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'light' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
-                  bg-[#FFFAEC]`} // Hardcoded beige-light color
+                  ${theme === 'krammy' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
+                  bg-[#FFFAEC]`}
               >
-                <div className="bg-[#2A9D8F] h-3 w-12 rounded mb-2"></div> {/* Hardcoded teal color */}
-                <div className="bg-[#F5ECD5] h-3 w-16 rounded"></div> {/* Hardcoded beige-medium color */}
-                <span className="mt-2 text-xs font-medium text-[#4A4A4A]">Default (Krammy)</span> {/* Hardcoded text color */}
-                {theme === 'light' && (
+                <div className="bg-[#2A9D8F] h-3 w-12 rounded mb-2"></div>
+                <div className="bg-[#F5ECD5] h-3 w-16 rounded"></div>
+                <span className="mt-2 text-xs font-medium text-[#4A4A4A]">Krammy</span>
+                {theme === 'krammy' && (
                   <div className="absolute -top-2 -right-2 bg-primary text-white rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -140,16 +140,16 @@ export default function SettingsPage() {
               {/* Dark theme */}
               <div 
                 onClick={() => {
-                  setTheme('dark');
+                  setTheme('midnight');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'dark' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
-                  bg-[#121212]`} // Hardcoded dark background
+                  ${theme === 'midnight' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
+                  bg-[#121212]`}
               >
-                <div className="bg-[#2A9D8F] h-3 w-12 rounded mb-2"></div> {/* Hardcoded teal color */}
-                <div className="bg-[#333333] h-3 w-16 rounded"></div> {/* Hardcoded dark gray color */}
-                <span className="mt-2 text-xs font-medium text-[#EDEDED]">Dark</span> {/* Hardcoded light text color */}
-                {theme === 'dark' && (
+                <div className="bg-[#2A9D8F] h-3 w-12 rounded mb-2"></div>
+                <div className="bg-[#333333] h-3 w-16 rounded"></div>
+                <span className="mt-2 text-xs font-medium text-[#EDEDED]">Midnight</span>
+                {theme === 'midnight' && (
                   <div className="absolute -top-2 -right-2 bg-primary text-white rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -158,7 +158,7 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              {/* Ocean Blue theme */}
+              {/* Blue theme */}
               <div 
                 onClick={() => {
                   setTheme('ocean-blue');
@@ -182,16 +182,16 @@ export default function SettingsPage() {
               {/* Lavender theme */}
               <div 
                 onClick={() => {
-                  setTheme('lavender');
+                  setTheme('faerie-lavender');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'lavender' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
+                  ${theme === 'faerie-lavender' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-purple-100`}
               >
                 <div className="bg-purple-500 h-3 w-12 rounded mb-2"></div>
                 <div className="bg-purple-200 h-3 w-16 rounded"></div>
-                <span className="mt-2 text-xs font-medium text-gray-900">Lavender</span>
-                {theme === 'lavender' && (
+                <span className="mt-2 text-xs font-medium text-gray-900">Faerie Lavender</span>
+                {theme === 'faerie-lavender' && (
                   <div className="absolute -top-2 -right-2 bg-purple-500 text-white rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -200,40 +200,19 @@ export default function SettingsPage() {
                 )}
               </div>
 
-              {/* Forest theme */}
+              {/* Red theme */}
               <div 
                 onClick={() => {
-                  setTheme('forest');
+                  setTheme('mint-berry');
                 }}
                 className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'forest' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
-                  bg-green-100`}
-              >
-                <div className="bg-green-600 h-3 w-12 rounded mb-2"></div>
-                <div className="bg-green-200 h-3 w-16 rounded"></div>
-                <span className="mt-2 text-xs font-medium text-gray-900">Forest</span>
-                {theme === 'forest' && (
-                  <div className="absolute -top-2 -right-2 bg-green-600 text-white rounded-full p-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-
-              {/* Ruby theme */}
-              <div 
-                onClick={() => {
-                  setTheme('ruby');
-                }}
-                className={`cursor-pointer relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 transition-all
-                  ${theme === 'ruby' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
+                  ${theme === 'strawberry-red' ? 'border-primary shadow-md' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600'}
                   bg-red-100`}
               >
                 <div className="bg-red-500 h-3 w-12 rounded mb-2"></div>
                 <div className="bg-red-200 h-3 w-16 rounded"></div>
-                <span className="mt-2 text-xs font-medium text-gray-900">Ruby</span>
-                {theme === 'ruby' && (
+                <span className="mt-2 text-xs font-medium text-gray-900">Mint Berry</span>
+                {theme === 'mint-berry' && (
                   <div className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -241,30 +220,34 @@ export default function SettingsPage() {
                   </div>
                 )}
               </div>
+
+              {/* Green - Coming Soon */}
+              <div 
+                className="relative rounded-lg p-3 flex flex-col items-center justify-center aspect-video border-2 border-transparent bg-green-100 opacity-60 cursor-not-allowed"
+              >
+                <div className="bg-green-600 h-3 w-12 rounded mb-2 opacity-70"></div>
+                <div className="bg-green-200 h-3 w-16 rounded opacity-70"></div>
+                <span className="mt-2 text-xs font-medium text-gray-900">Coming Soon</span>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg backdrop-blur-[1px]">
+                  <span className="bg-black/70 text-white px-3 py-1 rounded-full text-xs font-semibold transform -rotate-12">Coming Soon</span>
+                </div>
+              </div>
             </div>
             
             <p className="text-sm text-text-light dark:text-text-light mt-2">
               Current theme: {
-                theme === 'light' ? 'Default (Krammy)' : 
-                theme === 'dark' ? 'Dark' :
+                theme === 'krammy' ? 'Krammy' : 
+                theme === 'midnight' ? 'Midnight' :
                 theme === 'ocean-blue' ? 'Ocean Blue' :
-                theme === 'lavender' ? 'Lavender' :
-                theme === 'forest' ? 'Forest' :
-                theme === 'ruby' ? 'Ruby' : 'Custom'
+                theme === 'faerie-lavender' ? 'Faerie Lavender' :
+                theme === 'forest' ? '' :
+                theme === 'mint-berry' ? 'Mint Berry' : 'Custom'
               }
             </p>
           </div>
         </section>
         
-        {/* Back button */}
-        <div className="mt-8">
-          <button
-            onClick={() => router.push('/protected')}
-            className="px-4 py-2 bg-secondary dark:bg-secondary-dark text-foreground dark:text-foreground rounded-md hover:bg-secondary-dark dark:hover:bg-secondary transition-colors"
-          >
-            Back to Decks
-          </button>
-        </div>
+
       </div>
     </main>
   );

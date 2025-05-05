@@ -4,7 +4,7 @@ THIS FILE HANDLES A SPECIFIC TYPING FLASHCARD
 
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import { RotateCcw, Volume2, Star } from 'lucide-react';
+import { RotateCcw, Volume2 } from 'lucide-react';
 
 // Character states type
 type CharacterState = {
@@ -26,7 +26,6 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
   const [isFlipped, setIsFlipped] = useState(true);
 
   // for cursor movement
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [cursorCoords, setCursorCoords] = useState({ x: 0, y: 0 });
 
   const [showTooltip, setShowTooltip] = useState(false)
@@ -71,7 +70,6 @@ const TypingExercise: React.FC<TypingExerciseProps> = ({ front, back, onNextCard
         // Reset input and other states when card changes
         setInput('');
         setStartTime(null);
-        setCurrentIndex(0);
         setCursorCoords({ x: 0, y: 0 });
 
         // Ensure the card always starts on the front
@@ -198,7 +196,6 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
   const handleReset = () => {
     setInput('');
     setStartTime(null);
-    setCurrentIndex(0);
     setCursorCoords({ x: 0, y: 0 });
   
     // Ensure we're only resetting the current flashcard's characters

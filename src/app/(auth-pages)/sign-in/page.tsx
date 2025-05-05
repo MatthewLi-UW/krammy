@@ -23,7 +23,8 @@ const Header = () => (
 );
 
 // Base URL for redirect handling
-const baseUrl = "http://localhost:3000";
+const isProduction = process.env.NODE_ENV === 'production';
+const baseUrl = isProduction? "https://krammy.vercel.app": "http://localhost:3000";
 
 /**
  * Login/Sign-in Page Component
@@ -173,7 +174,7 @@ export default function Login(props: { searchParams: Promise<Message> }) {
 
           {/* Sign-up link */}
           <div className="text-center text-sm text-[var(--color-text-light)]">
-            Don't have an account? <Link href="/sign-up" className="text-[var(--color-primary)] hover:underline">Sign up</Link>
+            Don&apos;t have an account? <Link href="/sign-up" className="text-[var(--color-primary)] hover:underline">Sign up</Link>
           </div>
 
           {/* Divider with "OR" text */}

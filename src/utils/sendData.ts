@@ -42,7 +42,7 @@ export const joinSharedDeck = async (uuid: string, deckID: number) => {
 
 
 
-export const shareADeck = async (deckID: number, access_type: AccessType = ACCESS.READ) => {
+export const shareADeck = async (deckID: number, access_type: AccessType = ACCESS.READ, expiryMs: number) => {
   try {
 
     const { data: shareData, error: shareError } = await supabase
@@ -51,7 +51,7 @@ export const shareADeck = async (deckID: number, access_type: AccessType = ACCES
         {
           deck_id: deckID,
           access_type: access_type, 
-          expiry_date: new Date(new Date().getTime() + 5 * 60000).toISOString() 
+          expiry_date: new Date(new Date().getTime() + expiryMs).toISOString() 
         }
       ])
       .select('share_token, expiry_date')  
@@ -59,7 +59,7 @@ export const shareADeck = async (deckID: number, access_type: AccessType = ACCES
 
     if (shareError) throw shareError;
 
-    const shareLink = `https://yourdomain.com/share/${shareData.share_token}`;
+    const shareLink = `${shareData.share_token}`;
 
     return { shareLink, expiresAt: shareData.expiry_date };
   } catch (error) {

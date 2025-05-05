@@ -46,61 +46,81 @@ export default function Header({ user }: HeaderProps) {
         <span className="text-2xl font-bold text-text">Krammy</span>
       </Link>
       
-      {/* Profile dropdown */}
-      <div className="relative" ref={dropdownRef}>
-        <div 
-          onClick={toggleDropdown}
-          className="cursor-pointer hover:bg-gray-100 rounded-full p-1 flex items-center justify-center"
-          style={{ width: '40px', height: '40px' }}
-        >
-          {user?.image ? (
-            <Image 
-              src={user.image} 
-              alt="Profile" 
-              width={36} 
-              height={36} 
-              className="rounded-full object-cover"
-            />
-          ) : (
-            <UserCircleIcon size={36} className="text-gray-600" />
-          )}
-        </div>
+      {/* Right side elements: My Decks button + Profile */}
+      <div className="flex items-center">
+        {user && (
+          <Link 
+            href="/protected" 
+            className="px-4 py-2 mr-3 bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-light)] rounded-md shadow-sm font-medium transition-all duration-200 flex items-center"
+          >
+            My Decks
+          </Link>
+        )}
         
-        <AnimatePresence>
-          {isDropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              transition={{ duration: 0.2 }}
-              className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 py-1 border border-gray-200 origin-top-right"
-            >
-              <div className="px-4 py-3 border-b border-gray-100">
-                <p className="text-sm font-medium text-gray-800 truncate max-w-full" title={user?.email || "User"}>
-                  {user?.email || "User"}
-                </p>
-              </div>
-              
-              <Link href="/protected" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <UserIcon size={16} className="mr-2 shrink-0" />
-                My Decks
-              </Link>
-              
-              <Link href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                <SettingsIcon size={16} className="mr-2 shrink-0" />
-                Settings
-              </Link>
-              
-              <button 
-                onClick={signOutAction}
-                className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+        {/* Profile dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <div 
+            onClick={toggleDropdown}
+            className="cursor-pointer hover:bg-gray-100 rounded-full p-1 flex items-center justify-center"
+            style={{ width: '48px', height: '48px' }}
+          >
+            {user?.image ? (
+              <Image 
+                src={user.image} 
+                alt="Profile" 
+                width={44} 
+                height={44} 
+                className="rounded-full object-cover"
+              />
+            ) : (
+              <UserCircleIcon size={44} className="text-gray-600" />
+            )}
+          </div>
+          
+          <AnimatePresence>
+            {isDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="absolute right-0 mt-2 w-48 bg-[var(--color-background-light)] rounded-md shadow-lg z-10 py-1 border border-[var(--color-secondary)] origin-top-right"
               >
-                <LogOutIcon size={16} className="mr-2 shrink-0" />
-                Sign out
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <div className="px-4 py-3 border-b border-[var(--color-secondary)]">
+                  <p className="text-sm font-medium text-[var(--color-text)] truncate max-w-full" title={user?.email || "User"}>
+                    {user?.email || "User"}
+                  </p>
+                </div>
+                
+                <Link 
+                  href="/protected" 
+                  className="flex items-center px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-secondary-light)]"
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  <UserIcon size={16} className="mr-2 shrink-0" />
+                  My Decks
+                </Link>
+                
+                <Link 
+                  href="/settings" 
+                  className="flex items-center px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-secondary-light)]"
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  <SettingsIcon size={16} className="mr-2 shrink-0" />
+                  Settings
+                </Link>
+                
+                <button 
+                  onClick={signOutAction}
+                  className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-[var(--color-secondary-light)]"
+                >
+                  <LogOutIcon size={16} className="mr-2 shrink-0" />
+                  Sign out
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

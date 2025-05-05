@@ -21,11 +21,9 @@ export default function UploadPage() {
   const [response, setResponse] = useState('')
   const [detailLevel, setDetailLevel] = useState(1)
   const [deckName, setDeckName] = useState('')
-  const [flashcardArray, setFlashcardArray] = useState<{front: string, back: string}[]>([])
   const [activeTab, setActiveTab] = useState<'file' | 'text'>('file');
   const router = useRouter()
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
-  const [isNavigating, setIsNavigating] = useState(false);
 
   // Fetch user data
   const fetchUser = async () => {
@@ -129,8 +127,8 @@ export default function UploadPage() {
         if (file.type === 'application/pdf') {
           const formData = new FormData();
           formData.append('pdf', file);
-          
-          const uploadResponse = await fetch('http://localhost:5000/api/parse-pdf', {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+          const uploadResponse = await fetch(`${apiUrl}/api/parse-pdf`, {
             method: 'POST',
             body: formData,
           });
@@ -185,7 +183,7 @@ export default function UploadPage() {
         
         const flashcardEntries = responseText.split(/\n\s*\n/);
         
-        const parsedFlashcards = flashcardEntries.map((entry, index) => {
+        const parsedFlashcards = flashcardEntries.map((entry) => {
           const frontMatch = entry.match(/Front:\s*(.*?)(?=\s*\n\s*Back:|$)/s);
           const backMatch = entry.match(/Back:\s*(.*?)(?=\s*\n\s*Front:|$)/s);
           
@@ -198,7 +196,6 @@ export default function UploadPage() {
           return null;
         }).filter(card => card !== null);
         
-        setFlashcardArray(parsedFlashcards);
         setResponse(`Successfully created ${parsedFlashcards.length} flashcards!`);
         
         if (!user) {
@@ -256,13 +253,12 @@ export default function UploadPage() {
     if (window.history.length > 1) {
       window.history.back();
     } else {
-      setIsNavigating(true);
       router.push('/protected');
     }
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)]">
+    <div className="min-h-screen bg-[var(--color-background)] font-karla">
       <Header user={user} />
       
       <main className="max-w-6xl mx-auto px-4 py-8">
@@ -439,7 +435,7 @@ export default function UploadPage() {
               <Info size={18} className="text-[var(--color-primary)] mt-0.5 mr-3 flex-shrink-0" />
               <div className="text-sm text-[var(--color-text)]">
                 <p className="mb-1"><strong>What happens next?</strong></p>
-                <p>Your content will be analyzed to create flashcards based on the detail level you've selected. Higher detail means more specific cards, while lower detail creates broader concept cards.</p>
+                <p>Your content will be analyzed to create flashcards based on the detail level you&apos;ve selected. Higher detail means more specific cards, while lower detail creates broader concept cards.</p>
               </div>
             </div>
           </div>

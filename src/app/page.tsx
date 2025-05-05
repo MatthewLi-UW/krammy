@@ -8,6 +8,7 @@ import { TypeAnimation } from 'react-type-animation'
 import { useRouter } from 'next/navigation'
 import KrammyLogo from "@/app/components/logo"
 import FeatureBanner from './landing-components/feature-banner'
+import FeatureShowcase from './landing-components/feature-showcase'
 // Import supabase client
 import { supabase } from '@/utils/supabase/client'
 
@@ -30,16 +31,7 @@ export default function LandingPage() {
   const [showNav, setShowNav] = useState(false)
   
   // Carousel state
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
-  
-  // CUSTOMIZABLE: Carousel images - add or replace image paths here
-  // Images should be placed in the public folder
-  const carouselImages = [
-    "/samplecards.png",
-    "/krammy_logo.png",
-    "/keyboard_bg.jpg"
-  ]
 
   // *** EFFECTS & LIFECYCLE ***
   
@@ -51,33 +43,8 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
   
-  // Initialize and clean up carousel timer
-  useEffect(() => {
-    const startCarousel = () => {
-      // CUSTOMIZABLE: Change 3000 to adjust carousel speed (value is in milliseconds)
-      intervalRef.current = setInterval(() => {
-        setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length)
-      }, 3000)
-    }
-
-    startCarousel()
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-    }
-  }, [])
-
   // *** EVENT HANDLERS ***
   
-  // Reset carousel timer when manually changing image
-  const handleDotClick = (index: number) => {
-    setCurrentImageIndex(index)
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    // CUSTOMIZABLE: Change 3000 to adjust carousel speed after manual navigation
-    intervalRef.current = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % carouselImages.length)
-    }, 3000)
-  }
-
   // Updated navigation handlers with auth check
   const handleGetStartedClick = async () => {
     const { data } = await supabase.auth.getSession();
@@ -139,40 +106,40 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* === Hero Section === */}
-      <div className="min-h-screen flex items-center justify-center p-4 relative">
-        <div className="w-full max-w-7xl flex items-center">
+      <div className="min-h-screen flex items-center justify-center p-4 pt-20 pb-24 relative">
+        <div className="w-full max-w-7xl flex flex-col md:flex-row items-center">
           {/* Left Column - Value Proposition */}
-          <div className="w-1/2 pr-12 flex flex-col items-center">
-            <div className="flex flex-col items-center mb-16">
+          <div className="w-full md:w-1/2 md:pr-12 flex flex-col items-center mb-8 md:mb-0">
+            <div className="flex flex-col items-center mb-8 md:mb-16">
               {/* CUSTOMIZABLE: Logo size */}
               <KrammyLogo width={72} height={72} />
               {/* CUSTOMIZABLE: Main logo text */}
-              <h1 className="text-4xl text-foreground font-light">Krammy</h1>
+              <h1 className="text-3xl md:text-4xl text-foreground font-light">Krammy</h1>
             </div>
 
             {/* CUSTOMIZABLE: Animated headline texts and timing */}
-            <h2 className="text-5xl font-medium mb-8 text-primary">
+            <h2 className="text-4xl md:text-5xl font-medium mb-6 md:mb-8 text-primary text-center">
               <TypeAnimation
                 sequence={[
-                  'Learn Smarter,',  // First text
-                  2000,              // Pause duration in ms
-                  'Study Faster',    // Second text 
-                  2000,              // Pause duration in ms
+                  'Learn Smarter,',
+                  2000,
+                  'Study Faster',
+                  2000,
                 ]}
                 wrapper="span"
-                speed={50}           // Typing speed
+                speed={50}
                 repeat={Infinity}
                 className="block"
               />
             </h2>
 
             {/* CUSTOMIZABLE: Main tagline first part */}
-            <p className="text-lg text-text mb-2 text-center">
+            <p className="text-lg text-text mb-2 text-center px-4 md:px-0">
               Transform your study notes into <strong>interactive typing exercises</strong>.
             </p>
 
             {/* CUSTOMIZABLE: Main tagline second part */}
-            <p className="text-lg text-text mb-16 text-center">
+            <p className="text-lg text-text mb-8 md:mb-16 text-center px-4 md:px-0">
               <strong>Master your material</strong> while improving your typing speed.
             </p>
 
@@ -186,40 +153,16 @@ export default function LandingPage() {
           </div>
 
           {/* Right Column - Image Carousel */}
-          <div className="w-1/2 bg-secondary rounded-2xl p-6 relative overflow-hidden">
-            {/* CUSTOMIZABLE: Carousel container height */}
-            <div className="w-full h-[400px] flex justify-center items-center">
-              <Image 
-                src={carouselImages[currentImageIndex]} 
-                alt="Krammy Application Preview" 
-                width={500}  // CUSTOMIZABLE: Image max width
-                height={400} // CUSTOMIZABLE: Image max height
-                className="object-contain transition-opacity duration-500"
-              />
-            </div>
-            
-            {/* Carousel Navigation Dots */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-              {carouselImages.map((_, index) => (
-                <button 
-                  key={index} 
-                  className={`w-3 h-3 rounded-full ${
-                    index === currentImageIndex 
-                      ? 'bg-primary' // Use primary color for active dot
-                      : 'bg-gray-300 dark:bg-gray-600' // Use specific colors for inactive dots
-                  } transition-colors duration-300`}
-                  onClick={() => handleDotClick(index)}
-                  aria-label={`View image ${index + 1}`}
-                ></button>
-              ))}
-            </div>
+          <div className="w-full md:w-1/2 bg-secondary rounded-2xl p-6 sm:p-8 mx-auto my-4 
+                          relative overflow-hidden max-w-lg max-h-[500px]">
+            <FeatureShowcase />
           </div>
         </div>
         
         {/* CUSTOMIZABLE: "Learn more" button text */}
         <button
           onClick={scrollToFeatures}
-          className="flex flex-col items-center absolute bottom-8 left-1/2 transform -translate-x-1/2 text-foreground hover:text-primary transition-colors"
+          className="flex flex-col items-center absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 text-foreground hover:text-primary transition-colors"
           aria-label="Learn more about features"
         >
           <span className="mb-1">Learn more</span>

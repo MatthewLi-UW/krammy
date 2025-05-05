@@ -4,17 +4,18 @@
 THIS FILE HANDLES THE OVERALL FLASHCARD ALTERNATING PROCESS
 */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import FlashcardStack from "../game/stack";
 import Header from "../components/header";
 import { supabase } from "@/utils/supabase/client";
 import { User } from "@/types/user";
-import { FlashCard } from "@/types/FlashCard"; // Make sure this type exists
+import { FlashCard } from "@/types/FlashCard";
 import VerticalList from './vertical_list';
 
-export default function Game() {
+// Content component that uses useSearchParams
+function GameContent() {
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [deckLoading, setDeckLoading] = useState(true);
@@ -62,7 +63,10 @@ export default function Game() {
 
   useEffect(() => {
     const fetchDeckCards = async () => {
-      if (!deckId) return;
+      if (!deckId) {
+        router.push('/protected'); // Redirect if no deckId
+        return;
+      }
 
       setDeckLoading(true);
 
@@ -70,12 +74,45 @@ export default function Game() {
         // Get the deck information
         const { data: deckData, error: deckError } = await supabase
           .from('Deck')
-          .select('deck_name')
+          .select('deck_name, owner_id')
           .eq('deck_id', deckId)
           .single();
 
-        if (deckError) throw deckError;
+        if (deckError) {
+          // Redirect if deck doesn't exist
+          router.push('/protected');
+          return;
+        }
+        
+        // Check if user is authenticated
+        if (!user) {
+          router.push('/protected');
+          return;
+        }
+        
+        // Set deck name if available
         if (deckData) setDeckName(deckData.deck_name);
+
+        // Check if user has access (as owner or through sharing)
+        const isOwner = deckData.owner_id === user.id;
+        
+        if (!isOwner) {
+          // Check if user has access through UserToDeck (shared access)
+          const { data: userToDeckData, error: accessError } = await supabase
+            .from('UserToDeck')
+            .select('*')
+            .eq('deck_id', deckId)
+            .eq('owner_id', user.id)
+            .single();
+            
+          // If not owner and no shared access, redirect
+          if (!userToDeckData && accessError) {
+            router.push('/protected');
+            return;
+          }
+        }
+        
+        // Once access is confirmed, proceed with loading cards
 
         // Get the card IDs for this deck from CardsToDeck
         const { data: cardLinks, error: cardLinksError } = await supabase
@@ -111,7 +148,7 @@ export default function Game() {
     if (!loading) {
       fetchDeckCards();
     }
-  }, [deckId, loading]);
+  }, [deckId, loading, user, router]);
 
   if (loading || deckLoading) {
     return (
@@ -143,7 +180,7 @@ export default function Game() {
           ) : (
             <div className="text-center p-12 bg-[var(--color-card-light)] rounded-xl shadow-md w-full">
               <p className="text-xl text-[var(--color-text)] mb-6">No flashcards found in this deck.</p>
-              <Link href="/upload" className="text-[var(--color-primary)] hover:underline text-lg font-medium">
+              <Link href={`/edit?deckId=${deckId}`} className="text-[var(--color-primary)] hover:underline text-lg font-medium">
                 Create some flashcards
               </Link>
             </div>
@@ -164,5 +201,18 @@ export default function Game() {
         />
       </div>
     </main>
+  );
+}
+
+// Main component with Suspense boundary
+export default function Game() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-[var(--color-background)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)]"></div>
+      </div>
+    }>
+      <GameContent />
+    </Suspense>
   );
 }

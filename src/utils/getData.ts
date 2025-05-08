@@ -21,11 +21,11 @@ export const getADeck = async (deckID: number) => {
     return data;
 }
 
-export const fetchSharedLinkData = async (shareToken: string) => {
+export const fetchSharedLinkData = async (shareToken: string, uuid: string) => {
   try {
     const { data, error } = await supabase
       .from('SharedDecks')
-      .select('deck_id, access_type, expiry_date')
+      .select('deck_id, access_type, expiry_date, share_token')
       .eq('share_token', shareToken)
       .single();
 
@@ -34,6 +34,20 @@ export const fetchSharedLinkData = async (shareToken: string) => {
     }
 
     if (error) {
+      throw error;
+    }
+
+    //We need to add it temp to the userTable so the transaction can happen
+    const { data: userLog, error: userError } = await supabase
+    .from('SharedDeckUsers')
+    .insert([{ share_id: data.share_token, owner_id : uuid }])
+    .select('id, share_id, owner_id').single();
+
+    if (!userLog) {
+      throw new Error("Unable to create user entry log in SharedDeckUsers table");
+    }
+
+    if (userError) {
       throw error;
     }
 

@@ -15,7 +15,7 @@ const ShareDeckForm = ({ uuid }: { uuid: string }) => {
       e.preventDefault();
   
       try {
-        const data = await fetchSharedLinkData(shareToken);
+        const data = await fetchSharedLinkData(shareToken, uuid);
         
         if (data.access_type === 'READ') {
           const cardData = await getADeck(data.deck_id);

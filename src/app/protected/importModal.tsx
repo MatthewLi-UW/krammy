@@ -30,8 +30,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
     
     try {
       // Fetch shared link data (gives us deck_id and access type)
-      const shareData = await fetchSharedLinkData(shareToken);
-      
+      const shareData = await fetchSharedLinkData(shareToken, userId);
       // Get the original deck's name
       const { data: deckData, error: deckError } = await supabase
         .from('Deck')

@@ -7,7 +7,7 @@ import Link from "next/link";
 import KrammyLogo from "@/app/components/logo";
 import Image from 'next/image'
 import { supabase } from '@/utils/supabase/client';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 /**
  * Application header component with logo and navigation
@@ -31,10 +31,11 @@ const baseUrl = isProduction? "https://krammy.vercel.app": "http://localhost:300
  * Login/Sign-in Page Component
  * Handles email/password and Google OAuth authentication
  */
-export default function Login(props: { searchParams: Promise<Message> }) {
+export default function Login() {
   // State for form messages (errors, success notifications)
   const [message, setMessage] = useState<Message | null>(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   /**
    * Google Sign-In initialization
@@ -93,39 +94,23 @@ export default function Login(props: { searchParams: Promise<Message> }) {
   };
 
   /**
-   * Load any messages passed via URL parameters
+   * Load messages from URL parameters directly
    */
   useEffect(() => {
-    const fetchMessage = async () => {
-      try {
-        // First try to get from props (for backward compatibility)
-        const messageData = await props.searchParams;
-        
-        // If messageData doesn't have content but URL has error param
-        if ((!messageData || Object.keys(messageData).length === 0) && 
-            searchParams && searchParams.get('error')) {
-          setMessage({ 
-            error: decodeURIComponent(searchParams.get('error') || '') 
-          });
-          return;
-        }
-        
-        setMessage(messageData);
-      } catch (e) {
-        // Fallback to direct URL parameter access if props approach fails
-        if (searchParams && searchParams.get('error')) {
-          setMessage({ 
-            error: decodeURIComponent(searchParams.get('error') || '') 
-          });
-        }
-      }
-    };
-
-    fetchMessage();
-  }, [props.searchParams, searchParams]);
-
-  // Don't render until messages are loaded
-  if (!message) return null;
+    // Simple direct checking of URL parameters
+    if (searchParams && searchParams.get('error')) {
+      setMessage({ 
+        error: decodeURIComponent(searchParams.get('error') || '') 
+      });
+    } else if (searchParams && searchParams.get('success')) {
+      setMessage({ 
+        success: decodeURIComponent(searchParams.get('success') || '') 
+      });
+    } else {
+      // No message in URL, set empty message object
+      setMessage({} as Message);
+    }
+  }, [searchParams]);
 
   return (
     <div 
@@ -142,7 +127,7 @@ export default function Login(props: { searchParams: Promise<Message> }) {
         </p>
 
         {/* Error message display - positioned at the top of the form */}
-        {message && 'error' in message && (
+        {message && 'error' in message && message.error && (
           <div className="text-center">
             <p className="text-[var(--color-error-text)] font-medium text-lg">
               {message.error}

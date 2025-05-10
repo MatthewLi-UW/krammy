@@ -42,6 +42,18 @@ const UploadAnimation = () => {
   
   return (
     <motion.div className="relative w-full h-64 bg-background/90 rounded-xl border-gray-300 flex items-center justify-center">
+      {/* Dotted drop zone box */}
+      <motion.div 
+        className="absolute inset-4 rounded-lg border-2 border-dashed flex items-center justify-center"
+        animate={{ 
+          borderColor: animationState === 'hover' ? 'rgb(156 163 175)' : 'rgb(156 163 175)',
+          opacity: animationState === 'complete' || animationState === 'processing' ? 0 : 1
+        }}
+        initial={{ opacity: 0.7 }}
+        transition={{ duration: 0.3 }}
+      >
+      </motion.div>
+
       {/* PDF file animation */}
       <motion.div 
         className="absolute flex flex-col items-center justify-center"
@@ -229,23 +241,24 @@ const TypingAnimation = () => {
     }
   }, [currentIndex, typingStarted, text]);
   
-  return (
-    <div className="relative w-full max-w-lg mx-auto perspective-1000">
+    return (
+    <div className="relative w-full max-w-lg mx-auto" style={{ perspective: '1000px' }}>
       <div 
-        className="relative transition-transform duration-800 preserve-3d"
+        className="relative w-full transition-transform duration-500"
         style={{ 
-          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
           transformStyle: 'preserve-3d',
-          transition: 'transform 0.8s ease'
+          transform: isFlipped ? 'rotateX(180deg)' : 'rotateX(0deg)',
+          height: '140px' // Fixed height prevents layout shift
         }}
       >
         {/* Front of card */}
         <motion.div 
-          className="absolute w-full bg-[var(--color-card-light)] rounded-xl p-6 shadow-lg backface-hidden"
+          className="absolute w-full h-full bg-[var(--color-card-light)] rounded-xl p-6 shadow-lg flex flex-col items-center justify-center"
           style={{ 
             backfaceVisibility: 'hidden',
-            transform: 'rotateY(0deg)',
-            zIndex: isFlipped ? 0 : 1
+            position: "absolute",
+            width: "100%",
+            height: "100%"
           }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -265,11 +278,13 @@ const TypingAnimation = () => {
         
         {/* Back of card */}
         <motion.div 
-          className="absolute w-full bg-[var(--color-card-light)] rounded-xl p-6 shadow-lg backface-hidden"
+          className="absolute w-full h-full bg-[var(--color-card-light)] rounded-xl p-6 shadow-lg"
           style={{ 
             backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            zIndex: isFlipped ? 1 : 0
+            transform: 'rotateX(180deg)',
+            position: "absolute",
+            width: "100%",
+            height: "100%"
           }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -593,8 +608,9 @@ const ProgressAnimation = () => {
 const FeatureCarousel = () => {
   // CUSTOMIZATION: Configure features to display and their order
   const features = [
-    { name: "Upload Files", component: <UploadAnimation /> },
     { name: "Type to Learn", component: <TypingAnimation /> },
+    { name: "Upload Files", component: <UploadAnimation /> },
+    
     { name: "Custom Themes", component: <ThemeAnimation /> },
     { name: "Track Progress", component: <ProgressAnimation /> }
   ];
@@ -614,6 +630,8 @@ const FeatureCarousel = () => {
     intervalRef.current = setInterval(() => {
       setCurrentFeature((prev) => (prev + 1) % features.length);
     }, rotationSpeed);
+    
+    return () => clearInterval(intervalRef.current);
   };
   
   // Set up auto-rotation with timer

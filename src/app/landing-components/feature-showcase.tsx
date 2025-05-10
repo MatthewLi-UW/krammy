@@ -631,7 +631,7 @@ const FeatureCarousel = () => {
       setCurrentFeature((prev) => (prev + 1) % features.length);
     }, rotationSpeed);
     
-    return () => clearInterval(intervalRef.current);
+    return () => clearInterval(intervalRef.current as NodeJS.Timeout);
   };
   
   // Set up auto-rotation with timer

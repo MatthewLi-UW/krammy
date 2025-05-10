@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { signUpAction } from "@/app/actions";
 import { FormMessage, Message } from "@/app/components/form-message";
 import Link from "next/link";
@@ -24,10 +24,15 @@ const Header = () => (
  * Sign-up component for user registration
  */
 export default function Signup(props: { searchParams: Promise<Message> }) {
-  // Track email input state (allows pre-filling from URL parameters)
+  // Track form input states
   const [email, setEmail] = useState<string | undefined>(undefined);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  
   // Store messages (error/success) from form submission
   const [message, setMessage] = useState<Message | null>(null);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   /**
    * Load message and email from URL parameters on component mount
@@ -41,10 +46,29 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
       if ("email" in messageData && typeof messageData.email === 'string') {
         setEmail(messageData.email);
       }
+      
+      // Check if there's a success message
+      if ("message" in messageData && typeof messageData.message === 'string' && 
+          messageData.message.includes("Thanks for signing up")) {
+        setShowSuccessMessage(true);
+      }
     };
 
     fetchMessage();
   }, [props.searchParams]);
+
+  // Form validation handler
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    // Reset error state
+    setPasswordError("");
+    
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      e.preventDefault();
+      setPasswordError("Passwords do not match");
+      return false;
+    }
+  };
 
   // Don't render until parameters are loaded
   if (!message) return null; 
@@ -61,9 +85,17 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
         <p className="text-sm text-center text-[var(--color-text)]">
           Sign up to start using Krammy
         </p>
+        
+        {/* Success notification */}
+        {showSuccessMessage && (
+          <div className="bg-green-100 border border-green-300 rounded-md p-4 text-green-800">
+            <p className="font-medium">Thanks for signing up!</p>
+            <p className="text-sm mt-1">Please check your email for a verification link.</p>
+          </div>
+        )}
 
         {/* Sign-up form - connects to server action */}
-        <form action={signUpAction} className="space-y-4">
+        <form action={signUpAction} onSubmit={handleSubmit} className="space-y-4">
           {/* Email input field */}
           <div>
             <input 
@@ -83,10 +115,29 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
               type="password" 
               name="password" 
               placeholder="Password*" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required 
               minLength={6}
               className="bg-[var(--color-background-light)] w-full px-3 py-2 border border-[var(--color-card-medium)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
             />
+          </div>
+          
+          {/* Confirm Password input field */}
+          <div>
+            <input 
+              type="password"
+              name="confirmPassword" 
+              placeholder="Confirm Password*" 
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required 
+              minLength={6}
+              className="bg-[var(--color-background-light)] w-full px-3 py-2 border border-[var(--color-card-medium)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
+            />
+            {passwordError && (
+              <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+            )}
           </div>
 
           {/* Sign-up button */}
@@ -98,7 +149,7 @@ export default function Signup(props: { searchParams: Promise<Message> }) {
           </button>
 
           {/* Display form submission messages */}
-          {"message" in message && <FormMessage message={message} />}
+          {"message" in message && !showSuccessMessage && <FormMessage message={message} />}
 
           {/* Sign-in link */}
           <div className="text-center text-sm text-[var(--color-text-light)]">

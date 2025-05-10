@@ -7,6 +7,7 @@ import Link from "next/link";
 import KrammyLogo from "@/app/components/logo";
 import Image from 'next/image'
 import { supabase } from '@/utils/supabase/client';
+import { useSearchParams } from 'next/navigation';
 
 /**
  * Application header component with logo and navigation
@@ -33,6 +34,7 @@ const baseUrl = isProduction? "https://krammy.vercel.app": "http://localhost:300
 export default function Login(props: { searchParams: Promise<Message> }) {
   // State for form messages (errors, success notifications)
   const [message, setMessage] = useState<Message | null>(null);
+  const searchParams = useSearchParams();
 
   /**
    * Google Sign-In initialization
@@ -95,12 +97,32 @@ export default function Login(props: { searchParams: Promise<Message> }) {
    */
   useEffect(() => {
     const fetchMessage = async () => {
-      const messageData = await props.searchParams;
-      setMessage(messageData);
+      try {
+        // First try to get from props (for backward compatibility)
+        const messageData = await props.searchParams;
+        
+        // If messageData doesn't have content but URL has error param
+        if ((!messageData || Object.keys(messageData).length === 0) && 
+            searchParams && searchParams.get('error')) {
+          setMessage({ 
+            error: decodeURIComponent(searchParams.get('error') || '') 
+          });
+          return;
+        }
+        
+        setMessage(messageData);
+      } catch (e) {
+        // Fallback to direct URL parameter access if props approach fails
+        if (searchParams && searchParams.get('error')) {
+          setMessage({ 
+            error: decodeURIComponent(searchParams.get('error') || '') 
+          });
+        }
+      }
     };
 
     fetchMessage();
-  }, [props.searchParams]);
+  }, [props.searchParams, searchParams]);
 
   // Don't render until messages are loaded
   if (!message) return null;

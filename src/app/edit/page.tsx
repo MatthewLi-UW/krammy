@@ -19,6 +19,7 @@ function EditDeckContent() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
   const [showDeleteDeckModal, setShowDeleteDeckModal] = useState(false);
+  const [activeEditCardId, setActiveEditCardId] = useState<number | null>(null);
   const endOfCardsRef = useRef<HTMLDivElement>(null);
   
   const router = useRouter();
@@ -316,9 +317,47 @@ function EditDeckContent() {
 
   // Card editor component
   const FlashcardEditor = ({ card }: { card: FlashCard }) => {
-    const [editing, setEditing] = useState(false);
     const [front, setFront] = useState(card.front);
     const [back, setBack] = useState(card.back);
+    const termInputRef = useRef<HTMLTextAreaElement>(null);
+    
+    // Check if this card is the one being edited
+    const isEditing = activeEditCardId === card.card_id;
+
+    // Auto-focus the term input when editing starts
+    useEffect(() => {
+      if (isEditing && termInputRef.current) {
+        const textLength = termInputRef.current.value.length;
+        termInputRef.current.focus();
+        termInputRef.current.setSelectionRange(textLength, textLength);
+      }
+    }, [isEditing]);
+
+    // Start editing this card
+    const startEditing = () => {
+      // If another card is being edited, save it first
+      if (activeEditCardId !== null && activeEditCardId !== card.card_id) {
+        // Find the card being edited
+        const editingCard = flashcards.find(c => c.card_id === activeEditCardId);
+        if (editingCard) {
+          // Get the current form values from the DOM (we don't have access to the other component's state)
+          const frontElem = document.getElementById(`term-${activeEditCardId}`) as HTMLTextAreaElement;
+          const backElem = document.getElementById(`definition-${activeEditCardId}`) as HTMLTextAreaElement;
+          
+          if (frontElem && backElem) {
+            // Save the currently edited card
+            updateCard({
+              ...editingCard,
+              front: frontElem.value,
+              back: backElem.value
+            });
+          }
+        }
+      }
+      
+      // Now set this card as the active one
+      setActiveEditCardId(card.card_id);
+    };
 
     const handleSave = () => {
       updateCard({
@@ -326,18 +365,19 @@ function EditDeckContent() {
         front,
         back
       });
-      setEditing(false);
+      setActiveEditCardId(null); // Close edit mode
     };
 
     return (
       <div className="bg-[var(--color-card-light)] rounded-xl shadow-md overflow-hidden border border-[var(--color-card-medium)]/50 relative hover:shadow-lg transition-shadow duration-300">
-        {editing ? (
+        {isEditing ? (
           <div className="p-6">
             <div className="mb-5">
               <label className="block text-[var(--color-text-dark)] font-medium mb-2" htmlFor={`term-${card.card_id}`}>
                 Term
               </label>
               <textarea
+                ref={termInputRef}
                 id={`term-${card.card_id}`}
                 className="w-full bg-[var(--color-background-light)] p-3 border border-[var(--color-card-medium)]/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40"
                 value={front}
@@ -361,7 +401,7 @@ function EditDeckContent() {
             </div>
             <div className="flex justify-end space-x-3">
               <button
-                onClick={() => setEditing(false)}
+                onClick={() => setActiveEditCardId(null)}
                 className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
               >
                 Cancel
@@ -375,7 +415,10 @@ function EditDeckContent() {
             </div>
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row">
+          <div 
+            className="flex flex-col md:flex-row cursor-pointer group"
+            onClick={() => startEditing()}
+          >
             <div className="p-6 md:w-1/2 bg-[var(--color-secondary)]/20 border-b md:border-b-0 md:border-r border-[var(--color-card-medium)]/30 relative">
               <h3 className="text-md font-medium text-[var(--color-text-light)] mb-2">Term</h3>
               <p className="text-lg text-[var(--color-text-dark)]">{card.front}</p>
@@ -386,7 +429,10 @@ function EditDeckContent() {
             </div>
             <div className="absolute top-4 right-4 flex space-x-2">
               <button
-                onClick={() => setEditing(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  startEditing();
+                }}
                 className="p-2 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg hover:bg-[var(--color-primary)]/20 transition-colors"
                 aria-label="Edit"
               >
@@ -395,7 +441,10 @@ function EditDeckContent() {
                 </svg>
               </button>
               <button
-                onClick={() => deleteCard(card.card_id.toString())}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteCard(card.card_id.toString());
+                }}
                 className="p-2 text-[var(--color-error-text)] bg-[var(--color-error-text)]/10 rounded-lg hover:bg-[var(--color-error-text)]/20 transition-colors"
                 aria-label="Delete"
               >
@@ -403,6 +452,9 @@ function EditDeckContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
+            </div>
+            <div className="absolute hidden group-hover:block bottom-3 right-3 text-sm text-[var(--color-text-light)] bg-[var(--color-background-light)]/80 px-2 py-1 rounded">
+              Click card to edit
             </div>
           </div>
         )}

@@ -6,6 +6,73 @@ import Header from "../components/header";
 import { supabase } from "@/utils/supabase/client";
 import { User } from "@/types/user";
 import { FlashCard } from "@/types/FlashCard";
+import { 
+  DndContext, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// Sortable card wrapper component
+const SortableFlashcard = ({ card, children }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: card.card_id.toString() });
+  
+  // Use the CSS utility from dnd-kit for proper transform
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || undefined,
+    opacity: isDragging ? 0 : 1, // Make the original card invisible while dragging
+    zIndex: isDragging ? 999 : 1,
+    position: 'relative',
+    marginBottom: '20px', // Consistent spacing
+  };
+  
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style}
+      // Remove the dragPulse animation when dragging as it interferes with dnd-kit's transform
+      className={`mb-5 ${isDragging ? 'border-2 border-[var(--color-primary)]' : ''} ${!isDragging ? 'animate-scaleIn' : ''}`}
+    >
+      <div className="relative group">
+        {/* Make the entire card draggable via the drag handle */}
+        <div 
+          {...attributes} 
+          {...listeners}
+          className="absolute left-0 top-0 bottom-0 w-8 flex items-center justify-center cursor-move opacity-40 group-hover:opacity-100 transition-opacity z-10"
+        >
+          <svg className="w-6 h-6 text-[var(--color-text-light)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+          </svg>
+        </div>
+        {/* Add left padding to make room for the drag handle */}
+        <div className="pl-8">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Content component that uses useSearchParams
 function EditDeckContent() {
@@ -21,10 +88,83 @@ function EditDeckContent() {
   const [showDeleteDeckModal, setShowDeleteDeckModal] = useState(false);
   const [activeEditCardId, setActiveEditCardId] = useState<number | null>(null);
   const endOfCardsRef = useRef<HTMLDivElement>(null);
+  const [orderedCards, setOrderedCards] = useState<FlashCard[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
   const deckId = searchParams.get('deckId');
+
+  // Update ordered cards when flashcards change
+  useEffect(() => {
+    setOrderedCards([...flashcards]);
+  }, [flashcards]);
+  
+  // Configure sensors for drag detection
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag start
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  };
+  
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    // Reset active ID
+    setActiveId(null);
+    
+    if (!over) return;
+    
+    if (active.id !== over.id) {
+      setOrderedCards((items) => {
+        const oldIndex = items.findIndex(item => item.card_id.toString() === active.id);
+        const newIndex = items.findIndex(item => item.card_id.toString() === over.id);
+        
+        return arrayMove(items, oldIndex, newIndex);
+      });
+      
+      // After reordering, save the new order to the database
+      updateCardOrder(active.id.toString(), over.id.toString());
+    }
+  };
+
+  // Handle drag cancel
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+  
+  // Save card order to database
+  const updateCardOrder = async (activeId: string, overId: string) => {
+    if (!deckId || !user) return;
+    
+    try {
+      // Here, send the updated order to your backend
+      // This is just a placeholder - implement according to your schema
+      const { error } = await supabase.rpc('reorder_cards', {
+        p_deck_id: deckId,
+        p_card_id: activeId,
+        p_target_card_id: overId
+      });
+      
+      if (error) throw error;
+      
+      setToast({message: "Card order updated", type: 'success'});
+    } catch (error) {
+      console.error("Error updating card order:", error);
+      setToast({message: "Failed to update card order", type: 'error'});
+    }
+  };
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
@@ -103,9 +243,11 @@ function EditDeckContent() {
           .from('CardsToDeck')
           .select(`
             card_id,
+            position,
             FlashCard(*)
           `)
-          .eq('deck_id', deckId);
+          .eq('deck_id', deckId)
+          .order('position');
         
         if (joinError) {
           // Redirect for any errors loading cards
@@ -579,25 +721,45 @@ function EditDeckContent() {
           </p>
         </div>
         
-        {/* Flashcards grid with staggered animation */}
+        {/* Flashcards grid with drag and drop */}
         <div className="space-y-5">
-          {flashcards.length > 0 ? (
-            <>
-              {flashcards.map((card, index) => (
-                <div 
-                  key={card.card_id} 
-                  className="opacity-0" 
-                  style={{
-                    animation: 'scaleIn 0.4s ease-out forwards',
-                    animationDelay: `${0.0}s`
-                  }}
-                >
-                  <FlashcardEditor card={card} />
+          {orderedCards.length > 0 ? (
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragCancel={handleDragCancel}
+            >
+              <SortableContext
+                items={orderedCards.map(card => card.card_id.toString())}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="flashcard-container">
+                  {orderedCards.map((card) => (
+                    <SortableFlashcard key={card.card_id} card={card}>
+                      <FlashcardEditor card={card} />
+                    </SortableFlashcard>
+                  ))}
                 </div>
-              ))}
+              </SortableContext>
+              
+              {/* Drag overlay to show the card being dragged */}
+              <DragOverlay adjustScale={false}>
+                {activeId ? (
+                  <div className="opacity-80 w-full">
+                    <div className="pl-8">
+                      <FlashcardEditor 
+                        card={orderedCards.find(card => card.card_id.toString() === activeId)!} 
+                      />
+                    </div>
+                  </div>
+                ) : null}
+              </DragOverlay>
+              
               {/* Reference div at the end of cards for scrolling */}
               <div ref={endOfCardsRef}></div>
-            </>
+            </DndContext>
           ) : (
             <div className="text-center p-12 bg-[var(--color-card-light)] rounded-xl shadow-sm border border-dashed border-[var(--color-card-medium)]/50 animate-scaleIn">
               <div className="mb-6 flex justify-center">

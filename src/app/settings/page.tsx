@@ -16,7 +16,9 @@ export default function SettingsPage() {
   const [stats, setStats] = useState({
     totalDecks: 0,
     totalCards: 0,
-    lastActivity: 'N/A'
+    lastActivity: 'N/A',
+    avgWpm: 0,
+    avgAccuracy: 0,
   });
 
   const { theme, setTheme } = useTheme();
@@ -43,6 +45,57 @@ export default function SettingsPage() {
     fetchUser();
   }, [router]);
 
+const fetchPerformanceMetrics = async (userId: string) => {
+  try {
+    const { data: metricsData, error } = await supabase
+      .from('DeckMetrics')
+      .select('wpm, accuracy')
+      .eq('user_id', userId);
+      
+    if (error) throw error;
+    
+    if (metricsData && metricsData.length > 0) {
+      // Filter out invalid entries
+      const validEntries = metricsData.filter(item => 
+        item.wpm !== null && 
+        item.accuracy !== null && 
+        !isNaN(item.wpm) && 
+        !isNaN(item.accuracy)
+      );
+      
+      if (validEntries.length === 0) return { avgWpm: 0, avgAccuracy: 0 };
+      
+      // Calculate average WPM (more safely)
+      const totalWpm = validEntries.reduce((sum, item) => sum + Number(item.wpm || 0), 0);
+      const avgWpm = Math.round(totalWpm / validEntries.length);
+      
+      // Calculate average accuracy (more safely)
+      const totalAccuracy = validEntries.reduce((sum, item) => {
+        // If stored as decimal (e.g., 0.95), convert to percentage
+        const accuracyValue = item.accuracy <= 1 ? item.accuracy * 100 : item.accuracy;
+        return sum + Number(accuracyValue || 0);
+      }, 0);
+      
+      const avgAccuracy = Math.round(totalAccuracy / validEntries.length);
+      
+      console.log("Metrics count:", validEntries.length);
+      console.log("WPM values:", validEntries.map(item => item.wpm));
+      console.log("Accuracy values:", validEntries.map(item => item.accuracy));
+      
+      // Ensure accuracy doesn't exceed 100%
+      return { 
+        avgWpm, 
+        avgAccuracy: avgAccuracy > 100 ? 100 : avgAccuracy 
+      };
+    }
+    
+    return { avgWpm: 0, avgAccuracy: 0 };
+  } catch (error) {
+    console.error("Error fetching performance metrics:", error);
+    return { avgWpm: 0, avgAccuracy: 0 };
+  }
+};
+
   // Fetch user stats
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -57,11 +110,16 @@ export default function SettingsPage() {
         const deckIds = userDecks.map(deck => deck.deck_id) || [];
         const deckCounts = await cardsPerDeck(deckIds);
         const totalCards = deckCounts.reduce((sum, item) => sum + item.count, 0);
+
+        // Fetch performance metrics
+        const performanceMetrics = await fetchPerformanceMetrics(user.id);
         
         setStats({
           totalDecks: userDecks.length,
           totalCards: totalCards,
-          lastActivity: new Date().toLocaleDateString()
+          lastActivity: new Date().toLocaleDateString(),
+          avgWpm: performanceMetrics.avgWpm,
+          avgAccuracy: performanceMetrics.avgAccuracy,
         });
       } catch (error) {
         console.error("Error fetching user stats:", error);
@@ -84,31 +142,8 @@ export default function SettingsPage() {
       
       <div className="w-full max-w-4xl mx-auto px-4 py-4">
         <h1 className="text-3xl font-bold text-foreground dark:text-foreground mb-8">Settings</h1>
-        
-        {/* Stats Section */}
-        <section className="bg-background-light dark:bg-background rounded-xl shadow-md p-6 mb-8">
-          <h2 className="text-xl font-semibold text-foreground dark:text-foreground mb-4">Your Stats</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
-              <p className="text-sm text-text-light dark:text-text-light">Total Decks</p>
-              <p className="text-2xl font-bold text-primary">{stats.totalDecks}</p>
-            </div>
-            
-            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
-              <p className="text-sm text-text-light dark:text-text-light">Total Cards</p>
-              <p className="text-2xl font-bold text-primary">{stats.totalCards}</p>
-            </div>
-            
-            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
-              <p className="text-sm text-text-light dark:text-text-light">Last Activity</p>
-              <p className="text-2xl font-bold text-primary">{stats.lastActivity}</p>
-            </div>
-          </div>
-        </section>
-        
         {/* Theme Switcher */}
-        <section className="bg-background-light dark:bg-background rounded-xl shadow-md p-6">
+        <section className="bg-background-light dark:bg-background rounded-xl shadow-md p-6 mb-4">
           <h2 className="text-xl font-semibold text-foreground dark:text-foreground mb-4">Appearance</h2>
           
           <div className="space-y-4">
@@ -246,6 +281,40 @@ export default function SettingsPage() {
             </p>
           </div>
         </section>
+
+        {/* Stats Section */}
+        <section className="bg-background-light dark:bg-background rounded-xl shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold text-foreground dark:text-foreground mb-4">Your Stats</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
+              <p className="text-sm text-text-light dark:text-text-light">Total Decks</p>
+              <p className="text-2xl font-bold text-primary">{stats.totalDecks}</p>
+            </div>
+            
+            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
+              <p className="text-sm text-text-light dark:text-text-light">Total Cards</p>
+              <p className="text-2xl font-bold text-primary">{stats.totalCards}</p>
+            </div>
+            
+            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
+              <p className="text-sm text-text-light dark:text-text-light">Last Activity</p>
+              <p className="text-2xl font-bold text-primary">{stats.lastActivity}</p>
+            </div>
+
+            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
+              <p className="text-sm text-text-light dark:text-text-light">Average WPM</p>
+              <p className="text-2xl font-bold text-primary">{stats.avgWpm}</p>
+            </div>
+
+            <div className="bg-secondary dark:bg-secondary-dark p-4 rounded-lg">
+              <p className="text-sm text-text-light dark:text-text-light">Average Accuracy</p>
+              <p className="text-2xl font-bold text-primary">{stats.avgAccuracy}%</p>
+            </div>
+          </div>
+        </section>
+        
+        
         
 
       </div>

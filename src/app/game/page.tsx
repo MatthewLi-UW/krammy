@@ -216,6 +216,7 @@ function GameContent() {
         <VerticalList 
           flashcards={flashcards}
           deckName={deckName}
+          deckId={deckId || ""}
         />
       </div>
     </main>

@@ -703,8 +703,8 @@ const checkCardPositions = async () => {
           </div>
         )}
         
-        {/* Simplified header section with just deck name */}
-        <div className="bg-[var(--color-card-light)] p-5 rounded-xl shadow-sm mb-8">
+        {/* header section with just deck name */}
+        <div className=" p-5 rounded-xl mb-8 ml-4">
           {editingDeckName ? (
             <div className="flex items-center gap-3">
               <input
@@ -791,9 +791,9 @@ const checkCardPositions = async () => {
               </SortableContext>
               
               {/* Drag overlay to show the card being dragged */}
-              <DragOverlay adjustScale={false}>
+              <DragOverlay adjustScale={false} className="z-[900]">
                 {activeId ? (
-                  <div className="opacity-80 w-full">
+                  <div className="opacity-100 w-full">
                     <div className="pl-8">
                       <FlashcardEditor 
                         card={orderedCards.find(card => card.card_id.toString() === activeId)!} 
@@ -828,7 +828,7 @@ const checkCardPositions = async () => {
       </div>
 
       {/* Fixed action bar with animated buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[var(--color-background-light)] shadow-lg border-t border-[var(--color-card-medium)]/30 py-3 px-4 z-10">
+      <div className="fixed bottom-0 left-0 right-0 bg-[var(--color-background-light)] shadow-lg border-t border-[var(--color-card-medium)]/30 py-3 px-4 z-[1001]">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           {/* Left side - Back button */}
           <button

@@ -366,7 +366,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
           <ChevronLeft className="w-6 h-6" />
         </button>
 
-        <div className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-md shadow-md font-serif">
+        <div className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-md shadow-md font-karla">
           {currentCardIndex + 1} / {flashcards.length}
         </div>
         

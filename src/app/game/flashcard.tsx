@@ -262,7 +262,7 @@ const handleFlip = (e: React.MouseEvent<HTMLElement> | KeyboardEvent): void => {
                 <div 
                   ref={textContainerRef}
                   
-                  className="text-lg leading-relaxed whitespace-pre-wrap relative overflow-visible font-serif"
+                  className="text-lg leading-relaxed whitespace-pre-wrap relative overflow-visible font-karla"
                   style={{ 
                     wordBreak: 'keep-all',
                     overflowWrap: 'break-word',

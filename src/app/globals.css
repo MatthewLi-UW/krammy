@@ -226,33 +226,3 @@ input::placeholder {
      opacity: 1;
    }
 }
-
-@keyframes dragPulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-}
-
-.dragging {
-  animation: dragPulse 1.5s ease-in-out infinite;
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-}
-
-.flashcard-container {
-  position: relative;
-}
-
-.flashcard-container > div {
-  transition: transform 250ms cubic-bezier(0.2, 0, 0, 1);
-}
-
-[data-dnd-placeholder] {
-  opacity: 0;
-}
-
-.sortable-flashcard-wrapper {
-  transition: transform 200ms ease;
-}

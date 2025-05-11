@@ -453,7 +453,7 @@ function EditDeckContent() {
                 </svg>
               </button>
             </div>
-            <div className="absolute hidden group-hover:block bottom-3 right-3 text-sm text-[var(--color-text-light)] bg-[var(--color-background-light)]/80 px-2 py-1 rounded">
+            <div className="absolute hidden group-hover:block bottom-1 right-3 text-sm text-[var(--color-text-light)] bg-[var(--color-background-light)]/80 px-2 py-1 rounded">
               Click card to edit
             </div>
           </div>
@@ -589,7 +589,7 @@ function EditDeckContent() {
                   className="opacity-0" 
                   style={{
                     animation: 'scaleIn 0.4s ease-out forwards',
-                    animationDelay: `${index * 0.1}s`
+                    animationDelay: `${0.0}s`
                   }}
                 >
                   <FlashcardEditor card={card} />

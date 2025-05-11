@@ -114,59 +114,79 @@ function EditDeckContent() {
     setActiveId(event.active.id as string);
   };
   
-  // Handle drag end event
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    // Reset active ID
-    setActiveId(null);
-    
-    if (!over) return;
-    
-    if (active.id !== over.id) {
-      setOrderedCards((items) => {
-        const oldIndex = items.findIndex(item => item.card_id.toString() === active.id);
-        const newIndex = items.findIndex(item => item.card_id.toString() === over.id);
-        
-        return arrayMove(items, oldIndex, newIndex);
-      });
-      
-      // After reordering, save the new order to the database
-      updateCardOrder(active.id.toString(), over.id.toString());
-    }
-  };
-
-  // Handle drag cancel
-  const handleDragCancel = () => {
-    setActiveId(null);
-  };
+// Handle drag end event
+const handleDragEnd = (event: DragEndEvent) => {
+  const { active, over } = event;
   
-  // Save card order to database
-const updateCardOrder = async (activeId: string, overId: string) => {
+  setActiveId(null);
+  
+  if (!over) return;
+  
+  if (active.id !== over.id) {
+    // Calculate the new order
+    const oldIndex = orderedCards.findIndex(item => item.card_id.toString() === active.id);
+    const newIndex = orderedCards.findIndex(item => item.card_id.toString() === over.id);
+    
+    // Create the new ordered array
+    const newOrderedCards = arrayMove([...orderedCards], oldIndex, newIndex);
+    
+    // First update the UI state
+    setOrderedCards(newOrderedCards);
+    
+    // Then pass the new array directly to updateCardOrder
+    updateCardOrder(active.id.toString(), over.id.toString(), newOrderedCards);
+  }
+};
+  
+const updateCardOrder = async (activeId: string, overId: string, newOrderedCards: FlashCard[]) => {
   if (!deckId || !user) return;
-  
+
   try {
-    // Update each card position individually
-    for (let i = 0; i < orderedCards.length; i++) {
-      const card = orderedCards[i];
-      const { error } = await supabase
-        .from('CardsToDeck')
-        .update({ position: i })
-        .eq('deck_id', deckId)
-        .eq('card_id', card.card_id);
-      
-      if (error) {
-        console.error(`Error updating position for card ${card.card_id}:`, error);
-        throw error;
-      }
+    // Convert deckId to number
+    const numericDeckId = parseInt(deckId);
+    
+    console.log("Starting batch card position update...");
+    
+    // Create a stored procedure that handles all position updates in a single database call
+    const { error } = await supabase.rpc('update_card_positions', {
+      p_deck_id: numericDeckId,
+      p_card_ids: newOrderedCards.map(card => card.card_id),
+      p_owner_id: user.id
+    });
+    
+    if (error) {
+      console.error("Batch update error:", error);
+      throw error;
     }
     
+    console.log("Card order updated successfully");
     setToast({message: "Card order updated", type: 'success'});
+    
+    // Wait a moment before checking to ensure database has time to commit
+    setTimeout(() => checkCardPositions(), 500);
+    
   } catch (error) {
     console.error("Error updating card order:", error);
     setToast({message: "Failed to update card order", type: 'error'});
   }
 };
+
+const checkCardPositions = async () => {
+  if (!deckId) return;
+  
+  const { data, error } = await supabase
+    .from('CardsToDeck')
+    .select('card_id, position')
+    .eq('deck_id', parseInt(deckId))
+    .order('position');
+    
+  console.log("Current card positions:", data);
+  
+  if (error) {
+    console.error("Error checking positions:", error);
+  }
+};
+
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {
@@ -259,8 +279,14 @@ const updateCardOrder = async (activeId: string, overId: string) => {
         
         // Process cards normally if everything is successful
         if (joinData && joinData.length > 0) {
-          const cards = joinData.map(item => item.FlashCard).flat();
-          setFlashcards(cards);
+          const cards = joinData.map(item => ({
+          ...item.FlashCard,
+          position: item.position
+        }));
+
+          // Sort by position explicitly
+          const sortedCards = cards.sort((a, b) => (a.position || 0) - (b.position || 0));
+          setFlashcards(sortedCards);
         } else {
           setFlashcards([]);
         }
@@ -731,7 +757,6 @@ const updateCardOrder = async (activeId: string, overId: string) => {
               collisionDetection={closestCenter}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
-              onDragCancel={handleDragCancel}
             >
               <SortableContext
                 items={orderedCards.map(card => card.card_id.toString())}

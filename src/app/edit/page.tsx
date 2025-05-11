@@ -25,6 +25,7 @@ import {
   useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { getADeck } from '@/utils/getData';
 
 // Sortable card wrapper component
 const SortableFlashcard = ({ card, children }) => {
@@ -465,29 +466,34 @@ const checkCardPositions = async () => {
       const numericDeckId = parseInt(deckId, 10);
       
       console.log("Attempting to delete deck ID:", numericDeckId);
+      
+      const cardData = await getADeck(numericDeckId);
+      console.log("DAWDWDAWDAWDAWDAWDAWD CARDDATA")
+      console.log(cardData)
+      const ArrayofCardID = (await cardData).map(item => item.card_id);
 
-      const { error: userToDeckError } = await supabase
-        .from('UserToDeck')
-        .delete()
-        .eq('deck_id', numericDeckId);
-        
-      if (userToDeckError) {
-        console.error("Error deleting UserToDeck:", userToDeckError);
-        throw userToDeckError;
+      const { error: deleteError } = await supabase
+          .from('FlashCard')
+          .delete()
+          .in('card_id', ArrayofCardID);
+
+      if (deleteError) {
+          console.error('Error deleting cards from deck:', deleteError);
+      } else {
+          console.log('Cards removed from deck successfully');
       }
-      
-      const { data: deckData, error: fetchError } = await supabase
+
+      const { data: deckData, error: deckError } = await supabase
         .from('Deck')
-        .select('*')
+        .delete()
         .eq('deck_id', numericDeckId)
-        .single();
+      
         
-      if (fetchError) {
-        console.error("Error fetching deck before deletion:", fetchError);
-        throw fetchError;
+      if (deckError) {
+        console.error("Error fetching deck before deletion:", deckError);
+        throw deckError;
       }
       
-      console.log("Found deck to delete:", deckData);
       
       setTimeout(() => {
         router.push('/protected');

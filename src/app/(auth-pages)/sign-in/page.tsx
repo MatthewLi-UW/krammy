@@ -34,40 +34,6 @@ export default function Login(props: { searchParams: Promise<Message> }) {
   // State for form messages (errors, success notifications)
   const [message, setMessage] = useState<Message | null>(null);
 
-  /**
-   * Google Sign-In initialization
-   * Loads Google Identity Services script and sets up auth
-   */
-  useEffect(() => {
-    // Helper function to load the Google Identity Services script
-    const loadGoogleScript = () => {
-      return new Promise((resolve) => {
-        // Skip if already loaded
-        if (window.google) {
-          resolve(true);
-          return;
-        }
-  
-        // Create and inject script element
-        const script = document.createElement("script");
-        script.src = "https://accounts.google.com/gsi/client";
-        script.async = true;
-        script.defer = true;
-        script.onload = () => resolve(true);
-        document.head.appendChild(script);
-      });
-    };
-  
-    // Initialize Google Sign-In after script loads
-    loadGoogleScript().then(() => {
-      if (window.google) {
-        google.accounts.id.initialize({
-          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "", 
-          callback: handleSignIn,
-        });
-      }
-    });
-  }, []);
 
   /**
    * Google Sign-In handler
@@ -186,7 +152,7 @@ export default function Login(props: { searchParams: Promise<Message> }) {
           {/* Google Sign-In button */}
           <button 
             className="w-full flex items-center justify-center space-x-2 px-4 py-3 border border-[var(--color-card-medium)] rounded-lg hover:bg-[var(--color-background-light)] transition-colors"
-            onClick={() => google.accounts.id.prompt()} 
+            onClick={handleSignIn} 
             type="button"
           >
             <Image src="/google-icon.png" alt="Google" width={20} height={20} />

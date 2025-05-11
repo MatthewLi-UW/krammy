@@ -22,6 +22,21 @@ const Header = () => (
 );
 
 /**
+ * Helper function to safely decode URI components
+ */
+function safeDecodeURIComponent(value: string | null): string {
+  if (!value) return '';
+  
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    console.error('Error decoding URI component:', error);
+    // Return the encoded version rather than crashing
+    return value;
+  }
+}
+
+/**
  * Sign-up form component that uses searchParams
  */
 const SignupForm = () => {
@@ -37,31 +52,35 @@ const SignupForm = () => {
   const searchParams = useSearchParams();
 
   /**
-   * Load message and email from URL parameters directly
+   * Load message and email from URL parameters directly with safe decoding
    */
   useEffect(() => {
-    // Get error message from URL if present
-    if (searchParams && searchParams.get('error')) {
-      setMessage({ 
-        error: decodeURIComponent(searchParams.get('error') || '') 
-      });
-    } 
-    // Get success message from URL if present
-    else if (searchParams && searchParams.get('success')) {
-      const successMsg = decodeURIComponent(searchParams.get('success') || '');
-      setMessage({ 
-        success: successMsg
-      });
-      
-      // Check if it's a signup success message
-      if (successMsg.includes("Thanks for signing up")) {
-        setShowSuccessMessage(true);
+    try {
+      // Get error message from URL if present
+      if (searchParams && searchParams.get('error')) {
+        setMessage({ 
+          error: safeDecodeURIComponent(searchParams.get('error'))
+        });
+      } 
+      // Get success message from URL if present
+      else if (searchParams && searchParams.get('success')) {
+        const successMsg = safeDecodeURIComponent(searchParams.get('success'));
+        setMessage({ success: successMsg });
+        
+        // Check if it's a signup success message
+        if (successMsg.includes("Thanks for signing up")) {
+          setShowSuccessMessage(true);
+        }
       }
-    }
-    
-    // Get email from URL if present (for form prefill)
-    if (searchParams && searchParams.get('email')) {
-      setEmail(decodeURIComponent(searchParams.get('email') || ''));
+      
+      // Get email from URL if present (for form prefill)
+      if (searchParams && searchParams.get('email')) {
+        setEmail(safeDecodeURIComponent(searchParams.get('email')));
+      }
+    } catch (err) {
+      // Failsafe error handling
+      console.error("Error processing URL parameters:", err);
+      setMessage({ error: "An error occurred while processing your request" });
     }
   }, [searchParams]);
 

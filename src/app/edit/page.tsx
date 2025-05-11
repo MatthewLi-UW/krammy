@@ -43,7 +43,7 @@ const SortableFlashcard = ({ card, children }) => {
     transition: transition || undefined,
     opacity: isDragging ? 0 : 1, // Make the original card invisible while dragging
     zIndex: isDragging ? 999 : 1,
-    position: 'relative',
+    position: 'relative' as const, // Type assertion to specify literal type
     marginBottom: '20px', // Consistent spacing
   };
   

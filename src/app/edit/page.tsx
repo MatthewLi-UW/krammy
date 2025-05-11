@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from "../components/header";
 import { supabase } from "@/utils/supabase/client";
@@ -19,6 +19,7 @@ function EditDeckContent() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
   const [showDeleteDeckModal, setShowDeleteDeckModal] = useState(false);
+  const endOfCardsRef = useRef<HTMLDivElement>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -250,6 +251,15 @@ function EditDeckContent() {
       // Update local state
       setFlashcards([...flashcards, newCard]);
       setToast({message: "New card added", type: 'success'});
+      
+      // Scroll to the newly added card after a small delay to ensure DOM update
+      setTimeout(() => {
+        endOfCardsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+      
     } catch (error) {
       console.error("Error adding new card:", error);
       setToast({message: "Failed to add new card", type: 'error'});
@@ -266,17 +276,6 @@ function EditDeckContent() {
       
       console.log("Attempting to delete deck ID:", numericDeckId);
 
-      // delete from CardsToDeck
-      // const { error: cardLinkError } = await supabase
-      //   .from('CardsToDeck')
-      //   .delete()
-      //   .eq('deck_id', numericDeckId);
-        
-      // if (cardLinkError) {
-      //   console.error("Error deleting CardsToDeck:", cardLinkError);
-      //   throw cardLinkError;
-      // }
-      
       const { error: userToDeckError } = await supabase
         .from('UserToDeck')
         .delete()
@@ -286,17 +285,6 @@ function EditDeckContent() {
         console.error("Error deleting UserToDeck:", userToDeckError);
         throw userToDeckError;
       }
-      
-      // Delete from SharedDecks
-      // const { error: sharedDecksError } = await supabase
-      //   .from('SharedDecks')
-      //   .delete()
-      //   .eq('deck_id', numericDeckId);
-        
-      // if (sharedDecksError && !sharedDecksError.message.includes('does not exist')) {
-      //   console.error("Error deleting SharedDecks:", sharedDecksError);
-      //   throw sharedDecksError;
-      // }
       
       const { data: deckData, error: fetchError } = await supabase
         .from('Deck')
@@ -311,24 +299,12 @@ function EditDeckContent() {
       
       console.log("Found deck to delete:", deckData);
       
-      // Delete from Deck
-      // const { error } = await supabase
-      //   .from('Deck')
-      //   .delete()
-      //   .eq('deck_id', numericDeckId);
-        
-      // if (error) {
-      //   console.error("Error deleting Deck:", error);
-      //   throw error;
-      // }
-      
       setTimeout(() => {
         router.push('/protected');
       }, 500);
     } catch (error) {
       console.error("Error deleting deck:", error);
       setToast({message: "Failed to delete deck", type: 'error'});
-      // Show the detailed error message
       if (error instanceof Error && error.message) {
         console.error("Error message:", error.message);
       }
@@ -447,19 +423,19 @@ function EditDeckContent() {
       <Header user={user} />
       
       <div className="w-full max-w-6xl mx-auto px-4 py-8">
-        {/* Floating toast notification */}
+        {/* Toast notification - moved to top-right corner */}
         {toast && (
           <div 
             id="toast-notification"
-            className="fixed bottom-20 left-0 right-0 flex justify-center items-center px-4 z-50 pointer-events-none"
+            className="fixed top-6 right-6 z-50 pointer-events-none max-w-sm"
           >
             <div 
-              className={`max-w-md w-full py-3 px-4 rounded-lg shadow-lg pointer-events-auto
+              className={`py-3 px-4 rounded-lg shadow-lg pointer-events-auto
                 ${toast.type === 'success' 
                   ? 'bg-success text-white' 
                   : 'bg-[var(--color-error-text)] text-white'
                 } flex items-center justify-between
-                animate-slideUpFade
+                animate-slideInRight
               `}
             >
               <div className="flex items-center">
@@ -554,18 +530,22 @@ function EditDeckContent() {
         {/* Flashcards grid with staggered animation */}
         <div className="space-y-5">
           {flashcards.length > 0 ? (
-            flashcards.map((card, index) => (
-              <div 
-                key={card.card_id} 
-                className="opacity-0" 
-                style={{
-                  animation: 'scaleIn 0.4s ease-out forwards',
-                  animationDelay: `${index * 0.1}s`
-                }}
-              >
-                <FlashcardEditor card={card} />
-              </div>
-            ))
+            <>
+              {flashcards.map((card, index) => (
+                <div 
+                  key={card.card_id} 
+                  className="opacity-0" 
+                  style={{
+                    animation: 'scaleIn 0.4s ease-out forwards',
+                    animationDelay: `${index * 0.1}s`
+                  }}
+                >
+                  <FlashcardEditor card={card} />
+                </div>
+              ))}
+              {/* Reference div at the end of cards for scrolling */}
+              <div ref={endOfCardsRef}></div>
+            </>
           ) : (
             <div className="text-center p-12 bg-[var(--color-card-light)] rounded-xl shadow-sm border border-dashed border-[var(--color-card-medium)]/50 animate-scaleIn">
               <div className="mb-6 flex justify-center">

@@ -468,8 +468,7 @@ const checkCardPositions = async () => {
       console.log("Attempting to delete deck ID:", numericDeckId);
       
       const cardData = await getADeck(numericDeckId);
-      console.log("DAWDWDAWDAWDAWDAWDAWD CARDDATA")
-      console.log(cardData)
+
       const ArrayofCardID = (await cardData).map(item => item.card_id);
 
       const { error: deleteError } = await supabase

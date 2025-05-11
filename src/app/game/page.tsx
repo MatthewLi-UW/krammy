@@ -117,8 +117,9 @@ function GameContent() {
         // Get the card IDs for this deck from CardsToDeck
         const { data: cardLinks, error: cardLinksError } = await supabase
           .from('CardsToDeck')
-          .select('card_id')
-          .eq('deck_id', deckId);
+          .select('card_id, position')
+          .eq('deck_id', deckId)
+          .order('position');
 
         if (cardLinksError) throw cardLinksError;
 
@@ -133,7 +134,24 @@ function GameContent() {
 
           if (cardsError) throw cardsError;
 
-          setFlashcards(cardsData || []);
+          if (cardsData && cardsData.length > 0) {
+            // Create a map of positions by card_id for quick lookup
+            const positionMap = new Map();
+            cardLinks.forEach(link => {
+              positionMap.set(link.card_id, link.position);
+            });
+
+            // Sort flashcards based on the positions from CardsToDeck
+            const sortedCards = cardsData.sort((a, b) => {
+              const posA = positionMap.get(a.card_id) ?? Infinity;
+              const posB = positionMap.get(b.card_id) ?? Infinity;
+              return posA - posB;
+            });
+
+            setFlashcards(sortedCards);
+          } else {
+            setFlashcards([]);
+          }
         } else {
           // No cards found
           setFlashcards([]);

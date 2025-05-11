@@ -160,22 +160,26 @@ const TypingAnimation = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [typingStarted, setTypingStarted] = useState(false);
   const textRef = useRef<HTMLSpanElement>(null);
-  const [cursorPosition, setCursorPosition] = useState(0);
-  
+  const [cursorPosition, setCursorPosition] = useState({ left: 0, top: 0 });
   // Update cursor position while typing
   useEffect(() => {
-    if (textRef.current && typedText.length > 0) {
-      const textContainer = textRef.current;
-      const lastCharSpan = textContainer.childNodes[typedText.length - 1] as HTMLSpanElement;
-      if (lastCharSpan) {
-        const containerRect = textContainer.getBoundingClientRect();
-        const spanRect = lastCharSpan.getBoundingClientRect();
-        const position = spanRect.right - containerRect.left;
-        setCursorPosition(position);
-      }
-    } else {
-      setCursorPosition(0);
+  if (textRef.current && typedText.length > 0) {
+    const textContainer = textRef.current;
+    const lastCharSpan = textContainer.childNodes[typedText.length - 1] as HTMLSpanElement;
+    
+    if (lastCharSpan) {
+      const containerRect = textContainer.getBoundingClientRect();
+      const spanRect = lastCharSpan.getBoundingClientRect();
+      
+      // Calculate both left and top positions relative to the container
+      const left = spanRect.right - containerRect.left;
+      const top = spanRect.top - containerRect.top;
+      
+      setCursorPosition({ left, top });
     }
+  } else {
+      setCursorPosition({ left: 0, top: 0 });
+  }
   }, [typedText]);
   
   // Card flip animation sequence
@@ -313,12 +317,10 @@ const TypingAnimation = () => {
                 <div
                   className="absolute inline-block w-0.5 bg-[var(--color-primary)]"
                   style={{
-                    left: `${cursorPosition}px`,
-                    top: '0.1em',
+                    left: `${cursorPosition.left}px`,
+                    top: `${cursorPosition.top}px`,
                     height: '1.2em',
-                    transform: 'translateY(-50%)',  
-                    marginTop: '0.6em',           
-                    transition: 'left 0.1s ease-out',
+                    transition: 'left 0.1s ease-out, top 0.1s ease-out',
                     willChange: 'left, top',
                     opacity: 1,
                   }}

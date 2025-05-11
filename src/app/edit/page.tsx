@@ -79,7 +79,7 @@ function EditDeckContent() {
   const [flashcards, setFlashcards] = useState<FlashCard[]>([]);
   const [deckName, setDeckName] = useState<string>("");
   const [editingDeckName, setEditingDeckName] = useState(false);
-  const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
+  // const [toast, setToast] = useState<{message: string, type: 'success' | 'error'} | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [cardToDelete, setCardToDelete] = useState<string | null>(null);
   const [showDeleteDeckModal, setShowDeleteDeckModal] = useState(false);
@@ -160,14 +160,14 @@ const updateCardOrder = async (activeId: string, overId: string, newOrderedCards
     }
     
     console.log("Card order updated successfully");
-    setToast({message: "Card order updated", type: 'success'});
+    // setToast({message: "Card order updated", type: 'success'});
     
     // Wait a moment before checking to ensure database has time to commit
     setTimeout(() => checkCardPositions(), 500);
     
   } catch (error) {
     console.error("Error updating card order:", error);
-    setToast({message: "Failed to update card order", type: 'error'});
+    // setToast({message: "Failed to update card order", type: 'error'});
   }
 };
 
@@ -189,23 +189,23 @@ const checkCardPositions = async () => {
 
 
   // Auto-dismiss toast after 4 seconds
-  useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => {
-        // Start fade out animation before removal
-        const toastElement = document.getElementById('toast-notification');
-        if (toastElement) {
-          toastElement.classList.add('animate-fadeOut');
-          // Wait for animation to complete before removing
-          setTimeout(() => setToast(null), 300);
-        } else {
-          setToast(null);
-        }
-      }, 4000);
+  // useEffect(() => {
+  //   if (toast) {
+  //     const timer = setTimeout(() => {
+  //       // Start fade out animation before removal
+  //       const toastElement = document.getElementById('toast-notification');
+  //       if (toastElement) {
+  //         toastElement.classList.add('animate-fadeOut');
+  //         // Wait for animation to complete before removing
+  //         setTimeout(() => setToast(null), 300);
+  //       } else {
+  //         setToast(null);
+  //       }
+  //     }, 4000);
       
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [toast]);
 
   // Auth check
   useEffect(() => {
@@ -337,10 +337,10 @@ const checkCardPositions = async () => {
       if (error) throw error;
 
       setEditingDeckName(false);
-      setToast({message: "Deck name updated successfully", type: 'success'});
+      // setToast({message: "Deck name updated successfully", type: 'success'});
     } catch (error) {
       console.error("Error updating deck name:", error);
-      setToast({message: "Failed to update deck name", type: 'error'});
+      // setToast({message: "Failed to update deck name", type: 'error'});
     }
   };
 
@@ -361,10 +361,10 @@ const checkCardPositions = async () => {
         c.card_id === card.card_id ? card : c
       ));
       
-      setToast({message: "Card updated successfully", type: 'success'});
+      // setToast({message: "Card updated successfully", type: 'success'});
     } catch (error) {
       console.error("Error updating card:", error);
-      setToast({message: "Failed to update card", type: 'error'});
+      // setToast({message: "Failed to update card", type: 'error'});
     }
   };
 
@@ -398,10 +398,10 @@ const checkCardPositions = async () => {
       
       // Update local state
       setFlashcards(flashcards.filter(c => c.card_id !== Number(cardToDelete)));
-      setToast({message: "Card deleted successfully", type: 'success'});
+      // setToast({message: "Card deleted successfully", type: 'success'});
     } catch (error) {
       console.error("Error deleting card:", error);
-      setToast({message: "Failed to delete card", type: 'error'});
+      // setToast({message: "Failed to delete card", type: 'error'});
     } finally {
       // Close the modal
       setShowDeleteModal(false);
@@ -440,7 +440,7 @@ const checkCardPositions = async () => {
       
       // Update local state
       setFlashcards([...flashcards, newCard]);
-      setToast({message: "New card added", type: 'success'});
+      // setToast({message: "New card added", type: 'success'});
       
       // Scroll to the newly added card after a small delay to ensure DOM update
       setTimeout(() => {
@@ -452,7 +452,7 @@ const checkCardPositions = async () => {
       
     } catch (error) {
       console.error("Error adding new card:", error);
-      setToast({message: "Failed to add new card", type: 'error'});
+      // setToast({message: "Failed to add new card", type: 'error'});
     }
   };
 
@@ -494,7 +494,7 @@ const checkCardPositions = async () => {
       }, 500);
     } catch (error) {
       console.error("Error deleting deck:", error);
-      setToast({message: "Failed to delete deck", type: 'error'});
+      // setToast({message: "Failed to delete deck", type: 'error'});
       if (error instanceof Error && error.message) {
         console.error("Error message:", error.message);
       }
@@ -665,7 +665,7 @@ const checkCardPositions = async () => {
       
       <div className="w-full max-w-6xl mx-auto px-4 py-8">
         {/* Toast notification - moved to top-right corner */}
-        {toast && (
+        {/* {toast && (
           <div 
             id="toast-notification"
             className="fixed top-6 right-6 z-50 pointer-events-none max-w-sm"
@@ -701,7 +701,7 @@ const checkCardPositions = async () => {
               </button>
             </div>
           </div>
-        )}
+        )} */}
         
         {/* header section with just deck name */}
         <div className=" p-5 rounded-xl mb-8 ml-4">

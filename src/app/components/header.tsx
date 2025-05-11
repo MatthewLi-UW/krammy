@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { UserIcon, LogOutIcon, SettingsIcon, UserCircleIcon } from 'lucide-react';
+import { UserIcon, LogOutIcon, SettingsIcon, UserCircleIcon, Paintbrush, PieChart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import KrammyLogo from './logo';
 import { signOutAction } from '../actions';
@@ -108,12 +108,21 @@ export default function Header({ user }: HeaderProps) {
                 </Link>
                 
                 <Link 
-                  href="/settings" 
+                  href="/appearance" 
                   className="flex items-center px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-secondary-light)]"
                   onClick={() => setIsDropdownOpen(false)}
                 >
-                  <SettingsIcon size={16} className="mr-2 shrink-0" />
-                  Settings
+                  <Paintbrush size={16} className="mr-2 shrink-0" />
+                  Appearance
+                </Link>
+
+                <Link 
+                  href="/stats" 
+                  className="flex items-center px-4 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-secondary-light)]"
+                  onClick={() => setIsDropdownOpen(false)}
+                >
+                  <PieChart size={16} className="mr-2 shrink-0" />
+                  Statistics
                 </Link>
                 
                 <button 

@@ -37,25 +37,23 @@ const SortableFlashcard = ({ card, children }) => {
     isDragging
   } = useSortable({ id: card.card_id.toString() });
   
-  // Use the CSS utility from dnd-kit for proper transform
   const style = {
     transform: CSS.Transform.toString(transform),
     transition: transition || undefined,
-    opacity: isDragging ? 0 : 1, // Make the original card invisible while dragging
+    opacity: isDragging ? 0 : 1, 
     zIndex: isDragging ? 999 : 1,
-    position: 'relative' as const, // Type assertion to specify literal type
-    marginBottom: '20px', // Consistent spacing
+    position: 'relative' as const, 
+    marginBottom: '20px', 
   };
   
   return (
     <div 
       ref={setNodeRef} 
       style={style}
-      // Remove the dragPulse animation when dragging as it interferes with dnd-kit's transform
+      
       className={`mb-5 ${isDragging ? 'border-2 border-[var(--color-primary)]' : ''} ${!isDragging ? 'animate-scaleIn' : ''}`}
     >
       <div className="relative group">
-        {/* Make the entire card draggable via the drag handle */}
         <div 
           {...attributes} 
           {...listeners}
@@ -65,7 +63,6 @@ const SortableFlashcard = ({ card, children }) => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
           </svg>
         </div>
-        {/* Add left padding to make room for the drag handle */}
         <div className="pl-8">
           {children}
         </div>
@@ -145,26 +142,31 @@ function EditDeckContent() {
   };
   
   // Save card order to database
-  const updateCardOrder = async (activeId: string, overId: string) => {
-    if (!deckId || !user) return;
-    
-    try {
-      // Here, send the updated order to your backend
-      // This is just a placeholder - implement according to your schema
-      const { error } = await supabase.rpc('reorder_cards', {
-        p_deck_id: deckId,
-        p_card_id: activeId,
-        p_target_card_id: overId
-      });
+const updateCardOrder = async (activeId: string, overId: string) => {
+  if (!deckId || !user) return;
+  
+  try {
+    // Update each card position individually
+    for (let i = 0; i < orderedCards.length; i++) {
+      const card = orderedCards[i];
+      const { error } = await supabase
+        .from('CardsToDeck')
+        .update({ position: i })
+        .eq('deck_id', deckId)
+        .eq('card_id', card.card_id);
       
-      if (error) throw error;
-      
-      setToast({message: "Card order updated", type: 'success'});
-    } catch (error) {
-      console.error("Error updating card order:", error);
-      setToast({message: "Failed to update card order", type: 'error'});
+      if (error) {
+        console.error(`Error updating position for card ${card.card_id}:`, error);
+        throw error;
+      }
     }
-  };
+    
+    setToast({message: "Card order updated", type: 'success'});
+  } catch (error) {
+    console.error("Error updating card order:", error);
+    setToast({message: "Failed to update card order", type: 'error'});
+  }
+};
 
   // Auto-dismiss toast after 4 seconds
   useEffect(() => {

@@ -61,7 +61,7 @@ export default function Header({ user }: HeaderProps) {
         <div className="relative" ref={dropdownRef}>
           <div 
             onClick={toggleDropdown}
-            className="cursor-pointer hover:bg-gray-100 rounded-full p-1 flex items-center justify-center"
+            className="cursor-pointer rounded-full p-1 flex items-center justify-center"
             style={{ width: '48px', height: '48px' }}
           >
             {user?.image ? (
@@ -73,7 +73,13 @@ export default function Header({ user }: HeaderProps) {
                 className="rounded-full object-cover"
               />
             ) : (
-              <UserCircleIcon size={44} className="text-gray-600" />
+              <Image 
+                src="/profile_placeholder.png" 
+                alt="Profile" 
+                width={44} 
+                height={44} 
+                className="rounded-full object-cover"
+              />
             )}
           </div>
           

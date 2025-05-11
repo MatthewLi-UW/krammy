@@ -6,6 +6,7 @@ import { FormMessage, Message } from "@/app/components/form-message";
 import Link from "next/link";
 import KrammyLogo from "@/app/components/logo";
 import { useSearchParams } from 'next/navigation';
+import { CheckCircle2, XCircle } from 'lucide-react';
 
 /**
  * Application header component with logo and navigation
@@ -45,6 +46,16 @@ const SignupForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  
+  // Password validation states
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    lowercase: false,
+    uppercase: false,
+    number: false,
+    special: false,
+    length: false
+  });
   
   // Store messages (error/success) from form submission
   const [message, setMessage] = useState<Message>({} as Message);
@@ -84,6 +95,17 @@ const SignupForm = () => {
     }
   }, [searchParams]);
 
+  // Validate password as user types
+  useEffect(() => {
+    setPasswordRequirements({
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      number: /[0-9]/.test(password),
+      special: /[!@#$%^&*()_+\-=\[\]{};\\':"\\|,.<>\/?`~]/.test(password),
+      length: password.length >= 6
+    });
+  }, [password]);
+
   // Form validation handler
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     // Reset error state
@@ -93,6 +115,14 @@ const SignupForm = () => {
     if (password !== confirmPassword) {
       e.preventDefault();
       setPasswordError("Passwords do not match");
+      return false;
+    }
+
+    // Check if password meets all requirements
+    const { lowercase, uppercase, number, special } = passwordRequirements;
+    if (!(lowercase && uppercase && number && special)) {
+      e.preventDefault();
+      setPasswordError("Password doesn't meet all requirements");
       return false;
     }
   };
@@ -146,10 +176,51 @@ const SignupForm = () => {
             placeholder="Password*" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onFocus={() => setPasswordFocused(true)}
+            onBlur={() => setPasswordFocused(false)}
             required 
             minLength={6}
             className="bg-[var(--color-background-light)] w-full px-3 py-2 border border-[var(--color-card-medium)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30"
           />
+          
+          {/* Password requirements checklist */}
+          {(passwordFocused || password.length > 0) && (
+            <div className="mt-2 p-3 bg-[var(--color-background-light)] rounded-md border border-[var(--color-card-medium)]">
+              <p className="text-sm font-medium mb-2 text-[var(--color-text)]">Password requirements:</p>
+              <ul className="space-y-1 text-xs">
+                <li className="flex items-center gap-2">
+                  {passwordRequirements.lowercase ? 
+                    <CheckCircle2 className="h-4 w-4 text-green-500" /> : 
+                    <XCircle className="h-4 w-4 text-[var(--color-error-text)]" />}
+                  <span>Lowercase letter (a-z)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  {passwordRequirements.uppercase ? 
+                    <CheckCircle2 className="h-4 w-4 text-green-500" /> : 
+                    <XCircle className="h-4 w-4 text-[var(--color-error-text)]" />}
+                  <span>Uppercase letter (A-Z)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  {passwordRequirements.number ? 
+                    <CheckCircle2 className="h-4 w-4 text-green-500" /> : 
+                    <XCircle className="h-4 w-4 text-[var(--color-error-text)]" />}
+                  <span>Number (0-9)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  {passwordRequirements.special ? 
+                    <CheckCircle2 className="h-4 w-4 text-green-500" /> : 
+                    <XCircle className="h-4 w-4 text-[var(--color-error-text)]" />}
+                  <span>Special character (!@#$...)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  {passwordRequirements.length ? 
+                    <CheckCircle2 className="h-4 w-4 text-green-500" /> : 
+                    <XCircle className="h-4 w-4 text-[var(--color-error-text)]" />}
+                  <span>Minimum 6 characters</span>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
         
         {/* Confirm Password input field */}

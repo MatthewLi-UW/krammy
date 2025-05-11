@@ -529,7 +529,7 @@ const checkCardPositions = async () => {
         // Find the card being edited
         const editingCard = flashcards.find(c => c.card_id === activeEditCardId);
         if (editingCard) {
-          // Get the current form values from the DOM (we don't have access to the other component's state)
+          // Get the current form values from the DOM
           const frontElem = document.getElementById(`term-${activeEditCardId}`) as HTMLTextAreaElement;
           const backElem = document.getElementById(`definition-${activeEditCardId}`) as HTMLTextAreaElement;
           
@@ -558,99 +558,115 @@ const checkCardPositions = async () => {
     };
 
     return (
-      <div className="bg-[var(--color-card-light)] rounded-xl shadow-md overflow-hidden border border-[var(--color-card-medium)]/50 relative hover:shadow-lg transition-shadow duration-300">
+    <div 
+      className="bg-[var(--color-card-light)] rounded-xl shadow-md overflow-hidden border border-[var(--color-card-medium)]/50 relative hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+      onClick={(e) => {
+        // Only start editing if we're not already editing and if the click didn't come from a button
+        if (!isEditing && (e.target as HTMLElement).tagName !== 'BUTTON' && 
+            !(e.target as HTMLElement).closest('button')) {
+          startEditing();
+        }
+      }}
+    >
+      <div className="flex flex-col md:flex-row">
+        {/* Term side */}
+        <div className="p-6 md:w-1/2 bg-[var(--color-secondary)]/20 border-b md:border-b-0 md:border-r border-[var(--color-card-medium)]/30 relative">
+          <h3 className="text-md font-medium text-[var(--color-text-light)] mb-2">Term</h3>
+          
+          {isEditing ? (
+            <textarea
+              ref={termInputRef}
+              id={`term-${card.card_id}`}
+              className="text-lg text-[var(--color-text-dark)] w-full bg-[var(--color-background-light)]/20 border border-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-background-light)]/50 focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]/40 rounded-md p-2 min-h-[4rem] resize-none transition-all"
+              value={front}
+              onChange={(e) => setFront(e.target.value)}
+              onClick={(e) => e.stopPropagation()} // Prevent triggering card click
+              placeholder="Enter term..."
+            />
+          ) : (
+            <p className="text-lg text-[var(--color-text-dark)]">
+              {card.front}
+            </p>
+          )}
+        </div>
+
+        {/* Definition side */}
+        <div className="p-6 md:w-1/2 relative">
+          <h3 className="text-md font-medium text-[var(--color-text-light)] mb-2">Definition</h3>
+          
+          {isEditing ? (
+            <textarea
+              id={`definition-${card.card_id}`}
+              className="text-lg text-[var(--color-text-dark)] w-full bg-[var(--color-background-light)]/20 border border-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-background-light)]/50 focus:outline-none focus:ring-1 focus:ring-[var(--color-primary)]/40 rounded-md p-2 min-h-[4rem] resize-none transition-all"
+              value={back}
+              onChange={(e) => setBack(e.target.value)}
+              onClick={(e) => e.stopPropagation()} // Prevent triggering card click
+              placeholder="Enter definition..."
+            />
+          ) : (
+            <p className="text-lg text-[var(--color-text-dark)]">
+              {card.back}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Action buttons */}
+      <div className="absolute top-4 right-4 flex space-x-2">
         {isEditing ? (
-          <div className="p-6">
-            <div className="mb-5">
-              <label className="block text-[var(--color-text-dark)] font-medium mb-2" htmlFor={`term-${card.card_id}`}>
-                Term
-              </label>
-              <textarea
-                ref={termInputRef}
-                id={`term-${card.card_id}`}
-                className="w-full bg-[var(--color-background-light)] p-3 border border-[var(--color-card-medium)]/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40"
-                value={front}
-                onChange={(e) => setFront(e.target.value)}
-                rows={3}
-                placeholder="Enter term..."
-              />
-            </div>
-            <div className="mb-5">
-              <label className="block text-[var(--color-text-dark)] font-medium mb-2" htmlFor={`definition-${card.card_id}`}>
-                Definition
-              </label>
-              <textarea
-                id={`definition-${card.card_id}`}
-                className="w-full bg-[var(--color-background-light)] p-3 border border-[var(--color-card-medium)]/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/40"
-                value={back}
-                onChange={(e) => setBack(e.target.value)}
-                rows={3}
-                placeholder="Enter definition..."
-              />
-            </div>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setActiveEditCardId(null)}
-                className="px-4 py-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-background-light)] rounded-lg hover:bg-[var(--color-primary-dark)] transition-colors"
-              >
-                Save
-              </button>
-            </div>
-          </div>
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSave();
+              }}
+              className="p-2 bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-primary-dark)] transition-colors"
+              aria-label="Save"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setFront(card.front); // Reset to original value
+                setBack(card.back);
+                setActiveEditCardId(null);
+              }}
+              className="p-2 bg-[var(--color-secondary)] text-[var(--color-text-dark)] rounded-lg hover:bg-[var(--color-secondary-dark)] transition-colors"
+              aria-label="Cancel"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </>
         ) : (
-          <div 
-            className="flex flex-col md:flex-row cursor-pointer group"
-            onClick={() => startEditing()}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              deleteCard(card.card_id.toString());
+            }}
+            className="p-2 text-[var(--color-error-text)] bg-[var(--color-error-text)]/10 rounded-lg hover:bg-[var(--color-error-text)]/20 transition-colors"
+            aria-label="Delete"
           >
-            <div className="p-6 md:w-1/2 bg-[var(--color-secondary)]/20 border-b md:border-b-0 md:border-r border-[var(--color-card-medium)]/30 relative">
-              <h3 className="text-md font-medium text-[var(--color-text-light)] mb-2">Term</h3>
-              <p className="text-lg text-[var(--color-text-dark)]">{card.front}</p>
-            </div>
-            <div className="p-6 md:w-1/2 relative">
-              <h3 className="text-md font-medium text-[var(--color-text-light)] mb-2">Definition</h3>
-              <p className="text-lg text-[var(--color-text-dark)]">{card.back}</p>
-            </div>
-            <div className="absolute top-4 right-4 flex space-x-2">
-              {/* Old edit button */}
-              {/* <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  startEditing();
-                }}
-                className="p-2 bg-[var(--color-primary)]/10 text-[var(--color-primary)] rounded-lg hover:bg-[var(--color-primary)]/20 transition-colors"
-                aria-label="Edit"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </button> */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteCard(card.card_id.toString());
-                }}
-                className="p-2 text-[var(--color-error-text)] bg-[var(--color-error-text)]/10 rounded-lg hover:bg-[var(--color-error-text)]/20 transition-colors"
-                aria-label="Delete"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-            <div className="absolute hidden group-hover:block bottom-1 right-3 text-sm text-[var(--color-text-light)] bg-[var(--color-background-light)]/80 px-2 py-1 rounded">
-              Click card to edit
-            </div>
-          </div>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
         )}
       </div>
-    );
-  };
+
+      {/* Help text */}
+      {!isEditing && (
+        <div className="absolute hidden group-hover:block bottom-1 right-3 text-sm text-[var(--color-text-light)] bg-[var(--color-background-light)]/80 px-2 py-1 rounded">
+          Click card to edit
+        </div>
+      )}
+    </div>
+  );
+};
 
   if (loading || deckLoading) {
     return (
@@ -686,7 +702,7 @@ const checkCardPositions = async () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
                 )}

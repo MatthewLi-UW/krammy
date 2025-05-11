@@ -277,16 +277,35 @@ const checkCardPositions = async () => {
           return;
         }
         
-        // Process cards normally if everything is successful
+       // Process cards normally if everything is successful
         if (joinData && joinData.length > 0) {
-          const cards = joinData.map(item => ({
-          ...item.FlashCard,
-          position: item.position
-        }));
+          // First, create objects with position for sorting
+          const cardsWithPosition = joinData.map(item => ({
+            ...item.FlashCard,
+            _position: item.position
+          }));
 
-          // Sort by position explicitly
-          const sortedCards = cards.sort((a, b) => (a.position || 0) - (b.position || 0));
-          setFlashcards(sortedCards);
+          // Sort by position
+          const sorted = [...cardsWithPosition].sort((a, b) => 
+            (a._position ?? 0) - (b._position ?? 0)
+          );
+          
+          // Then remove the _position property to make them compatible with FlashCard type
+          const cleanCards = sorted.map((card:any)=> {
+            // Extract all needed FlashCard properties explicitly
+            const { card_id, owner_id, created_at, front, back } = card;
+            
+            // Return a properly typed object
+            return {
+              card_id,
+              owner_id, 
+              created_at,
+              front,
+              back
+            };
+          });
+          // Now set the state with clean cards matching the FlashCard type
+          setFlashcards(cleanCards);
         } else {
           setFlashcards([]);
         }

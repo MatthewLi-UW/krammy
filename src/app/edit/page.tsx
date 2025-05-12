@@ -88,6 +88,7 @@ function EditDeckContent() {
   const endOfCardsRef = useRef<HTMLDivElement>(null);
   const [orderedCards, setOrderedCards] = useState<FlashCard[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [isAddingCard, setIsAddingCard] = useState(false);
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -412,7 +413,10 @@ const checkCardPositions = async () => {
 
   // Add new flashcard
   const addNewCard = async () => {
-    if (!deckId || !user) return;
+    if (!deckId || !user || isAddingCard) return;
+    
+    // Set the loading state to prevent multiple clicks
+    setIsAddingCard(true);
     
     try {
       // Create new flashcard
@@ -427,33 +431,58 @@ const checkCardPositions = async () => {
         .single();
         
       if (error) throw error;
+
+      const numericDeckId = parseInt(deckId);
       
-      // Link to deck
+      // Get the highest current position value, forcing a fresh read from DB
+      const { data: positionData, error: positionError } = await supabase
+        .from('CardsToDeck')
+        .select('position')
+        .eq('deck_id', numericDeckId)
+        .order('position', { ascending: false })
+        .limit(1);
+        
+      if (positionError) throw positionError;
+      
+      // Calculate the next position
+      let nextPosition = 0;
+      if (positionData && positionData.length > 0) {
+        const highestPosition = typeof positionData[0].position === 'number' 
+          ? positionData[0].position 
+          : parseInt(positionData[0].position);
+        nextPosition = highestPosition + 1;
+      }
+      
+      console.log("Adding new card at position:", nextPosition);
+      
+      // Link to deck with the new position
       const { error: linkError } = await supabase
         .from('CardsToDeck')
         .insert({
-          deck_id: deckId,
+          deck_id: numericDeckId,
           card_id: newCard.card_id,
-          owner_id: user.id
+          owner_id: user.id,
+          position: nextPosition
         });
         
       if (linkError) throw linkError;
       
-      // Update local state
+      // Update local state with the new card
       setFlashcards([...flashcards, newCard]);
-      // setToast({message: "New card added", type: 'success'});
       
-      // Scroll to the newly added card after a small delay to ensure DOM update
+      // Scroll to the newly added card after a small delay
       setTimeout(() => {
         endOfCardsRef.current?.scrollIntoView({ 
           behavior: 'smooth', 
           block: 'center' 
         });
       }, 100);
-      
+        
     } catch (error) {
       console.error("Error adding new card:", error);
-      // setToast({message: "Failed to add new card", type: 'error'});
+    } finally {
+      // Reset the loading state regardless of success or failure
+      setIsAddingCard(false);
     }
   };
 
@@ -867,12 +896,26 @@ const checkCardPositions = async () => {
           <div className="flex space-x-3">
             <button
               onClick={addNewCard}
-              className="px-4 py-2 bg-[var(--color-primary)] text-[var(--color-background-light)] rounded-lg hover:bg-[var(--color-primary-dark)] transition-all flex items-center shadow-sm hover:scale-105 active:scale-95 duration-150"
+              disabled={isAddingCard}
+              className={`px-4 py-2 bg-[var(--color-primary)] text-[var(--color-background-light)] rounded-lg transition-all flex items-center shadow-sm duration-150 ${
+                isAddingCard 
+                  ? 'cursor-not-allowed' 
+                  : 'hover:bg-[var(--color-primary-dark)] hover:scale-105 active:scale-95'
+              }`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add Card
+              {isAddingCard ? (
+                <>
+                  <div className="h-5 w-5 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Adding...
+                </>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Add Card
+                </>
+              )}
             </button>
             
             <button

@@ -212,7 +212,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
                     </p>
                   </div>
                   <p className="text-[var(--color-text-light)] text-sm">
-                    Access: {deckPreview?.accessType === 'READ' ? 'View Only' : 'Edit Access'}
+                    Access: {deckPreview?.accessType === 'READ' ? 'Copy Access' : 'Edit Access'}
                   </p>
                 </div>
               </div>

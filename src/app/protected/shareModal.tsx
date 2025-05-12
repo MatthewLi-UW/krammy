@@ -64,7 +64,7 @@ export default function ShareModal({ deckId, deckName, onClose, isOpen }: ShareM
                         : 'bg-[var(--color-card-light)] text-[var(--color-text)]'
                     }`}
                   >
-                    View Only
+                    Copy Access
                   </button>
                   <button
                     onClick={() => setAccessType(ACCESS.WRITE)}

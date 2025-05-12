@@ -13,6 +13,19 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+if os.environ.get('RENDER'):
+    # Production settings
+    app.config.update(
+        DEBUG=False,
+        TESTING=False,
+        PROPAGATE_EXCEPTIONS=True,
+        # Recommended security headers
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+    )
+
 CORS(app, resources={r"/api/*": {
     "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "https://krammy.app"],
     "methods": ["POST", "OPTIONS"],
@@ -123,9 +136,11 @@ def health_check():
 if __name__ == "__main__":
     # Check if running in production
     if os.environ.get('RENDER'):
-        # For production - gunicorn will be used instead
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
+        # For production - don't run the app directly,
+        # gunicorn will be invoked through Procfile
+        print("Running in production - use 'gunicorn parse-pdf:app' instead of app.run()")
     else:
-        # For development
+        # For development only
+        print("Running in development mode")
         app.run(debug=True, port=5000)
 

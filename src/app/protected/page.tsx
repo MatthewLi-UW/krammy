@@ -284,6 +284,7 @@ export default function ProtectedPage() {
 
       {/* Share Modal */}
       <ShareModal
+        key={`share-modal-${selectedDeckId}`}
         deckId={selectedDeckId}
         deckName={selectedDeckName}
         isOpen={shareModalOpen}

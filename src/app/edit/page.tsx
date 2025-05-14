@@ -93,6 +93,7 @@ function EditDeckContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const deckId = searchParams.get('deckId');
+  const deckNameParam = searchParams.get('deckName');
 
   // Update ordered cards when flashcards change
   useEffect(() => {

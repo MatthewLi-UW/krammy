@@ -240,8 +240,11 @@ export default function UploadPage() {
         throw new Error('User is not authenticated');
       }
       
-      const data = (await createDeck(user.id, "Untitled Deck"))[0] as Deck;
-      router.push(`/edit?deckId=${data.deck_id}`);
+      // Use the entered deck name, or fallback to "Untitled Deck"
+    const initialDeckName = deckName.trim() ? deckName.trim() : "Untitled Deck";
+    const data = (await createDeck(user.id, initialDeckName))[0] as Deck;
+    // Pass the deck name as a query param
+    router.push(`/edit?deckId=${data.deck_id}&deckName=${encodeURIComponent(initialDeckName)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create empty deck');
     } finally {

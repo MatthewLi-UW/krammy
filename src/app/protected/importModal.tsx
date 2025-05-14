@@ -31,7 +31,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
     try {
       // Fetch shared link data (gives us deck_id and access type)
       const shareData = await fetchSharedLinkData(shareToken, userId);
-      
+
       setDeckPreview({
         cards: shareData.card_count,
         accessType: shareData.access_type,
@@ -59,7 +59,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
     
     try {
       // Extract deck details for clarity
-      const { accessType, deckId: originalDeckId, deckName: originalDeckName, cards } = deckPreview;
+      const { accessType, deckId: originalDeckId, deckName: originalDeckName} = deckPreview;
       
       // Check if the user already has access to this deck (to prevent duplicates)
       const { data: existingAccess } = await supabase
@@ -162,7 +162,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
                       Cards
                     </p>
                     <p className="text-[var(--color-primary)] font-semibold">
-                      {deckPreview?.cards?.length || 0}
+                      {deckPreview?.cards || 0}
                     </p>
                   </div>
                   <p className="text-[var(--color-text-light)] text-sm">

@@ -70,8 +70,13 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
         .maybeSingle();
       
       if (accessType === 'READ') {
-        console.log(originalDeckId)
-        copyDeck(originalDeckId, originalDeckName);
+        console.log(originalDeckId);
+        await copyDeck(originalDeckId, originalDeckName);
+        // force refresh
+        onImportSuccess();
+        setTimeout(() => {
+          onClose();
+        }, 1000);
       } 
       else {
         // WRITE ACCESS: Only add a link to the original deck, don't create a copy
@@ -86,12 +91,12 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
               deck_id: originalDeckId
             });
         }
+        
+        onImportSuccess();
+        setTimeout(() => {
+          onClose();
+        }, 1000);
       }
-      
-      onImportSuccess();
-      setTimeout(() => {
-        onClose();
-      }, 1000);
     } catch (err) {
       console.error("Import error:", err);
       setError('Failed to import deck. Please try again.');

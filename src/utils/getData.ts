@@ -25,7 +25,7 @@ export const fetchSharedLinkData = async (shareToken: string, uuid: string) => {
   try {
     const { data, error } = await supabase
       .from('SharedDecks')
-      .select('deck_id, access_type, expiry_date, share_token')
+      .select('deck_id, access_type, expiry_date, share_token, deck_name, card_count')
       .eq('share_token', shareToken)
       .single();
 

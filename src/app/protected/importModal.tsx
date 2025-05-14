@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { fetchSharedLinkData, getADeck } from '@/utils/getData';
-import { createDeck, sendData } from '@/utils/sendData';
+import { copyDeck, createDeck, sendData } from '@/utils/sendData';
 import { supabase } from "@/utils/supabase/client";
 
 interface ImportModalProps {
@@ -31,22 +31,11 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
     try {
       // Fetch shared link data (gives us deck_id and access type)
       const shareData = await fetchSharedLinkData(shareToken, userId);
-      // Get the original deck's name
-      const { data: deckData, error: deckError } = await supabase
-        .from('Deck')
-        .select('deck_name')
-        .eq('deck_id', shareData.deck_id)
-        .single();
-        
-      if (deckError) throw deckError;
-      
-      // Get the card data
-      const cardData = await getADeck(shareData.deck_id);
       
       setDeckPreview({
-        cards: cardData,
+        cards: shareData.card_count,
         accessType: shareData.access_type,
-        deckName: deckData?.deck_name || `Imported Deck`,
+        deckName: shareData?.deck_name || `Imported Deck`,
         deckId: shareData.deck_id
       });
       
@@ -81,43 +70,8 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
         .maybeSingle();
       
       if (accessType === 'READ') {
-        // READ ACCESS: Only create a local copy, don't add UserToDeck entry
-        console.log("Creating local copy for READ access");
-        
-        // 1. Create a new deck with a clear "(Copy)" indicator
-        const newDeckResponse = await createDeck(userId, originalDeckName + " (Copy)");
-        const newDeck = newDeckResponse[0];
-        
-        if (!newDeck || !newDeck.deck_id) {
-          throw new Error('Failed to create new deck');
-        }
-        
-        // 2. Create new flashcards owned by the user
-        const cardData = cards.map(card => ({
-          front: card.front,
-          back: card.back,
-          owner_id: userId
-        }));
-        
-        const newCards = await sendData('FlashCard', cardData);
-        
-        // 3. Link the new cards to the new deck
-        const cardLinks = newCards.map(card => ({
-          card_id: card.card_id,
-          deck_id: newDeck.deck_id,
-          owner_id: userId
-        }));
-        
-        await sendData('CardsToDeck', cardLinks);
-        
-        // Important: Remove any existing access to the original deck if it exists
-        if (existingAccess) {
-          await supabase
-            .from('UserToDeck')
-            .delete()
-            .eq('deck_id', originalDeckId)
-            .eq('owner_id', userId);
-        }
+        console.log(originalDeckId)
+        copyDeck(originalDeckId, originalDeckName);
       } 
       else {
         // WRITE ACCESS: Only add a link to the original deck, don't create a copy

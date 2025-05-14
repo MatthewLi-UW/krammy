@@ -88,3 +88,24 @@ export const sentStats = async (userid: string, accuracy: number, wpm: number,de
     console.log("ERROR not a valid sentStats")
   }
 }
+
+  export const copyDeck = 
+        async (deckId: number, deckName: string) => {
+            const { data : user } = await supabase.auth.getUser();
+
+            if (user?.user) {
+              const { data, error } = await supabase.rpc('copy_deck', { source_deck_id: deckId, current_user_id: user.user.id, current_deck_name: deckName });
+
+              if (error) {
+                  console.error('Error copying deck:', error);
+                  return null;
+              }
+
+              console.log('New deck ID:', data);
+              return data;
+            } else {
+                console.error('Error copying deck: no authed user');
+                return null;
+            }
+
+        }

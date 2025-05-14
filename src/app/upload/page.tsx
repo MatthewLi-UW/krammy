@@ -24,6 +24,7 @@ export default function UploadPage() {
   const [activeTab, setActiveTab] = useState<'file' | 'text'>('file');
   const router = useRouter()
   const [user, setUser] = useState<{ id: string; email: string; image?: string } | null>(null);
+  const [showChoiceModal, setShowChoiceModal] = useState(true);
 
   // Fetch user data
   const fetchUser = async () => {
@@ -231,6 +232,15 @@ export default function UploadPage() {
     }
   }
 
+  const handleUploadRoute = () => {
+    setShowChoiceModal(false);
+  };
+
+  const handleFromScratchModal = async () => {
+    setShowChoiceModal(false);
+    await handleCreateFromScratch();
+  };
+
   const handleCreateFromScratch = async () => {
     try {
       setLoading(true);
@@ -263,6 +273,33 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen bg-[var(--color-background)] font-karla">
       <Header user={user} />
+
+      {/* Choice Modal */}
+      {showChoiceModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div
+          className="bg-[var(--color-secondary)] rounded-xl shadow-lg p-8 max-w-sm w-full text-center
+                    animate-scaleIn"
+          style={{
+            animation: 'scaleIn 0.25s cubic-bezier(0.4,0,0.2,1)'
+          }}
+        >
+          <h2 className="text-xl font-bold mb-4 text-[var(--color-primary)]">How do you want to start?</h2>
+          <button
+            onClick={handleUploadRoute}
+            className="w-full py-3 mb-3 rounded-lg bg-[var(--color-primary)] text-white font-medium hover:bg-[var(--color-primary-dark)] transition-colors"
+          >
+            Upload File or Paste Text
+          </button>
+          <button
+            onClick={handleFromScratchModal}
+            className="w-full py-3 rounded-lg bg-[var(--color-secondary)] text-[var(--color-primary)] font-medium hover:bg-[var(--color-primary-dark)]/10 transition-colors"
+          >
+            Create Deck From Scratch
+          </button>
+        </div>
+      </div>
+    )}
       
       <main className="max-w-6xl mx-auto px-4 py-8">
         {/* Back button */}

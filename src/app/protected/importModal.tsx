@@ -31,7 +31,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
     try {
       // Fetch shared link data (gives us deck_id and access type)
       const shareData = await fetchSharedLinkData(shareToken, userId);
-      console.log(shareData)
+
       setDeckPreview({
         cards: shareData.card_count,
         accessType: shareData.access_type,

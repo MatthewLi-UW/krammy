@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
     
-    console.log(`Received file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
+    // console.log(`Received file: ${file.name}, type: ${file.type}, size: ${file.size} bytes`);
     
     let text = '';
     
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       });
     }
     
-    console.log(`Extracted ${text.length} characters of text`);
+    // console.log(`Extracted ${text.length} characters of text`);
     return NextResponse.json({ text }, {
       headers: {
         'Content-Type': 'application/json'

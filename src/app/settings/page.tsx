@@ -78,9 +78,9 @@ const fetchPerformanceMetrics = async (userId: string) => {
       
       const avgAccuracy = Math.round(totalAccuracy / validEntries.length);
       
-      console.log("Metrics count:", validEntries.length);
-      console.log("WPM values:", validEntries.map(item => item.wpm));
-      console.log("Accuracy values:", validEntries.map(item => item.accuracy));
+      // console.log("Metrics count:", validEntries.length);
+      // console.log("WPM values:", validEntries.map(item => item.wpm));
+      // console.log("Accuracy values:", validEntries.map(item => item.accuracy));
       
       // Ensure accuracy doesn't exceed 100%
       return { 

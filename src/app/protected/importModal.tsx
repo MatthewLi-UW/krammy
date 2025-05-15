@@ -70,7 +70,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
         .maybeSingle();
       
       if (accessType === 'READ') {
-        console.log(originalDeckId);
+        // console.log(originalDeckId);
         await copyDeck(originalDeckId, originalDeckName);
         // force refresh
         onImportSuccess();
@@ -80,7 +80,7 @@ export default function ImportModal({ userId, onClose, isOpen, onImportSuccess }
       } 
       else {
         // WRITE ACCESS: Only add a link to the original deck, don't create a copy
-        console.log("Adding link to original deck for WRITE access");
+        // console.log("Adding link to original deck for WRITE access");
         
         // Only add the link if it doesn't already exist
         if (!existingAccess) {

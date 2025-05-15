@@ -142,7 +142,7 @@ export default function FlashcardStack({ flashcards = [], deckId = 'default' }: 
         const { avgWpm, avgAccuracy } = calculateStats();
         await sentStats(user.id, avgAccuracy, avgWpm, Number(deckId));
         setStatsSubmitted(true);
-        console.log('Stats submitted successfully');
+        // console.log('Stats submitted successfully');
       }
     };
 

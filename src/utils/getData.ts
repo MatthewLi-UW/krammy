@@ -66,29 +66,29 @@ export const cardsPerDeck = async (deckID: number[]) => {
   const { data: deckCounts, error: deckError } = await supabase
   .rpc('get_deck_counts', { deck_ids: deckID });
     if (deckError) throw deckError;
-    console.log(deckCounts)
+    // console.log(deckCounts)
     return deckCounts;
 }
 
 
 
 export const getStats = async ( user_id: string, deckID: number, dataType: string) => {
-  console.log("getStats")
+  // console.log("getStats")
   if (dataType == "DECK") {
     const { data: deckStats, error: deckError } = await supabase
     .from('DeckMetrics')
     .select().eq('deck_id', deckID).eq('user_id', user_id);
       if (deckError) throw deckError;
-      console.log(deckStats)
+      // console.log(deckStats)
       return deckStats;
   } else if (dataType == "CARD") {
   const { data: deckStats, error: deckError } = await supabase
   .from('DeckMetrics')
   .select().eq('card_id', deckID).eq('user_id', user_id);
     if (deckError) throw deckError;
-    console.log(deckStats)
+    // console.log(deckStats)
     return deckStats;
   } else {
-    console.log("ERROR provide type DECK or CARD")
+    // console.log("ERROR provide type DECK or CARD")
   }
 }

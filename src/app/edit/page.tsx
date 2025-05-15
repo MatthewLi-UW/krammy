@@ -148,7 +148,7 @@ const updateCardOrder = async (activeId: string, overId: string, newOrderedCards
     // Convert deckId to number
     const numericDeckId = parseInt(deckId);
     
-    console.log("Starting batch card position update...");
+    // console.log("Starting batch card position update...");
     
     // Create a stored procedure that handles all position updates in a single database call
     const { error } = await supabase.rpc('update_card_positions', {
@@ -162,7 +162,7 @@ const updateCardOrder = async (activeId: string, overId: string, newOrderedCards
       throw error;
     }
     
-    console.log("Card order updated successfully");
+    // console.log("Card order updated successfully");
     // setToast({message: "Card order updated", type: 'success'});
     
     // Wait a moment before checking to ensure database has time to commit
@@ -183,7 +183,7 @@ const checkCardPositions = async () => {
     .eq('deck_id', parseInt(deckId))
     .order('position');
     
-  console.log("Current card positions:", data);
+  // console.log("Current card positions:", data);
   
   if (error) {
     console.error("Error checking positions:", error);
@@ -454,7 +454,7 @@ const checkCardPositions = async () => {
         nextPosition = highestPosition + 1;
       }
       
-      console.log("Adding new card at position:", nextPosition);
+      // console.log("Adding new card at position:", nextPosition);
       
       // Link to deck with the new position
       const { error: linkError } = await supabase
@@ -495,7 +495,7 @@ const checkCardPositions = async () => {
       // Convert deckId to a number for database operations
       const numericDeckId = parseInt(deckId, 10);
       
-      console.log("Attempting to delete deck ID:", numericDeckId);
+      // console.log("Attempting to delete deck ID:", numericDeckId);
       
       const cardData = await getADeck(numericDeckId);
 
@@ -509,7 +509,7 @@ const checkCardPositions = async () => {
       if (deleteError) {
           console.error('Error deleting cards from deck:', deleteError);
       } else {
-          console.log('Cards removed from deck successfully');
+          // console.log('Cards removed from deck successfully');
       }
 
       const { data: deckData, error: deckError } = await supabase

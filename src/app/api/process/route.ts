@@ -66,7 +66,7 @@ async function callOpenAIWithRetry(content: string, detailLevel: number, maxRetr
         attempt++;
         if (attempt < maxRetries) {
           const delayMs = Math.pow(2, attempt) * 1000; // 2s, 4s, 8s
-          console.log(`Rate limit hit. Retrying in ${delayMs/1000}s...`);
+          // console.log(`Rate limit hit. Retrying in ${delayMs/1000}s...`);
           await new Promise(resolve => setTimeout(resolve, delayMs));
         } else {
           throw new Error('OpenAI rate limit exceeded. Please try again later.');
@@ -98,7 +98,7 @@ export async function POST(req: Request) {
 
     // Limit content length to prevent oversize requests
     const trimmedContent = content.substring(0, Math.min(content.length, 8000));
-    console.log(`Processing content (${trimmedContent.length} chars) with detail level ${detailLevel}...`);
+    // console.log(`Processing content (${trimmedContent.length} chars) with detail level ${detailLevel}...`);
 
     // Send request to OpenAI with retry logic and pass the detailLevel
     const response = await callOpenAIWithRetry(trimmedContent, detailLevel);

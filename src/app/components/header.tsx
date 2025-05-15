@@ -39,7 +39,7 @@ export default function Header({ user }: HeaderProps) {
   };
 
   return (
-    <div className="flex justify-between items-center p-6">
+    <div className="flex justify-between items-center p-6 z-50">
       {/* Logo and brand name */}
       <Link href="/" className="flex items-center gap-3">
         <KrammyLogo width={40} height={40} />
